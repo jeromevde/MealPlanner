@@ -1,0 +1,58 @@
+.meal-plan {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 20px;
+}
+.day {
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+.schedule {
+    margin-bottom: 20px;
+}
+.meals {
+    display: flex;
+    gap: 10px;
+}
+.meal {
+    border: 1px solid #ccc;
+    padding: 10px;
+    transition: background-color 0.3s, color 0.3s;
+    cursor: pointer;
+}
+.meal:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+.popup {
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    height: 50%;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow: auto;
+}
+.popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+}
