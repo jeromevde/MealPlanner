@@ -4,7 +4,7 @@ let nutrients = null;
 let loadingDataPromise = null;
 
 
-async function fetchCSV(url) {
+window.fetchCSV = async function(url) {
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`Could not fetch ${url}, received ${response.status}`);
@@ -42,15 +42,15 @@ async function fetchCSV(url) {
 }
 
 
-async function loadData() {
+window.loadData = async function() {
     if (foods === null || foods_nutrients === null || nutrients === null) {
         if (!loadingDataPromise) {
             loadingDataPromise = (async () => {
                 try {
                     const [f_n, f, n] = await Promise.all([
-                        fetchCSV('https://jeromevde.github.io/jekyll-blog/2024-08-12-meal-plan/FoodData_Central_October_2024/food_nutrient.csv'),
-                        fetchCSV('https://jeromevde.github.io/jekyll-blog/2024-08-12-meal-plan/FoodData_Central_October_2024/food.csv'),
-                        fetchCSV('https://jeromevde.github.io/jekyll-blog/2024-08-12-meal-plan/FoodData_Central_October_2024/nutrient.csv')
+                        fetchCSV('./FoodData_Central_October_2024/food_nutrient.csv'),
+                        fetchCSV('./FoodData_Central_October_2024/food.csv'),
+                        fetchCSV('./FoodData_Central_October_2024/nutrient.csv')
                     ]);
                     foods_nutrients = f_n;
                     foods = f;
@@ -68,14 +68,14 @@ async function loadData() {
 }
 
 
-async function ensureDataLoaded() {
+window.ensureDataLoaded = async function() {
     if (foods === null || foods_nutrients === null || nutrients === null) {
         await loadData();
     }
 }
 
 
-async function getNutrientsForName(foodName) {
+window.getNutrientsForName = async function(foodName) {
     "use strict";
     await ensureDataLoaded();
     const normalizedFoodName = foodName.toLowerCase();
@@ -98,7 +98,7 @@ async function getNutrientsForName(foodName) {
     });
 }
 
-async function findClosestMatches(partialName) {
+window.findClosestMatches = async function(partialName) {
     await ensureDataLoaded();
     const normalizedPartialName = partialName.toLowerCase();
     return foods
