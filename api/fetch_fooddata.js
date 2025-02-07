@@ -1,10 +1,10 @@
-let foods = null;
-let foods_nutrients = null;
-let nutrients = null;
-let loadingDataPromise = null;
+export let foods = null;
+export let foods_nutrients = null;
+export let nutrients = null;
+export let loadingDataPromise = null;
 
 
-window.fetchCSV = async function(url) {
+export async function fetchCSV(url) {
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`Could not fetch ${url}, received ${response.status}`);
@@ -42,7 +42,7 @@ window.fetchCSV = async function(url) {
 }
 
 
-window.loadData = async function() {
+export async function loadData() {
     if (foods === null || foods_nutrients === null || nutrients === null) {
         if (!loadingDataPromise) {
             loadingDataPromise = (async () => {
@@ -68,37 +68,16 @@ window.loadData = async function() {
 }
 
 
-window.ensureDataLoaded = async function() {
+export async function ensureDataLoaded() {
     if (foods === null || foods_nutrients === null || nutrients === null) {
         await loadData();
     }
 }
 
 
-window.getNutrientsForName = async function(foodName) {
-    "use strict";
-    await ensureDataLoaded();
-    const normalizedFoodName = foodName.toLowerCase();
-    const food = foods.find(food => 
-        food.description && food.description.toLowerCase() === normalizedFoodName
-    );
-    if (!food) {
-        return { error: "Food not found" };
-    }
-    const nutrientInfo = foods_nutrients.filter(nutrient => nutrient.fdc_id == food.fdc_id);
-    return nutrientInfo.map(nutrient => {
-        const nutrientDetail = nutrients.find(n => n.id == nutrient.nutrient_id);
-        return {
-            name: nutrientDetail ? nutrientDetail.name : 'Unknown Nutrient',
-            amount: nutrient.amount || 'N/A',
-            unit: nutrientDetail ? nutrientDetail.unit_name : 'Unknown Unit',
-            data_points: nutrient.data_points || 'N/A',
-            min: nutrient.min || 'N/A',
-        };
-    });
-}
 
-window.findClosestMatches = async function(partialName) {
+
+export async function findClosestMatches(partialName) {
     await ensureDataLoaded();
     const normalizedPartialName = partialName.toLowerCase();
     return foods

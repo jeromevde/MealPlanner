@@ -1,6 +1,52 @@
+import { ensureDataLoaded } from "./fetch_fooddata.js";
+import { foods, foods_nutrients, nutrients } from "./fetch_fooddata.js";
+
+export async function parseAndLinkMealContent(content) {
+    const regex = /\[([^;]+);\s*(\d+(?:\.\d+)?);\s*(\w+)\]/g;
+    // match something like [Pears, raw, bartlett; 200; g]
+    let match;
+    let newContent = content;
+    while ((match = regex.exec(content)) !== null) {
+        console.log("eyy")
+        console.log(match)
+        const [, food, quantity, unit] = match;
+        const originalText = match[0];
+        const nutrientData = await getNutrientsForName(food);
+        
+        if (nutrientData) {
+            const nutrientHTML = `<span class="nutrient-link" data-food="${food}">${originalText}</span>`;
+            newContent = newContent.replace(originalText, nutrientHTML);
+        }
+    }
+
+    return newContent;
+}
 
 
-window.getNutrientHtml = async function(ingredientName) {
+export async function getNutrientsForName(foodName) {
+    "use strict";
+    await ensureDataLoaded();
+    const normalizedFoodName = foodName.toLowerCase();
+    const food = foods.find(food => 
+        food.description && food.description.toLowerCase() === normalizedFoodName
+    );
+    if (!food) {
+        return { error: "Food not found" };
+    }
+    const nutrientInfo = foods_nutrients.filter(nutrient => nutrient.fdc_id == food.fdc_id);
+    return nutrientInfo.map(nutrient => {
+        const nutrientDetail = nutrients.find(n => n.id == nutrient.nutrient_id);
+        return {
+            name: nutrientDetail ? nutrientDetail.name : 'Unknown Nutrient',
+            amount: nutrient.amount || 'N/A',
+            unit: nutrientDetail ? nutrientDetail.unit_name : 'Unknown Unit',
+            data_points: nutrient.data_points || 'N/A',
+            min: nutrient.min || 'N/A',
+        };
+    });
+}
+
+export async function getNutrientHtml(ingredientName) {
     const DRV = {
         "Energy": 2000, // kcal
         "Protein": 50, // g
@@ -16,13 +62,13 @@ window.getNutrientHtml = async function(ingredientName) {
         "Vitamin D": 20, // mcg
     };
 
-    const nutrients = await getNutrientsForName(ingredientName);
+const nutrients = await getNutrientsForName(ingredientName);
     if (nutrients.error) {
         alert(nutrients.error);
         return;
     }
 
-    myhtml = `
+    const myhtml = `
         <div class="popup-content">
         <style>
         .nutrient-popup {

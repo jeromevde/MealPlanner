@@ -1,27 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="meal-plan.css">
-    <script src="./fooddata_api.js"></script>
-    <script  src="./nutrient_popup.js"></script>
-    <script src="./mealplan.js" > </script>
-
+    <title>Meal Planner</title>
+    <link rel="stylesheet" type="text/css" href="css/meal-plan.css">
+    <script src="./api/api.js" type="module"></script> 
 </head>
+<body>
+    <div class="meal-plan" id="meal-plan"></div>
+    <div id="overlay" class="overlay"></div>
+    <div id="popup" class="popup">
+        <span id="popup-close" class="popup-close">×</span>
+        <div id="popup-content"></di;v>
+    </div>
+    <div id="nutrient-popup" class="popup">
+        <span id="nutrient-popup-close" class="popup-close">×</span>
+        <div id="nutrient-popup-content"></div>
+    </div>
+</body>
 
-<div class="meal-plan" id="meal-plan"></div>
-<div id="overlay" class="overlay"></div>
-<div id="popup" class="popup">
-    <span id="popup-close" class="popup-close">×</span>
-    <div id="popup-content"></div>
-</div>
-<div id="nutrient-popup" class="popup">
-    <span id="nutrient-popup-close" class="popup-close">×</span>
-    <div id="nutrient-popup-content"></div>
-</div>
-<script>
-    fetchData().then(() => {
-    renderMealPlan().then(() => {
-        console.log(data);
-        console.log("Meal plan rendered successfully.");
+<script type="module">
+
+    import * as api from './api/api.js';
+
+    loadData();
+
+    async function renderMealPlan () {
+        const mealPlanContainer = document.getElementById('meal-plan');
+        const popup = document.getElementById('popup');
+        const popupContent = document.getElementById('popup-content');
+        const popupClose = document.getElementById('popup-close');
+        const overlay = document.getElementById('overlay');
+        const nutrientPopup = document.getElementById('nutrient-popup');
+        const nutrientPopupClose = document.getElementById('nutrient-popup-close');
+
+        const fragment = document.createDocumentFragment();
+
+        for (const day of api.days) {
+            if (api.data[day]) { 
+                const dayDiv = document.createElement('div');
+                dayDiv.classList.add('day');
+                const dayTitle = document.createElement('h2');
+                dayTitle.textContent = day.charAt(0).toUpperCase() + day.slice(1);
+                dayDiv.appendChild(dayTitle);
+
+                for (const meal of api.meals) { 
+                    if (api.data[day][meal]){
+                        const mealDiv = document.createElement('div');
+                        mealDiv.classList.add('schedule');
+                        const mealTitle = document.createElement('h3');
+                        mealTitle.textContent = meal.charAt(0).toUpperCase() + meal.slice(1);
+                        mealDiv.appendChild(mealTitle);
+
+                        const mealsDiv = document.createElement('div');
+                        mealsDiv.classList.add('meals');
+
+                        for (const version of Object.keys(api.data[day][meal])) {
+                            const versionDiv = document.createElement('div');
+                            versionDiv.classList.add('meal');
+
+                            const mealData = api.data[day][meal][version];
+                            versionDiv.textContent = mealData.title;
+                            versionDiv.addEventListener('click', async () => {
+                                let parsedContent = await api.parseAndLinkMealContent(mealData.content);
+                                popupContent.innerHTML = `<h2>${mealData.title}</h2><p>${parsedContent}</p>`;
+                                popup.style.display = 'block';
+                                overlay.style.display = 'block';
+                            });
+                            mealsDiv.appendChild(versionDiv);
+                        }
+
+                        mealDiv.appendChild(mealsDiv);
+                        dayDiv.appendChild(mealDiv);
+                    }
+                }
+                fragment.appendChild(dayDiv);
+            }
+        }
+
+        mealPlanContainer.appendChild(fragment);
+
+        popupClose.addEventListener('click', () => {
+            popup.style.display = 'none';
+            overlay.style.display = 'none';
+        });
+
+        overlay.addEventListener('click', () => {
+            popup.style.display = 'none';
+            overlay.style.display = 'none';
+            nutrientPopup.style.display = 'none';
+        });
+
+        nutrientPopupClose.addEventListener('click', () => {
+            nutrientPopup.style.display = 'none';
+            overlay.style.display = 'none';
+        });
+    }
+
+
+    document.addEventListener('click', async function(event) {
+        if (event.target.classList.contains('nutrient-link')) {
+            const food = event.target.getAttribute('data-food');
+            const nutrientPopup = document.getElementById('nutrient-popup');
+            const nutrientPopupContent = document.getElementById('nutrient-popup-content');
+            
+            const nutrientHtml = await api.getNutrientHtml(food);
+            nutrientPopupContent.innerHTML = nutrientHtml;
+            nutrientPopup.style.display = 'block';
+            overlay.style.display = 'block';
+        }
     });
-});
+
+
+    api.fetchData().then(() => {
+        console.log("fetchData resolved");
+        renderMealPlan().then(() => {
+            console.log(api.data);
+            console.log("Meal plan rendered successfully.");
+        }).catch(error => {
+            console.error("Error rendering meal plan:", error);
+        });
+    }).catch(error => {
+        console.error("Error fetching data:", error);
+    });
+
 </script>
+</html>
