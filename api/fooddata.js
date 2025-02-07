@@ -75,8 +75,6 @@ export async function ensureDataLoaded() {
 }
 
 
-
-
 export async function findClosestMatches(partialName) {
     await ensureDataLoaded();
     const normalizedPartialName = partialName.toLowerCase();

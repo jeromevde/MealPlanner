@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meal Planner</title>
-    <link rel="stylesheet" type="text/css" href="css/meal-plan.css">
+    <link rel="stylesheet" type="text/css" href="index.css">
     <script src="./api/api.js" type="module"></script> 
 </head>
 <body>
@@ -24,7 +24,7 @@
 
     import * as api from './api/api.js';
 
-    loadData();
+    //api.loadData();
 
     async function renderMealPlan () {
         const mealPlanContainer = document.getElementById('meal-plan');
@@ -99,18 +99,6 @@
     }
 
 
-    document.addEventListener('click', async function(event) {
-        if (event.target.classList.contains('nutrient-link')) {
-            const food = event.target.getAttribute('data-food');
-            const nutrientPopup = document.getElementById('nutrient-popup');
-            const nutrientPopupContent = document.getElementById('nutrient-popup-content');
-            
-            const nutrientHtml = await api.getNutrientHtml(food);
-            nutrientPopupContent.innerHTML = nutrientHtml;
-            nutrientPopup.style.display = 'block';
-            overlay.style.display = 'block';
-        }
-    });
 
 
     api.fetchData().then(() => {
