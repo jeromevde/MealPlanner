@@ -1,17 +1,25 @@
+export * from './constant.js';
+export * from './fooddata.js';
+export * from './meals.js';
+export * from './nutrients.js';
+
+
 const modules = [
     './constant.js',
-    './fetch_meals.js',
-    './fetch_fooddata.js',
-    './extract_nutrients.js'
+    './meals.js',
+    './fooddata.js',
+    './nutrients.js'
   ];
-  
-  // Function to attach all exports to window
+
+
+  // DEBUG PURPOSES ONLY
   async function attachToWindow() {
     for (const modulePath of modules) {
       const module = await import(modulePath);
   
       // Attach each export to window
       Object.keys(module).forEach(exportName => {
+        console.log(exportName)
         window[exportName] = module[exportName];
       });
     }
