@@ -18,6 +18,7 @@ http-server
 
 
 TODO
+- txt -> readme for recipes with layout parsing
 - better nutrients popup layout
 - improve nutirients popup by updating nutrient data with DRV and category
 - only keep foundation foods in dataset
