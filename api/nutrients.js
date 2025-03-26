@@ -1,5 +1,5 @@
-import { ensureDataLoaded } from "./fooddata.js";
-import { foods, foods_nutrients, nutrients } from "./fooddata.js";
+import * as foodapi from 'api.js';
+
 
 export async function parseAndLinkMealContent(content) {
     // match something like [Pears, raw, bartlett; 200; g]
@@ -38,17 +38,17 @@ document.addEventListener('click', async function(event) {
 
 export async function getNutrientsForName(foodName) {
     "use strict";
-    await ensureDataLoaded();
+    await foodapi.ensureDataLoaded();
     const normalizedFoodName = foodName.toLowerCase();
-    const food = foods.find(food => 
+    const food = foodapi.foods.find(food => 
         food.description && food.description.toLowerCase() === normalizedFoodName
     );
     if (!food) {
         return { error: "Food not found" };
     }
-    const nutrientInfo = foods_nutrients.filter(nutrient => nutrient.fdc_id == food.fdc_id);
+    const nutrientInfo = foodapi.foods_nutrients.filter(nutrient => nutrient.fdc_id == food.fdc_id);
     return nutrientInfo.map(nutrient => {
-        const nutrientDetail = nutrients.find(n => n.id == nutrient.nutrient_id);
+        const nutrientDetail = foodapi.nutrients.find(n => n.id == nutrient.nutrient_id);
         return {
             name: nutrientDetail ? nutrientDetail.name : 'Unknown Nutrient',
             amount: nutrient.amount || 'N/A',

@@ -1,11 +1,11 @@
-import { days, meals, versions, data } from './constant.js';
+import * as foodapi from 'api.js';
 
 export async function fetchData() {
     const fetchPromises = [];
 
-    for (const day of days) {
-        for (const meal of meals) {
-            for (const version of versions) {
+    for (const day of foodapi.days) {
+        for (const meal of foodapi.meals) {
+            for (const version of foodapi.versions) {
                 const filePath = `meals/${day}_${meal}_${version}.txt`;
                 fetchPromises.push(fetch(filePath).then(async (response) => {
                     if (response.ok) {
@@ -14,9 +14,9 @@ export async function fetchData() {
                         const title = lines[0];
                         const expandedContent = lines.slice(1).join('\n');
 
-                        if (!data[day]) data[day] = {};
-                        if (!data[day][meal]) data[day][meal] = {};
-                        data[day][meal][version] = { title, content: expandedContent };
+                        if (!foodapi.data[day]) foodapi.data[day] = {};
+                        if (!foodapi.data[day][meal]) foodapi.data[day][meal] = {};
+                        foodapi.data[day][meal][version] = { title, content: expandedContent };
                     }
                 }).catch(error => {
                     console.error(`Error fetching ${filePath}:`, error.message);

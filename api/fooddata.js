@@ -3,6 +3,8 @@ export let foods_nutrients = null;
 export let nutrients = null;
 export let loadingDataPromise = null;
 
+import * as foodapi from 'api.js';
+
 
 export async function fetchCSV(url) {
     const response = await fetch(url);
@@ -48,9 +50,9 @@ export async function loadData() {
             loadingDataPromise = (async () => {
                 try {
                     const [f_n, f, n] = await Promise.all([
-                        fetchCSV('./FoodData_Central_October_2024/food_nutrient.csv'),
-                        fetchCSV('./FoodData_Central_October_2024/food.csv'),
-                        fetchCSV('./FoodData_Central_October_2024/nutrient.csv')
+                        fetchCSV(foodapi.food_nutrient_csv),
+                        fetchCSV(foodapi.food_csv),
+                        fetchCSV(foodapi.nutrient_csv)
                     ]);
                     foods_nutrients = f_n;
                     foods = f;
