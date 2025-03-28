@@ -1,4 +1,4 @@
-import * as foodapi from 'api.js';
+import * as foodapi from './api.js';
 
 export async function fetchData() {
     const fetchPromises = [];

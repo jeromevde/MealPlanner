@@ -1,67 +1,23 @@
-export let foods = null;
-export let foods_nutrients = null;
-export let nutrients = null;
+// Variables to store the JSON data and loading promise
+export let foodData = null;
 export let loadingDataPromise = null;
 
-import * as foodapi from 'api.js';
-
-
-export async function fetchCSV(url) {
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`Could not fetch ${url}, received ${response.status}`);
-    }
-    const text = await response.text();
-    const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-    const parseCSVLine = (line) => {
-        let result = [];
-        let currentField = '';
-        let inQuotes = false;
-        for (let i = 0; i < line.length; i++) {
-            let c = line[i];
-            if (c === '"' && line[i - 1] !== '\\') {
-                inQuotes = !inQuotes;
-            } else if (c === ',' && !inQuotes) {
-                result.push(currentField);
-                currentField = '';
-            } else {
-                currentField += c;
-            }
-        }
-        result.push(currentField);
-        return result.map(field => 
-            field.replace(/^"|"$/g, '').replace(/\\"/g, '"').trim()
-        );
-    };
-    const headers = parseCSVLine(lines[0]);
-    return lines.slice(1).map(line => {
-        const columns = parseCSVLine(line);
-        return headers.reduce((obj, header, index) => {
-            obj[header] = columns[index] || undefined;
-            return obj;
-        }, {});
-    });
-}
-
-
+// Load the preprocessed JSON data
 export async function loadData() {
-    if (foods === null || foods_nutrients === null || nutrients === null) {
+    if (foodData === null) {
         if (!loadingDataPromise) {
             loadingDataPromise = (async () => {
                 try {
-                    const [f_n, f, n] = await Promise.all([
-                        fetchCSV(foodapi.food_nutrient_csv),
-                        fetchCSV(foodapi.food_csv),
-                        fetchCSV(foodapi.nutrient_csv)
-                    ]);
-                    foods_nutrients = f_n;
-                    foods = f;
-                    nutrients = n;
+                    const response = await fetch('../fooddata/fooddata.json');
+                    if (!response.ok) {
+                        throw new Error(`Could not fetch fooddata.json, received ${response.status}`);
+                    }
+                    foodData = await response.json();
                 } catch (error) {
                     console.error("Error loading data:", error);
-                    throw error; // re-throw to handle in caller functions
+                    throw error; // Re-throw to allow caller handling
                 } finally {
-                    loadingDataPromise = null; // Reset promise so new load can be attempted if needed
+                    loadingDataPromise = null; // Reset promise for potential reloads
                 }
             })();
         }
@@ -69,23 +25,18 @@ export async function loadData() {
     }
 }
 
-
+// Ensure data is loaded before proceeding
 export async function ensureDataLoaded() {
-    if (foods === null || foods_nutrients === null || nutrients === null) {
+    if (foodData === null) {
         await loadData();
     }
 }
 
-
+// Find up to 10 food descriptions matching the partial name
 export async function findClosestMatches(partialName) {
     await ensureDataLoaded();
     const normalizedPartialName = partialName.toLowerCase();
-    return foods
-        .filter(food => 
-            food.description && 
-            food.description.toLowerCase().includes(normalizedPartialName) && 
-            food.data_type === "foundation_food"
-        )
-        .slice(0, 10)
-        .map(food => food.description);
+    return Object.keys(foodData)
+        .filter(description => description.toLowerCase().includes(normalizedPartialName))
+        .slice(0, 10);
 }

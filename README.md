@@ -4,26 +4,21 @@
 
 
 
-## install
+## install local dev server
 
 ```
-npm install http-server -g
+npm install -g live-server
 ```
 
-## Run
+## Run local dev server (automatic rebuild when files change)
 
 ```
-http-server
+live-server
 ```
 
 
 TODO
 - txt -> readme for recipes with layout parsing
-- better nutrients popup layout
-- improve nutirients popup by updating nutrient data with DRV and category
-- only keep foundation foods in dataset
-- replace readme by datasets used and what they do (will also add food_category for "list de course")
-- cleanup data by remove duplicates and only keeping necessary stuff
 - handle quantities in nutrient popup -> multiplication factor
 - aggregate nutrients given a list of foods -> reduce operation
 - Allow for selection of meals which does call nutrients popup with concatenation 

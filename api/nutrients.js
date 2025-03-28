@@ -1,109 +1,108 @@
-import * as foodapi from 'api.js';
+import * as foodapi from './api.js';
 
+// Get nutrients for a specific food name using foodData from JSON
+export async function getNutrientsForName(foodName) {
+    await foodapi.ensureDataLoaded();
+    const normalizedFoodName = foodName.toLowerCase();
+    const foodKey = Object.keys(foodapi.foodData).find(key => key.toLowerCase() === normalizedFoodName);
+    if (!foodKey) {
+        return { error: "Food not found" };
+    }
+    const nutrients = foodapi.foodData[foodKey].nutrients;
+    return Object.entries(nutrients).map(([name, details]) => ({
+        name,
+        amount: details.amount,
+        unit: details.unit,
+        category: details.category,
+        drv: details.drv
+    }));
+}
 
+// Parse meal content and create clickable nutrient links
 export async function parseAndLinkMealContent(content) {
-    // match something like [Pears, raw, bartlett; 200; g]
     const regex = /\[([^;]+);\s*(\d+(?:\.\d+)?);\s*(\w+)\]/g;
     let match;
     let newContent = content;
     while ((match = regex.exec(content)) !== null) {
-        console.log(match)
         const [, food, quantity, unit] = match;
         const originalText = match[0];
         const nutrientData = await getNutrientsForName(food);
-        
-        if (nutrientData) {
+        if (Array.isArray(nutrientData)) {
             const nutrientHTML = `<span class="nutrient-link" data-food="${food}">${originalText}</span>`;
             newContent = newContent.replace(originalText, nutrientHTML);
         }
     }
-
     return newContent;
 }
 
-
-document.addEventListener('click', async function(event) {
-    if (event.target.classList.contains('nutrient-link')) {
-        const food = event.target.getAttribute('data-food');
-        const nutrientPopup = document.getElementById('nutrient-popup');
-        const nutrientPopupContent = document.getElementById('nutrient-popup-content');
-        
-        const nutrientHtml = await getNutrientHtml(food);
-        nutrientPopupContent.innerHTML = nutrientHtml;
-        nutrientPopup.style.display = 'block';
-        overlay.style.display = 'block';
-    }
-});
-
-
-export async function getNutrientsForName(foodName) {
-    "use strict";
-    await foodapi.ensureDataLoaded();
-    const normalizedFoodName = foodName.toLowerCase();
-    const food = foodapi.foods.find(food => 
-        food.description && food.description.toLowerCase() === normalizedFoodName
-    );
-    if (!food) {
-        return { error: "Food not found" };
-    }
-    const nutrientInfo = foodapi.foods_nutrients.filter(nutrient => nutrient.fdc_id == food.fdc_id);
-    return nutrientInfo.map(nutrient => {
-        const nutrientDetail = foodapi.nutrients.find(n => n.id == nutrient.nutrient_id);
-        return {
-            name: nutrientDetail ? nutrientDetail.name : 'Unknown Nutrient',
-            amount: nutrient.amount || 'N/A',
-            unit: nutrientDetail ? nutrientDetail.unit_name : 'Unknown Unit',
-            data_points: nutrient.data_points || 'N/A',
-            min: nutrient.min || 'N/A',
-        };
-    });
-}
-
+// Generate HTML for the nutrient popup
 export async function getNutrientHtml(ingredientName) {
-    const DRV = {
-        "Energy": 2000, // kcal
-        "Protein": 50, // g
-        "Total lipid (fat)": 70, // g
-        "Carbohydrate": 275, // g
-        "Fiber": 28, // g
-        "Sugars": 50, // g
-        "Calcium": 1300, // mg
-        "Iron": 18, // mg
-        "Sodium": 2300, // mg
-        "Potassium": 4700, // mg
-        "Vitamin C": 90, // mg
-        "Vitamin D": 20, // mcg
-    };
-
+    const normalizedFoodName = ingredientName.toLowerCase();
+    const foodKey = Object.keys(foodapi.foodData).find(key => key.toLowerCase() === normalizedFoodName);
+    if (!foodKey) {
+        alert("Food not found");
+        return null;
+    }
+    const foodCategory = foodapi.foodData[foodKey].category;
     const nutrients = await getNutrientsForName(ingredientName);
     if (nutrients.error) {
         alert(nutrients.error);
-        return;
+        return null;
     }
+
+    // Group nutrients by their category
+    const nutrientsByCategory = {};
+    nutrients.forEach(n => {
+        const cat = n.category || 'Other';
+        if (!nutrientsByCategory[cat]) {
+            nutrientsByCategory[cat] = [];
+        }
+        nutrientsByCategory[cat].push(n);
+    });
 
     const myhtml = `
         <div class="popup-content">
         <style>
             .nutrient-popup {
                 position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
+                top: 100%;
+                left: 100%;
+                transform: translate(-50%, -50%) scale(0.9);
                 background: white;
-                padding: 20px;
-                box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-                border-radius: 10px;
+                padding: 30px;
+                box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
                 z-index: 1000;
-                min-width: 300px;
+                min-width: 50000px; /* Larger width */
+                max-width: 70000px;
+                opacity: 0;
+                transition: transform 0.3s ease, opacity 0.3s ease;
+            }
+            .nutrient-popup.show {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
             }
             .popup-content {
                 text-align: center;
             }
             .nutrient-list {
-                max-height: 300px;
+                max-height: 400px; /* Larger height */
                 overflow-y: auto;
                 text-align: left;
-                margin-top: 10px;
+                margin-top: 15px;
+            }
+            .category-section {
+                margin-bottom: 20px;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                background: #f9f9f9;
+            }
+            .category-title {
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #333;
             }
             .nutrient-item {
                 display: flex;
@@ -113,47 +112,93 @@ export async function getNutrientHtml(ingredientName) {
                 font-size: 14px;
             }
             .nutrient-name {
-                width: 150px; /* Fixed width for alignment */
+                width: 180px; /* Wider for spacing */
                 font-weight: bold;
             }
             .progress-bar-container {
-                width: 150px; /* Fixed width for uniform bars */
+                width: 200px; /* Larger progress bar */
                 background: #eee;
                 border-radius: 5px;
-                height: 12px;
+                height: 14px;
                 overflow: hidden;
-                position: relative;
             }
             .progress-bar {
                 height: 100%;
-                background: lightgreen;
-                transition: width 0.3s ease-in-out;
+                background: linear-gradient(to right, lightgreen, green);
+                transition: width 0.5s ease-in-out;
             }
             .nutrient-value {
-                width: 50px; /* Space for amount */
+                width: 150px;
                 text-align: right;
                 font-size: 12px;
+                color: #555;
+            }
+            .close-button {
+                margin-top: 20px;
+                padding: 8px 16px;
+                background: #007bff;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+            .close-button:hover {
+                background: #0056b3;
             }
         </style>
         
-        <h2>Nutrients in ${ingredientName}</h2>
+        <h2>${ingredientName} (${foodCategory})</h2>
         <div class="nutrient-list">
-            ${nutrients.map(n => {
-                let percentage = DRV[n.name] ? (parseFloat(n.amount) / DRV[n.name]) * 100 : 0;
-                percentage = Math.min(percentage, 100); // Cap at 100%
-                return `
-                    <div class="nutrient-item">
-                        <span class="nutrient-name">${n.name}</span>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" style="width: ${percentage}%;"></div>
-                        </div>
-                        <span class="nutrient-value">${n.amount} ${n.unit}</span>
-                    </div>
-                `;
-            }).join('')}
+            ${Object.entries(nutrientsByCategory).map(([category, catNutrients]) => `
+                <div class="category-section">
+                    <div class="category-title">${category}</div>
+                    ${catNutrients.map(n => {
+                        const drvValue = parseFloat(n.drv);
+                        const percentage = !isNaN(drvValue) && drvValue > 0 ? 
+                            Math.min((parseFloat(n.amount) / drvValue) * 100, 100) : 0;
+                        return `
+                            <div class="nutrient-item">
+                                <span class="nutrient-name">${n.name}</span>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: ${percentage}%;"></div>
+                                </div>
+                                <span class="nutrient-value">${n.amount} ${n.unit} / ${n.drv || 'N/A'} ${n.unit}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `).join('')}
         </div>
-        <button onclick="this.parentElement.parentElement.remove()">Close</button>
+        <button class="close-button" onclick="this.parentElement.parentElement.remove()">Close</button>
         </div>
     `;
+
+    // Trigger animation
+    setTimeout(() => {
+        const popup = document.querySelector('.nutrient-popup');
+        if (popup) {
+            popup.classList.add('show');
+        }
+    }, 10);
+
     return myhtml;
 }
+
+const overlay = document.getElementById('overlay');
+
+document.addEventListener('click', async function(event) {
+    if (event.target.classList.contains('nutrient-link')) {
+        const food = event.target.getAttribute('data-food');
+        const nutrientPopup = document.getElementById('nutrient-popup');
+        const nutrientPopupContent = document.getElementById('nutrient-popup-content');
+        
+        const nutrientHtml = await getNutrientHtml(food);
+        if (nutrientHtml) {
+            nutrientPopupContent.innerHTML = nutrientHtml;
+            nutrientPopup.style.display = 'block';
+            if (overlay) {
+                overlay.style.display = 'block';
+            }
+        }
+    }
+});
