@@ -18,8 +18,11 @@ live-server
 
 
 TODO
-- txt -> readme for recipes with layout parsing
+- txt -> readme 
+- generate images with ai and add to readme's
+
 - handle quantities in nutrient popup -> multiplication factor
-- aggregate nutrients given a list of foods -> reduce operation
-- Allow for selection of meals which does call nutrients popup with concatenation 
-- Allow for selection of meals which calls reduce of ingredients with quantities
+
+- aggregate nutrients/foods given a list of meals -> reduce operation
+- Allow for selection of meals which does call nutrients popup with aggregation 
+- Allow for selection of meals which calls aggregation of foods with quantities & displays it
