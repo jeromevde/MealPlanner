@@ -6,7 +6,7 @@ export async function fetchData() {
     for (const day of foodapi.days) {
         for (const meal of foodapi.meals) {
             for (const version of foodapi.versions) {
-                const filePath = `meals/${day}_${meal}_${version}.txt`;
+                const filePath = `meals/${day}_${meal}_${version}.md`;
                 fetchPromises.push(fetch(filePath).then(async (response) => {
                     if (response.ok) {
                         const fileContent = await response.text();

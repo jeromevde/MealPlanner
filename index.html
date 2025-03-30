@@ -63,8 +63,9 @@
                             const mealData = api.data[day][meal][version];
                             versionDiv.textContent = mealData.title;
                             versionDiv.addEventListener('click', async () => {
-                                let parsedContent = await api.parseAndLinkMealContent(mealData.content);
-                                popupContent.innerHTML = `<h2>${mealData.title}</h2><p>${parsedContent}</p>`;
+                                let htmlContent = api.parseMarkdown(mealData.content);
+                                let linkedContent = await api.parseAndLinkMealContent(htmlContent); 
+                                popupContent.innerHTML = `<h2>${mealData.title}</h2><p>${linkedContent}</p>`;
                                 popup.style.display = 'block';
                                 overlay.style.display = 'block';
                             });

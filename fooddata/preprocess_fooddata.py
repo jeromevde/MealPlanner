@@ -43,7 +43,10 @@ for description, group in nutrient_data.groupby('description'):
  }
 
 import json
-
 with open('fooddata.json', 'w') as fp:
  json.dump(final_dict, fp)
+
 #%%
+list(final_dict.keys())
+
+# %%

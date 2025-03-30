@@ -4,8 +4,8 @@ const inlinePatterns = [
     { regex: /__(.+?)__/g, replacement: '<strong>$1</strong>' },     // __bold__
     { regex: /\*(.+?)\*/g, replacement: '<em>$1</em>' },            // *italic*
     { regex: /_(.+?)_/g, replacement: '<em>$1</em>' },              // _italic_
-    { regex: /\[(.+?)\]\((.+?)\)/g, replacement: '<a href="$2">$1</a>' }, // [text](URL)
     { regex: /!\[(.+?)\]\((.+?)\)/g, replacement: '<img src="$2" alt="$1">' }, // ![alt](URL)
+    { regex: /\[(.+?)\]\((.+?)\)/g, replacement: '<a href="$2">$1</a>' }, // [text](URL)
     { regex: /`(.+?)`/g, replacement: '<code>$1</code>' }          // `code`
 ];
 
@@ -85,7 +85,7 @@ function parseBlock(block) {
 }
 
 // Main function to parse Markdown text into HTML
-function parseMarkdown(markdown) {
+export function parseMarkdown(markdown) {
     const blocks = splitIntoBlocks(markdown);
     let html = '';
     blocks.forEach(block => {
@@ -93,28 +93,3 @@ function parseMarkdown(markdown) {
     });
     return html;
 }
-
-// Function to load and render the Markdown file
-function loadAndRenderMarkdown(filePath, outputElementId) {
-    fetch(filePath)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Failed to load ${filePath}: ${response.statusText}`);
-            }
-            return response.text();
-        })
-        .then(text => {
-            const html = parseMarkdown(text);
-            const outputElement = document.getElementById(outputElementId);
-            if (outputElement) {
-                outputElement.innerHTML = html;
-            } else {
-                console.error(`Element with ID '${outputElementId}' not found.`);
-            }
-        })
-        .catch(error => console.error('Error loading README:', error));
-}
-
-// Example usage
-// Assuming there's an element with id="output" in your HTML
-loadAndRenderMarkdown('http://127.0.0.1:8080/api/test.md', 'output');
