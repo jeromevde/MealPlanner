@@ -18,7 +18,6 @@ live-server --mount=/MealPlanner:.
 
 
 TODO
-- txt -> readme 
 - generate images with ai and add to readme's
 
 - handle quantities in nutrient popup -> multiplication factor
