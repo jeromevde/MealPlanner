@@ -11,9 +11,9 @@ npm install -g live-server
 ```
 
 ## Run local dev server (automatic rebuild when files change)
-
+### Mount it at the same path as your github pages setup
 ```
-live-server
+live-server --mount=/MealPlanner:.
 ```
 
 

@@ -1,10 +1,5 @@
 # Salmon & Cod with Potatoes and Tomatoes
 
-- **Preheat Oven**: 200°C
-- **Assemble Dish**: In a baking dish, add [Potatoes, russet, without skin, raw; 300; G] (diced), [Fish, salmon, Atlantic, farm raised, raw; 150; G] (fillet), [Fish, cod, Atlantic, wild caught, raw; 150; G] (fillet), [Tomatoes, grape, raw; 100; G], [Onions, red, raw; 50; G] (sliced), [Garlic, raw; 5; G] (minced), and optional [Squash, summer, green, zucchini, includes skin, raw; 100; G].
-- **Season**: Drizzle with [Oil, olive, extra virgin; 15; G] (commonly measured in tablespoons, ~1 tbsp), squeeze lemon juice, sprinkle lemon zest, oregano, smoked paprika, [Salt, table, iodized; 2; G], and pepper. Toss gently.
-- **Bake**: Cover with foil, bake 25–30 min until fish flakes and potatoes are soft.
-- **Mash Potatoes**: Remove fish and veggies, mash potatoes in dish with [Butter, stick, unsalted; 20; G], [Milk, whole, 3.25% milkfat, with added vitamin D; 50; G], salt, and pepper. Serve together.
-- **Enjoy**: Pair with [Pears, raw, bartlett; 200; G].
+Preheat your oven to 200°C. In a baking dish, combine diced [Potatoes, russet, without skin, raw; 300; G], a fillet of [Fish, salmon, Atlantic, farm raised, raw; 150; G], a fillet of [Fish, cod, Atlantic, wild caught, raw; 150; G], [Tomatoes, grape, raw; 100; G], sliced [Onions, red, raw; 50; G], minced [Garlic, raw; 5; G], and optionally [Squash, summer, green, zucchini, includes skin, raw; 100; G]. Drizzle with a tablespoon of [Oil, olive, extra virgin; 15; G], squeeze some lemon juice, and sprinkle with lemon zest, oregano, smoked paprika, [Salt, table, iodized; 2; G], and pepper, then toss gently. Cover with foil and bake for 25–30 minutes until the fish flakes and potatoes soften. Remove the fish and veggies, then mash the potatoes in the dish with [Butter, stick, unsalted; 20; G], [Milk, whole, 3.25% milkfat, with added vitamin D; 50; G], and a pinch of salt and pepper.
 
-![Salmon & Cod](/images/Salmon&Cod.jpg)
+![Salmon & Cod](../../MealPlanner/meals/images/Salmon&Cod.jpg)

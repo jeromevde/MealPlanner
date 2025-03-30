@@ -28,7 +28,7 @@ export async function parseAndLinkMealContent(content) {
         const originalText = match[0];
         const nutrientData = await getNutrientsForName(food);
         if (Array.isArray(nutrientData)) {
-            const nutrientHTML = `<span class="nutrient-link" data-food="${food}">${originalText}</span>`;
+            const nutrientHTML = `<span class="nutrient-link" data-food="${food}"> <span style="color: grey; font-weight: bold;">${quantity} ${unit} of ${food}</span> </span>`;
             newContent = newContent.replace(originalText, nutrientHTML);
         }
     }
@@ -187,8 +187,9 @@ export async function getNutrientHtml(ingredientName) {
 const overlay = document.getElementById('overlay');
 
 document.addEventListener('click', async function(event) {
-    if (event.target.classList.contains('nutrient-link')) {
-        const food = event.target.getAttribute('data-food');
+    const nutrientLink = event.target.closest('.nutrient-link');
+    if (nutrientLink) {
+        const food = nutrientLink.getAttribute('data-food');
         const nutrientPopup = document.getElementById('nutrient-popup');
         const nutrientPopupContent = document.getElementById('nutrient-popup-content');
         
@@ -196,7 +197,7 @@ document.addEventListener('click', async function(event) {
         if (nutrientHtml) {
             nutrientPopupContent.innerHTML = nutrientHtml;
             nutrientPopup.style.display = 'block';
-            if (overlay) {
+            if (overlay) { // Assuming overlay is defined elsewhere
                 overlay.style.display = 'block';
             }
         }

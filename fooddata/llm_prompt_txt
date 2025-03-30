@@ -4,9 +4,14 @@ This text file contains the instructions on how to rewrite the recipe that the u
 - use celcius 
 - use european units
 - make it short 
-- keep the images if there are some !
-- replace the first encounter of an ingredient with [ingredient_name; quantity; unit] where unit should always be G for grams. If it is common to use another unit than grams for that ingredient, please mention it around in the text, such as "A table spoon of [sugar; 10; G]
-where the list of possible ingredients is:
+- make it a paragraph, no bullet points
+- keep the images if there are some ! so keep the ![](image path)
+- make it a markdown, with a title as # Title for the first line
+- put it into a code environment so i can copy paste
+- replace the first encounter of an ingredient with [ingredient_name; quantity; unit] where unit should always be G for grams. If it is common to use another unit than grams for that ingredient, please mention it in front of the ingredient. For example "A table spoon of [sugar; 10; G]", do not make it into  [sugar; 10; G] (a tablespoon). I want the special unit in front to make it sound more natural.
+The list of possible ingredients is:
+- For example  a fillet of [salmon, Atlantic, farm raised, raw; 150; G] or diced [Potatoes, russet, without skin, raw; ;300; G] or sliced onions and not onions sliced. Always the adjective before the word !!
+- The list of possible ingredients is:
 ['Almond butter, creamy',
  'Almond milk, unsweetened, plain, refrigerated',
  'Almond milk, unsweetened, plain, shelf stable',
