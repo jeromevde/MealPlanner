@@ -19,16 +19,26 @@ export async function getNutrientsForName(foodName) {
 }
 
 // Parse meal content and create clickable nutrient links
+// Parse meal content and create clickable nutrient links
 export async function parseAndLinkMealContent(content) {
-    const regex = /\[([^;]+);\s*(\d+(?:\.\d+)?);\s*(\w+)\]/g;
+    const regex = /\{(\d+(?:\.\d+)?)g\s*of\s*[^\{]*?\{([^}]+)\}\}/g;
     let match;
     let newContent = content;
+
     while ((match = regex.exec(content)) !== null) {
-        const [, food, quantity, unit] = match;
+        const [, amount, foodName] = match;
         const originalText = match[0];
-        const nutrientData = await getNutrientsForName(food);
+        const nutrientData = await getNutrientsForName(foodName);
         if (Array.isArray(nutrientData)) {
-            const nutrientHTML = `<span class="nutrient-link" data-food="${food}"> <span style="color: grey; font-weight: bold;">${quantity} ${unit} of ${food}</span> </span>`;
+            // Truncate and flip the food name for display
+            const parts = foodName.split(',').map(part => part.trim());
+            let displayName = foodName; // Default to original if less than 2 parts
+            if (parts.length >= 2) {
+                const truncated = parts.slice(0, 2);
+                const flipped = [truncated[1], truncated[0]].join(' ').toLowerCase();
+                displayName = flipped;
+            }
+            const nutrientHTML = `<span class="nutrient-link" data-food="${foodName}"> <span style="color: black; font-weight: bold;">${amount}g of ${displayName}</span> </span>`;
             newContent = newContent.replace(originalText, nutrientHTML);
         }
     }

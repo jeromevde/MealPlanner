@@ -12,107 +12,135 @@
     <div id="overlay" class="overlay"></div>
     <div id="popup" class="popup">
         <span id="popup-close" class="popup-close">×</span>
-        <div id="popup-content"></di;v>
+        <div id="popup-content"></div>
     </div>
     <div id="nutrient-popup" class="popup">
         <span id="nutrient-popup-close" class="popup-close">×</span>
         <div id="nutrient-popup-content"></div>
     </div>
-</body>
 
-<script type="module">
+    <script type="module">
+        import * as api from './api/api.js';
 
-    import * as api from './api/api.js';
+        async function renderMealPlan() {
+            const mealPlanContainer = document.getElementById('meal-plan');
+            const popup = document.getElementById('popup');
+            const popupContent = document.getElementById('popup-content');
+            const popupClose = document.getElementById('popup-close');
+            const overlay = document.getElementById('overlay');
+            const nutrientPopup = document.getElementById('nutrient-popup');
+            const nutrientPopupClose = document.getElementById('nutrient-popup-close');
 
-    //api.loadData();
+            const fragment = document.createDocumentFragment();
 
-    async function renderMealPlan () {
-        const mealPlanContainer = document.getElementById('meal-plan');
-        const popup = document.getElementById('popup');
-        const popupContent = document.getElementById('popup-content');
-        const popupClose = document.getElementById('popup-close');
-        const overlay = document.getElementById('overlay');
-        const nutrientPopup = document.getElementById('nutrient-popup');
-        const nutrientPopupClose = document.getElementById('nutrient-popup-close');
+            for (const day of api.days) {
+                if (api.data[day]) { 
+                    const dayDiv = document.createElement('div');
+                    dayDiv.classList.add('day');
+                    const dayTitle = document.createElement('h2');
+                    dayTitle.textContent = day.charAt(0).toUpperCase() + day.slice(1);
+                    dayDiv.appendChild(dayTitle);
 
-        const fragment = document.createDocumentFragment();
+                    for (const meal of api.meals) { 
+                        if (api.data[day][meal]) {
+                            const mealDiv = document.createElement('div');
+                            mealDiv.classList.add('schedule');
+                            const mealTitle = document.createElement('h3');
+                            mealTitle.textContent = meal.charAt(0).toUpperCase() + meal.slice(1);
+                            mealDiv.appendChild(mealTitle);
 
-        for (const day of api.days) {
-            if (api.data[day]) { 
-                const dayDiv = document.createElement('div');
-                dayDiv.classList.add('day');
-                const dayTitle = document.createElement('h2');
-                dayTitle.textContent = day.charAt(0).toUpperCase() + day.slice(1);
-                dayDiv.appendChild(dayTitle);
+                            const mealsDiv = document.createElement('div');
+                            mealsDiv.classList.add('meals');
 
-                for (const meal of api.meals) { 
-                    if (api.data[day][meal]){
-                        const mealDiv = document.createElement('div');
-                        mealDiv.classList.add('schedule');
-                        const mealTitle = document.createElement('h3');
-                        mealTitle.textContent = meal.charAt(0).toUpperCase() + meal.slice(1);
-                        mealDiv.appendChild(mealTitle);
+                            for (const version of Object.keys(api.data[day][meal])) {
+                                const versionDiv = document.createElement('div');
+                                versionDiv.classList.add('meal');
+                                const mealData = api.data[day][meal][version];
+                                versionDiv.textContent = mealData.title;
 
-                        const mealsDiv = document.createElement('div');
-                        mealsDiv.classList.add('meals');
+                                // Add event listeners for long-press
+                                versionDiv.addEventListener('mousedown', startLongPress);
+                                versionDiv.addEventListener('touchstart', startLongPress);
+                                versionDiv.addEventListener('mouseup', endPress);
+                                versionDiv.addEventListener('touchend', endPress);
+                                versionDiv.addEventListener('mouseleave', cancelLongPress);
+                                versionDiv.addEventListener('touchcancel', cancelLongPress);
 
-                        for (const version of Object.keys(api.data[day][meal])) {
-                            const versionDiv = document.createElement('div');
-                            versionDiv.classList.add('meal');
+                                // Click handler for popup, only if not a long-press
+                                versionDiv.addEventListener('click', async (event) => {
+                                    if (versionDiv._longPressTriggered) {
+                                        versionDiv._longPressTriggered = false;
+                                        return;
+                                    }
+                                    let htmlContent = api.parseMarkdown(mealData.content);
+                                    let linkedContent = await api.parseAndLinkMealContent(htmlContent);
+                                    popupContent.innerHTML = `<h2>${mealData.title}</h2><p>${linkedContent}</p>`;
+                                    popup.style.display = 'block';
+                                    overlay.style.display = 'block';
+                                });
 
-                            const mealData = api.data[day][meal][version];
-                            versionDiv.textContent = mealData.title;
-                            versionDiv.addEventListener('click', async () => {
-                                let htmlContent = api.parseMarkdown(mealData.content);
-                                let linkedContent = await api.parseAndLinkMealContent(htmlContent); 
-                                popupContent.innerHTML = `<h2>${mealData.title}</h2><p>${linkedContent}</p>`;
-                                popup.style.display = 'block';
-                                overlay.style.display = 'block';
-                            });
-                            mealsDiv.appendChild(versionDiv);
+                                mealsDiv.appendChild(versionDiv);
+                            }
+
+                            mealDiv.appendChild(mealsDiv);
+                            dayDiv.appendChild(mealDiv);
                         }
-
-                        mealDiv.appendChild(mealsDiv);
-                        dayDiv.appendChild(mealDiv);
                     }
+                    fragment.appendChild(dayDiv);
                 }
-                fragment.appendChild(dayDiv);
             }
+
+            mealPlanContainer.appendChild(fragment);
+
+            popupClose.addEventListener('click', () => {
+                popup.style.display = 'none';
+                overlay.style.display = 'none';
+            });
+
+            overlay.addEventListener('click', () => {
+                popup.style.display = 'none';
+                overlay.style.display = 'none';
+                nutrientPopup.style.display = 'none';
+            });
+
+            nutrientPopupClose.addEventListener('click', () => {
+                nutrientPopup.style.display = 'none';
+                overlay.style.display = 'none';
+            });
         }
 
-        mealPlanContainer.appendChild(fragment);
+        // Long-press helper functions
+        function startLongPress(event) {
+            event.preventDefault(); // Prevent text selection or other defaults
+            const mealDiv = event.currentTarget;
+            mealDiv._longPressTriggered = false;
+            mealDiv._longPressTimeout = setTimeout(() => {
+                mealDiv.classList.toggle('selected'); // Toggle grey background
+                mealDiv._longPressTriggered = true;
+            }, 500); // 500ms long-press duration
+        }
 
-        popupClose.addEventListener('click', () => {
-            popup.style.display = 'none';
-            overlay.style.display = 'none';
-        });
+        function endPress(event) {
+            const mealDiv = event.currentTarget;
+            clearTimeout(mealDiv._longPressTimeout);
+        }
 
-        overlay.addEventListener('click', () => {
-            popup.style.display = 'none';
-            overlay.style.display = 'none';
-            nutrientPopup.style.display = 'none';
-        });
+        function cancelLongPress(event) {
+            const mealDiv = event.currentTarget;
+            clearTimeout(mealDiv._longPressTimeout);
+        }
 
-        nutrientPopupClose.addEventListener('click', () => {
-            nutrientPopup.style.display = 'none';
-            overlay.style.display = 'none';
-        });
-    }
-
-
-
-
-    api.fetchData().then(() => {
-        console.log("fetchData resolved");
-        renderMealPlan().then(() => {
-            console.log(api.data);
-            console.log("Meal plan rendered successfully.");
+        api.fetchData().then(() => {
+            console.log("fetchData resolved");
+            renderMealPlan().then(() => {
+                console.log(api.data);
+                console.log("Meal plan rendered successfully.");
+            }).catch(error => {
+                console.error("Error rendering meal plan:", error);
+            });
         }).catch(error => {
-            console.error("Error rendering meal plan:", error);
+            console.error("Error fetching data:", error);
         });
-    }).catch(error => {
-        console.error("Error fetching data:", error);
-    });
-
-</script>
+    </script>
+</body>
 </html>
