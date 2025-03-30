@@ -7,4 +7,4 @@
 - **Mash Potatoes**: Remove fish and veggies, mash potatoes in dish with [Butter, stick, unsalted; 20; G], [Milk, whole, 3.25% milkfat, with added vitamin D; 50; G], salt, and pepper. Serve together.
 - **Enjoy**: Pair with [Pears, raw, bartlett; 200; G].
 
-![Salmon & Cod](images/Salmon&Cod.jpg)
+![Salmon & Cod](/images/Salmon&Cod.jpg)
