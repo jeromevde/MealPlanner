@@ -2,4 +2,4 @@
 
 Preheat your oven to 200°C. In a baking dish, combine {300g of diced {Potatoes, russet, without skin, raw}}, a fillet of {150g of {Fish, salmon, Atlantic, farm raised, raw}}, a fillet of {150g of {Fish, cod, Atlantic, wild caught, raw}}, {100g of {Tomatoes, grape, raw}}, {50g of sliced {Onions, red, raw}}, one clove of {5g of minced {Garlic, raw}}, and optionally {100g of {Squash, summer, green, zucchini, includes skin, raw}}. Drizzle with a tablespoon of {15g of {Oil, olive, extra virgin}}, squeeze some lemon juice, sprinkle with lemon zest, oregano, smoked paprika, {2g of {Salt, table, iodized}}, and pepper, then toss gently. Cover with foil and bake for 25–30 minutes until the fish flakes and potatoes soften. Remove the fish and veggies, then mash the potatoes with {20g of {Butter, stick, unsalted}}, 50ml of {50g of {Milk, whole, 3.25% milkfat, with added vitamin D}}, and a pinch of salt and pepper.
 
-![Salmon & Cod](../../MealPlanner/meals/images/Salmon&Cod.jpg)
+![Salmon & Cod](../../MealPlanner/meals/images/salmoncod.jpg)

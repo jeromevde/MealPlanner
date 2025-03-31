@@ -9,39 +9,54 @@
 </head>
 <body>
     <div class="meal-plan" id="meal-plan"></div>
+    <!-- Aggregation Section -->
+    <div id="aggregation-section">
+        <div id="aggregated-ingredients">
+            <h3>Aggregated Ingredients</h3>
+            <ul id="ingredients-list"><li>No meals selected</li></ul>
+        </div>
+        <div id="aggregated-nutrients">
+            <h3>Aggregated Nutrients</h3>
+            <ul id="nutrients-list"><li>No meals selected</li></ul>
+        </div>
+    </div>
     <div id="overlay" class="overlay"></div>
     <div id="popup" class="popup">
         <span id="popup-close" class="popup-close">×</span>
         <div id="popup-content"></div>
     </div>
+    <!-- Nutrient Popup for Individual Meals -->
     <div id="nutrient-popup" class="popup">
         <span id="nutrient-popup-close" class="popup-close">×</span>
         <div id="nutrient-popup-content"></div>
     </div>
 
     <script type="module">
+
         import * as api from './api/api.js';
+        window.api = api; // For debugging in the console
 
         async function renderMealPlan() {
             const mealPlanContainer = document.getElementById('meal-plan');
             const popup = document.getElementById('popup');
             const popupContent = document.getElementById('popup-content');
             const popupClose = document.getElementById('popup-close');
-            const overlay = document.getElementById('overlay');
             const nutrientPopup = document.getElementById('nutrient-popup');
+            const nutrientPopupContent = document.getElementById('nutrient-popup-content');
             const nutrientPopupClose = document.getElementById('nutrient-popup-close');
+            const overlay = document.getElementById('overlay');
 
             const fragment = document.createDocumentFragment();
 
             for (const day of api.days) {
-                if (api.data[day]) { 
+                if (api.data[day]) {
                     const dayDiv = document.createElement('div');
                     dayDiv.classList.add('day');
                     const dayTitle = document.createElement('h2');
                     dayTitle.textContent = day.charAt(0).toUpperCase() + day.slice(1);
                     dayDiv.appendChild(dayTitle);
 
-                    for (const meal of api.meals) { 
+                    for (const meal of api.meals) {
                         if (api.data[day][meal]) {
                             const mealDiv = document.createElement('div');
                             mealDiv.classList.add('schedule');
@@ -58,7 +73,10 @@
                                 const mealData = api.data[day][meal][version];
                                 versionDiv.textContent = mealData.title;
 
-                                // Add event listeners for long-press
+                                versionDiv.dataset.day = day;
+                                versionDiv.dataset.meal = meal;
+                                versionDiv.dataset.version = version;
+
                                 versionDiv.addEventListener('mousedown', startLongPress);
                                 versionDiv.addEventListener('touchstart', startLongPress);
                                 versionDiv.addEventListener('mouseup', endPress);
@@ -97,27 +115,39 @@
                 overlay.style.display = 'none';
             });
 
-            overlay.addEventListener('click', () => {
-                popup.style.display = 'none';
-                overlay.style.display = 'none';
+            nutrientPopupClose.addEventListener('click', () => {
                 nutrientPopup.style.display = 'none';
+                overlay.style.display = 'none';
             });
 
-            nutrientPopupClose.addEventListener('click', () => {
+            overlay.addEventListener('click', () => {
+                popup.style.display = 'none';
                 nutrientPopup.style.display = 'none';
                 overlay.style.display = 'none';
             });
         }
 
-        // Long-press helper functions
         function startLongPress(event) {
-            event.preventDefault(); // Prevent text selection or other defaults
+            event.preventDefault();
             const mealDiv = event.currentTarget;
             mealDiv._longPressTriggered = false;
             mealDiv._longPressTimeout = setTimeout(() => {
-                mealDiv.classList.toggle('selected'); // Toggle grey background
+                mealDiv.classList.toggle('selected');
+                const day = mealDiv.dataset.day;
+                const meal = mealDiv.dataset.meal;
+                const version = mealDiv.dataset.version;
+                const mealKey = `${day}-${meal}-${version}`;
+
+                if (mealDiv.classList.contains('selected')) {
+                    api.selected_meals.add(mealKey);
+                } else {
+                    api.selected_meals.delete(mealKey);
+                }
+
+                calculateAggregations();
+
                 mealDiv._longPressTriggered = true;
-            }, 500); // 500ms long-press duration
+            }, 500);
         }
 
         function endPress(event) {
@@ -128,6 +158,73 @@
         function cancelLongPress(event) {
             const mealDiv = event.currentTarget;
             clearTimeout(mealDiv._longPressTimeout);
+        }
+
+        function parseIngredients(content) {
+            const regex = /{(\d+)g of .*? {([^}]+)}}/g;
+            const matches = [];
+            let match;
+            while ((match = regex.exec(content)) !== null) {
+                const quantity = parseInt(match[1], 10);
+                const ingredientName = match[2];
+                matches.push([quantity, ingredientName]);
+            }
+            return matches;
+        }
+
+        async function calculateAggregations() {
+            const ingredientsList = document.getElementById('ingredients-list');
+            const nutrientsList = document.getElementById('nutrients-list');
+
+            if (api.selected_meals.size === 0) {
+                ingredientsList.innerHTML = '<li>No meals selected</li>';
+                nutrientsList.innerHTML = '<li>No meals selected</li>';
+                return;
+            }
+
+            const ingredientTotals = new Map();
+            for (const mealKey of api.selected_meals) {
+                const [day, mealTime, version] = mealKey.split('-');
+                const content = api.data[day][mealTime][version].content;
+                const ingredients = parseIngredients(content);
+                for (const [quantity, ingredientName] of ingredients) {
+                    const currentTotal = ingredientTotals.get(ingredientName) || 0;
+                    ingredientTotals.set(ingredientName, currentTotal + quantity);
+                }
+            }
+
+            const uniqueIngredients = Array.from(ingredientTotals.keys());
+            const nutrientPromises = uniqueIngredients.map(name => api.getNutrientsForName(name));
+            const nutrientDataArray = await Promise.all(nutrientPromises);
+            const nutrientDataMap = new Map(uniqueIngredients.map((name, index) => [
+                name,
+                Array.isArray(nutrientDataArray[index]) ? nutrientDataArray[index] : []
+            ]));
+
+            const nutrientTotals = new Map();
+            for (const [ingredientName, totalQuantity] of ingredientTotals) {
+                const nutrientData = nutrientDataMap.get(ingredientName);
+                for (const nutrient of nutrientData) {
+                    const scaledAmount = nutrient.amount * (totalQuantity / 100);
+                    if (nutrientTotals.has(nutrient.name)) {
+                        nutrientTotals.get(nutrient.name).totalAmount += scaledAmount;
+                    } else {
+                        nutrientTotals.set(nutrient.name, { totalAmount: scaledAmount, unit: nutrient.unit });
+                    }
+                }
+            }
+
+            let ingredientsHtml = '';
+            for (const [name, quantity] of ingredientTotals) {
+                ingredientsHtml += `<li>${name}: ${quantity}g</li>`;
+            }
+            ingredientsList.innerHTML = ingredientsHtml;
+
+            let nutrientsHtml = '';
+            for (const [name, { totalAmount, unit }] of nutrientTotals) {
+                nutrientsHtml += `<li>${name}: ${totalAmount.toFixed(2)} ${unit}</li>`;
+            }
+            nutrientsList.innerHTML = nutrientsHtml;
         }
 
         api.fetchData().then(() => {
@@ -141,6 +238,7 @@
         }).catch(error => {
             console.error("Error fetching data:", error);
         });
+
     </script>
 </body>
 </html>

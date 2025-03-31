@@ -1,8 +1,5 @@
-Marry Me Chicken Recipe
+# Marry Me Chicken
 
-For "Marry Me Chicken," start by seasoning and dredging 3 large chicken breasts or 6 cutlets in flour. 
-Brown them in a skillet with olive oil and butter, then set aside. In the same skillet, 
-sauté minced garlic and sun-dried tomatoes, then deglaze with chicken broth. Stir in heavy cream, 
-grated parmesan, dried oregano, thyme, and red pepper flakes to create a rich sauce. Return the chicken to the pan, 
-simmering until cooked through and the sauce thickens. Garnish with fresh basil before serving, 
-ideally over pasta or with a side that complements the creamy, flavorful sauce.
+Season and dredge {450g of {Chicken, breast, boneless, skinless, raw}} (about 3 large breasts or 6 cutlets) in {50g of {Flour, wheat, all-purpose, enriched, unbleached}}. Brown them in a skillet with 15g of Oil, olive, extra virgin and 15g of Butter, stick, unsalted, then set aside. In the same skillet, sauté a clove of {5g of {Garlic, raw}} (minced) and {50g of {Tomatoes, whole, canned, solids and liquids, with salt added}} (sun-dried), then deglaze with 200g of chicken broth. Stir in 200g of Cream, heavy, 50g of Cheese, parmesan, grated, and a pinch each of dried oregano, thyme, and red pepper flakes for a creamy sauce. Return the chicken to the pan, simmer until cooked through and the sauce thickens, then garnish with fresh basil. Serve over pasta or with a side that pairs well with the rich flavors. 
+
+![marrymechicken](../../MealPlanner/meals/images/marrymechicken.jpg)

@@ -12,5 +12,6 @@ export const nutrient_csv = "./fooddata/nutrient.csv";
 export const food_nutrient_csv = "./fooddata/food_nutrient.csv";
 export const food_category_csv = "./fooddata/food_category.csv";
 
+export const selected_meals = new Set();
 export const selected_foods = {}
 export const selected_nutrients = {}

@@ -13,7 +13,7 @@ The list of possible ingredients is:
 - For example  a fillet of {150g of {salmon, Atlantic, farm raised, raw}} or {150g of diced {Potatoes, russet, without skin, raw}}
 - Do not forget to generate an image for the recipe too that i can use
 - Always Always add facilitating quantity indications if possible. For example to not keep 5g of Garlic, raw, but make it into a clove of 5g of Garlic, raw.
-
+- If necessary, normalize the quantities to a 1 person meal, around 700 - 1000 calories depending on the meal
 - If an ingredient is used multiple times, mention the total quantity with the regex facilitating format of {100g of {ingredient}} but mention then in the text simply what part is necessary at what stage of the recipe
 - You will find the list of possible ingredients is at the bottom here
 

@@ -64,3 +64,18 @@
 .meal.selected {
     background-color: grey;
 }
+
+#aggregation-section {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+#aggregated-ingredients, #aggregated-nutrients {
+    width: 48%;
+}
+
+#ingredients-list, #nutrients-list {
+    list-style-type: none;
+    padding: 0;
+}

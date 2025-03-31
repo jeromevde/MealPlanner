@@ -1,17 +1,5 @@
-Spaghetti Vongole
+# Spaghetti Vongole
 
-Start by cleaning 1kg of fresh clams under cold water, 
-discarding any that don't close when tapped, 
-and optionally soak them in salted water to purge sand.
-Bring a large pot of salted water to a boil for 400g of spaghetti, 
-cooking it until just shy of al dente. In a large pan,
-heat 4 tablespoons of extra virgin olive oil over medium heat, 
-then add 4 finely sliced garlic cloves and a small chopped fresh chili 
-if you like some heat, cooking until the garlic is golden. 
-Add the clams to the pan, pour in 100ml of dry white wine, cover, 
-and let the clams steam until they open, about 3-5 minutes, 
-discarding those that don't. Drain the spaghetti, reserving some pasta water. 
-Toss the spaghetti with the clams in the pan, adding a bit of the pasta water if needed to create a sauce. 
-Stir in most of a large handful of chopped fresh parsley, adjust for salt, 
-and serve immediately with extra parsley on top and lemon wedges on the side if desired. 
-Enjoy with a glass of white wine for a truly Italian experience.
+Clean {1000g of fresh {Crustaceans, clam, mixed species, raw}} under cold water, discarding any that don’t close when tapped, then bring a pot of salted water to a boil and cook {400g of {Flour, wheat, all-purpose, enriched, unbleached}} (as spaghetti) until just shy of al dente. In a large pan, heat 60g of Oil, olive, extra virgin over medium heat, add 4 cloves of {20g of {Garlic, raw}} (finely sliced) and a small chopped fresh chili if desired, cooking until golden, then add the clams, pour in 100g of dry white wine, cover, and steam for 3-5 minutes until the clams open, discarding any that don’t. Drain the spaghetti, reserving some pasta water, then toss it with the clams in the pan, adding a splash of pasta water if needed for the sauce, stir in most of a large handful of chopped fresh parsley, adjust salt, and serve with extra parsley and lemon wedges on the side. 
+
+![Spaghetti Vongole](../../MealPlanner/meals/images/spaghettivongole.jpg)
