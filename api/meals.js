@@ -54,24 +54,3 @@ export async function parseAndLinkMealContent(content) {
     }
     return newContent;
 }
-
-
-const overlay = document.getElementById('overlay');
-
-document.addEventListener('click', async function(event) {
-    const nutrientLink = event.target.closest('.nutrient-link');
-    if (nutrientLink) {
-        const food = nutrientLink.getAttribute('data-food');
-        const nutrientPopup = document.getElementById('nutrient-popup');
-        const nutrientPopupContent = document.getElementById('nutrient-popup-content');
-        
-        const nutrientHtml = await foodapi.getNutrientHtml(food);
-        if (nutrientHtml) {
-            nutrientPopupContent.innerHTML = nutrientHtml;
-            nutrientPopup.style.display = 'block';
-            if (overlay) { // Assuming overlay is defined elsewhere
-                overlay.style.display = 'block';
-            }
-        }
-    }
-});

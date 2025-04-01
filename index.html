@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meal Planner</title>
     <link rel="stylesheet" type="text/css" href="index.css">
-    <script src="./api/api.js" type="module"></script> 
+    <script src="./api/api.js" type="module"></script>
+    <script type="module" src="./api/nutrient-html.js"></script> 
 </head>
 <body>
     <div class="meal-plan" id="meal-plan"></div>
@@ -26,9 +27,8 @@
         <div id="popup-content"></div>
     </div>
     <!-- Nutrient Popup for Individual Meals -->
-    <div id="nutrient-popup" class="popup">
-        <span id="nutrient-popup-close" class="popup-close">×</span>
-        <div id="nutrient-popup-content"></div>
+    <div id="nutrient-popup" style="display: none;">
+        <nutrient-html id="nutrient-display"></nutrient-html>
     </div>
 
     <script type="module">
@@ -41,10 +41,6 @@
             const popup = document.getElementById('popup');
             const popupContent = document.getElementById('popup-content');
             const popupClose = document.getElementById('popup-close');
-            const nutrientPopup = document.getElementById('nutrient-popup');
-            const nutrientPopupContent = document.getElementById('nutrient-popup-content');
-            const nutrientPopupClose = document.getElementById('nutrient-popup-close');
-            const overlay = document.getElementById('overlay');
 
             const fragment = document.createDocumentFragment();
 
@@ -81,6 +77,7 @@
 
                                 // Click handler for popup, only if not a long-press
                                 versionDiv.addEventListener('click', async (event) => {
+                                    console.log(event)
                                     if (versionDiv._longPressTriggered) {
                                         versionDiv._longPressTriggered = false;
                                         return;
@@ -110,18 +107,28 @@
                 overlay.style.display = 'none';
             });
 
-            nutrientPopupClose.addEventListener('click', () => {
-                nutrientPopup.style.display = 'none';
-                overlay.style.display = 'none';
-            });
 
-            overlay.addEventListener('click', () => {
-                popup.style.display = 'none';
-                nutrientPopup.style.display = 'none';
-                overlay.style.display = 'none';
-            });
         }
         
+
+        const overlay = document.getElementById('overlay');
+
+        document.addEventListener('click', function(event) {
+            const nutrientLink = event.target.closest('.nutrient-link');
+            console.log(nutrientLink)
+            if (nutrientLink) {
+                console.log(nutrientLink)
+                const food = nutrientLink.getAttribute('data-food');
+                const nutrientPopup = document.getElementById('nutrient-popup');
+                const nutrientDisplay = document.getElementById('nutrient-display');
+
+                nutrientDisplay.setAttribute('food-name', food);
+                nutrientPopup.style.display = 'block';
+                if (overlay) {
+                    overlay.style.display = 'block';
+                }
+            }
+        });
 
 
 
