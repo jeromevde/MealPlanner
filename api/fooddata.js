@@ -1,6 +1,6 @@
 // Variables to store the JSON data and loading promise
 export let foodData = null;
-export let loadingDataPromise = null;
+let loadingDataPromise = null;
 
 // Load the preprocessed JSON data
 export async function loadData() {

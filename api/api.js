@@ -2,6 +2,7 @@ export * from './fooddata.js';
 export * from './meals.js';
 export * from './nutrients.js';
 export * from './markdown.js';
+export * from './longpress.js';
 
 export const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 export const meals = ["morning", "midday", "evening"];
