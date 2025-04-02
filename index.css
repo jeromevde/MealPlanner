@@ -54,6 +54,7 @@
     z-index: 1000;
     overflow: auto;
 }
+
 .popup-close {
     position: absolute;
     top: 10px;

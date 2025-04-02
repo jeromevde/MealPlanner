@@ -7,6 +7,8 @@
     <link rel="stylesheet" type="text/css" href="index.css">
     <script src="./api/api.js" type="module"></script>
     <script type="module" src="./api/nutrient-html.js"></script> 
+    <script src="./api/food-nutrient-link.js" type="module"></script>
+
 </head>
 <body>
     <div class="meal-plan" id="meal-plan"></div>
@@ -18,16 +20,18 @@
         </div>
         <div id="aggregated-nutrients">
             <h3>Aggregated Nutrients</h3>
-            <ul id="nutrients-list"><li>No meals selected</li></ul>
+            <nutrient-html id="aggregated-nutrients-display"></nutrient-html>
         </div>
     </div>
+    
     <div id="overlay" class="overlay"></div>
     <div id="popup" class="popup">
         <span id="popup-close" class="popup-close">×</span>
         <div id="popup-content"></div>
     </div>
     <!-- Nutrient Popup for Individual Meals -->
-    <div id="nutrient-popup" style="display: none;">
+    <div id="nutrient-popup" class="popup" style="display: none;">
+        <span id="popup-close" class="popup-close">×</span>
         <nutrient-html id="nutrient-display"></nutrient-html>
     </div>
 
@@ -112,24 +116,6 @@
         
 
         const overlay = document.getElementById('overlay');
-
-        document.addEventListener('click', function(event) {
-            const nutrientLink = event.target.closest('.nutrient-link');
-            console.log(nutrientLink)
-            if (nutrientLink) {
-                console.log(nutrientLink)
-                const food = nutrientLink.getAttribute('data-food');
-                const nutrientPopup = document.getElementById('nutrient-popup');
-                const nutrientDisplay = document.getElementById('nutrient-display');
-
-                nutrientDisplay.setAttribute('food-name', food);
-                nutrientPopup.style.display = 'block';
-                if (overlay) {
-                    overlay.style.display = 'block';
-                }
-            }
-        });
-
 
 
         api.fetchData().then(() => {

@@ -55,11 +55,11 @@ function parseIngredients(content) {
 
 async function calculateAggregations() {
     const ingredientsList = document.getElementById('ingredients-list');
-    const nutrientsList = document.getElementById('nutrients-list');
+    const aggregatedNutrientsDisplay = document.getElementById('aggregated-nutrients-display');
 
     if (api.selected_meals.size === 0) {
         ingredientsList.innerHTML = '<li>No meals selected</li>';
-        nutrientsList.innerHTML = '<li>No meals selected</li>';
+        aggregatedNutrientsDisplay.setAttribute('nutrients', JSON.stringify({})); // Clear display
         return;
     }
 
@@ -101,9 +101,13 @@ async function calculateAggregations() {
     }
     ingredientsList.innerHTML = ingredientsHtml;
 
-    let nutrientsHtml = '';
-    for (const [name, { totalAmount, unit }] of nutrientTotals) {
-        nutrientsHtml += `<li>${name}: ${totalAmount.toFixed(2)} ${unit}</li>`;
-    }
-    nutrientsList.innerHTML = nutrientsHtml;
+    // Prepare nutrient data for NutrientHtml
+    const aggregatedNutrients = Object.fromEntries(
+        Array.from(nutrientTotals.entries()).map(([name, { totalAmount, unit }]) => [
+            name,
+            { totalAmount, unit, category: 'Aggregated' } // Category can be adjusted if your API provides it
+        ])
+    );
+
+    aggregatedNutrientsDisplay.setAttribute('nutrients', JSON.stringify(aggregatedNutrients));
 }

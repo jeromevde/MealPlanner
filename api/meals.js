@@ -48,7 +48,7 @@ export async function parseAndLinkMealContent(content) {
                 const flipped = [truncated[1], truncated[0]].join(' ').toLowerCase();
                 displayName = flipped;
             }
-            const nutrientHTML = `<span class="nutrient-link" data-food="${foodName}"> <span style="color: black; font-weight: bold;">${amount}g of ${displayName}</span> </span>`;
+            const nutrientHTML = `<food-nutrient-link food-name="${foodName}"> <span style="color: black; font-weight: bold;">${amount}g of ${displayName}</span> </food-nutrient-link>`;
             newContent = newContent.replace(originalText, nutrientHTML);
         }
     }

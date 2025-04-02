@@ -1,15 +1,12 @@
-// nutrient-html.js
-import * as foodapi from './api.js'; // Replace with your actual API module path
+import * as foodapi from './api.js'; // Adjust the import path as needed
 
 class NutrientHtml extends HTMLElement {
-  // Define which attributes to observe for changes
   static get observedAttributes() {
-    return ['food-name'];
+    return ['food-name', 'nutrients']; // Add 'nutrients' to observed attributes
   }
 
   constructor() {
     super();
-    // Attach a shadow DOM to encapsulate styles and content
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
       <style>
@@ -66,19 +63,18 @@ class NutrientHtml extends HTMLElement {
     `;
   }
 
-  // Handle changes to the 'food-name' attribute
   async attributeChangedCallback(name, oldValue, newValue) {
     if (name === 'food-name' && newValue !== oldValue) {
       await this.renderNutrientHtml(newValue);
+    } else if (name === 'nutrients' && newValue !== oldValue) {
+      this.renderAggregatedNutrients(JSON.parse(newValue));
     }
   }
 
-  // Fetch and render nutrient data based on the food name
   async renderNutrientHtml(foodName) {
     const contentDiv = this.shadowRoot.querySelector('#nutrient-content');
-    contentDiv.innerHTML = ''; // Clear previous content
+    contentDiv.innerHTML = '';
 
-    // Ensure the API data is loaded (adjust based on your API)
     await foodapi.ensureDataLoaded();
     const normalizedFoodName = foodName.toLowerCase();
     const foodKey = Object.keys(foodapi.foodData).find(
@@ -93,7 +89,6 @@ class NutrientHtml extends HTMLElement {
     const foodCategory = foodapi.foodData[foodKey].category;
     const nutrients = foodapi.foodData[foodKey].nutrients;
 
-    // Group nutrients by category
     const nutrientsByCategory = {};
     Object.entries(nutrients).forEach(([name, details]) => {
       const cat = details.category || 'Other';
@@ -101,7 +96,6 @@ class NutrientHtml extends HTMLElement {
       nutrientsByCategory[cat].push({ name, ...details });
     });
 
-    // Generate the HTML content
     const html = `
       <h2>${foodName} (${foodCategory})</h2>
       <div class="nutrient-list">
@@ -139,7 +133,49 @@ class NutrientHtml extends HTMLElement {
     `;
     contentDiv.innerHTML = html;
   }
+
+  renderAggregatedNutrients(nutrients) {
+    const contentDiv = this.shadowRoot.querySelector('#nutrient-content');
+    contentDiv.innerHTML = '';
+
+    const nutrientsByCategory = {};
+    Object.entries(nutrients).forEach(([name, details]) => {
+      const cat = details.category || 'Other';
+      nutrientsByCategory[cat] = nutrientsByCategory[cat] || [];
+      nutrientsByCategory[cat].push({ name, ...details });
+    });
+
+    const html = `
+      <h2>Aggregated Nutrients</h2>
+      <div class="nutrient-list">
+        ${Object.entries(nutrientsByCategory)
+          .map(
+            ([category, catNutrients]) => `
+          <div class="category-section">
+            <div class="category-title">${category}</div>
+            ${catNutrients
+              .map((n) => {
+                const amountValue = parseFloat(n.totalAmount);
+                // For aggregated data, DRV might not apply, so skip progress bar or fetch DRV separately if available
+                return `
+                <div class="nutrient-item">
+                  <span class="nutrient-name">${n.name}</span>
+                  <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 0%;"></div> <!-- Adjust if DRV is available -->
+                  </div>
+                  <span class="nutrient-value">${amountValue.toFixed(2)} ${n.unit}</span>
+                </div>
+              `;
+              })
+              .join('')}
+          </div>
+        `
+          )
+          .join('')}
+      </div>
+    `;
+    contentDiv.innerHTML = html;
+  }
 }
 
-// Register the custom element
 customElements.define('nutrient-html', NutrientHtml);
