@@ -1,41 +1,22 @@
 class FoodNutrientLink extends HTMLElement {
-  // Define observed attributes
   static get observedAttributes() {
-    return ['food-name'];
+    return ['food-list', 'display-mode'];
   }
 
-  // Constructor: Set up shadow DOM and initial structure
   constructor() {
     super();
+    this.foodList = [];
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
       <style>
-        :host {
-          position: relative;
-          display: inline-block;
-        }
-        a {
-          color: #007bff;
-          text-decoration: underline;
-          cursor: pointer;
-        }
+        #link { text-decoration: none; color: #007bff; }
+        #link:hover { text-decoration: underline; }
         #popup {
-          position: absolute;
+          display: none; position: absolute; background: white;
+          border: 1px solid #ccc; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
           z-index: 1000;
-          background: white;
-          border: 1px solid #ccc;
-          padding: 10px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-          display: none;
         }
-        #close {
-          cursor: pointer;
-          float: right;
-          font-size: 16px;
-          border: none;
-          background: none;
-          padding: 0 5px;
-        }
+        #close { float: right; border: none; background: none; font-size: 16px; cursor: pointer; }
       </style>
       <a href="#" id="link"></a>
       <div id="popup">
@@ -45,63 +26,86 @@ class FoodNutrientLink extends HTMLElement {
     `;
   }
 
-  // Called when the element is added to the DOM
   connectedCallback() {
     const link = this.shadowRoot.querySelector('#link');
     const popup = this.shadowRoot.querySelector('#popup');
     const closeButton = this.shadowRoot.querySelector('#close');
 
-    // Event listener for link click
     link.addEventListener('click', (event) => {
-      event.preventDefault(); // Prevent navigation
-      console.log("testt")
+      event.preventDefault();
       this.showPopup();
     });
 
-    // Event listener for close button
-    closeButton.addEventListener('click', () => {
-      this.hidePopup();
-    });
+    closeButton.addEventListener('click', () => this.hidePopup());
 
-    // Initialize with food-name if already set
-    const foodName = this.getAttribute('food-name');
-    if (foodName) {
-      this.updateFoodName(foodName);
-    }
+    this.updateFoodListAndText();
   }
 
-  // Handle attribute changes
   attributeChangedCallback(name, oldValue, newValue) {
-    if (name === 'food-name' && newValue !== oldValue) {
-      this.updateFoodName(newValue);
+    if (oldValue !== newValue) {
+      if (name === 'food-list' || name === 'display-mode') {
+        this.updateFoodListAndText();
+      }
     }
   }
 
-  // Update link text and nutrient-html component
-  updateFoodName(foodName) {
-    const link = this.shadowRoot.querySelector('#link');
-    const nutrientDisplay = this.shadowRoot.querySelector('#nutrient-display');
-    link.textContent = foodName;
-    nutrientDisplay.setAttribute('food-name', foodName);
+  updateFoodListAndText() {
+    const foodListAttr = this.getAttribute('food-list');
+    if (foodListAttr) {
+      try {
+        this.foodList = JSON.parse(foodListAttr);
+      } catch (e) {
+        console.error('Invalid food-list JSON:', foodListAttr);
+        this.foodList = [];
+      }
+    } else {
+      this.foodList = [];
+    }
+    this.updateLinkText();
   }
 
-  // Show the popup below the link
+  updateLinkText() {
+    const link = this.shadowRoot.querySelector('#link');
+    const displayMode = this.getAttribute('display-mode') || 'full';
+    if (this.foodList.length === 1) {
+      const { foodName, quantity } = this.foodList[0];
+      const displayName = this.computeDisplayName(foodName);
+      if (displayMode === 'name-only') {
+        link.textContent = displayName;
+      } else {
+        link.textContent = `${quantity}g of ${displayName}`;
+      }
+    } else if (this.foodList.length > 1) {
+      link.textContent = 'Mixed Foods';
+    } else {
+      link.textContent = 'No food specified';
+    }
+  }
+
+  computeDisplayName(foodName) {
+    const parts = foodName.split(',').map(part => part.trim());
+    if (parts.length >= 2) {
+      return [parts[1], parts[0]].join(' ').toLowerCase();
+    }
+    return foodName.toLowerCase();
+  }
+
   showPopup() {
+    const nutrientDisplay = this.shadowRoot.querySelector('#nutrient-display');
+    nutrientDisplay.setAttribute('food-list', JSON.stringify(this.foodList));
     const link = this.shadowRoot.querySelector('#link');
     const popup = this.shadowRoot.querySelector('#popup');
-    const top = link.offsetTop + link.offsetHeight; // Position below the link
-    const left = link.offsetLeft; // Align with the link's left edge
+    const top = link.offsetTop + link.offsetHeight;
+    const left = link.offsetLeft;
     popup.style.top = `${top}px`;
     popup.style.left = `${left}px`;
     popup.style.display = 'block';
   }
 
-  // Hide the popup
   hidePopup() {
     const popup = this.shadowRoot.querySelector('#popup');
     popup.style.display = 'none';
   }
 }
 
-// Register the custom element
 customElements.define('food-nutrient-link', FoodNutrientLink);

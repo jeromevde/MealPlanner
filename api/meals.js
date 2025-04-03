@@ -31,26 +31,20 @@ export async function fetchData() {
 
 // Parse meal content and create clickable nutrient links
 export async function parseAndLinkMealContent(content) {
-    const regex = /\{(\d+(?:\.\d+)?)g\s*of\s*[^\{]*?\{([^}]+)\}\}/g;
     let match;
     let newContent = content;
 
-    while ((match = regex.exec(content)) !== null) {
+    while ((match = api.foodRegex.exec(content)) !== null) {
         const [, amount, foodName] = match;
         const originalText = match[0];
-        const nutrientData = await api.getNutrientsForName(foodName);
-        if (Array.isArray(nutrientData)) {
-            // Truncate and flip the food name for display
-            const parts = foodName.split(',').map(part => part.trim());
-            let displayName = foodName; // Default to original if less than 2 parts
-            if (parts.length >= 2) {
-                const truncated = parts.slice(0, 2);
-                const flipped = [truncated[1], truncated[0]].join(' ').toLowerCase();
-                displayName = flipped;
-            }
-            const nutrientHTML = `<food-nutrient-link food-name="${foodName}"> <span style="color: black; font-weight: bold;">${amount}g of ${displayName}</span> </food-nutrient-link>`;
-            newContent = newContent.replace(originalText, nutrientHTML);
-        }
+        // Create a foodList array with one item
+        const foodList = [{ foodName: foodName, quantity: amount }];
+        // Convert to JSON string, escaping double quotes for HTML attributes
+        const foodListJson = JSON.stringify(foodList).replace(/"/g, '&quot;');
+        // Use double quotes for the attribute
+        const componentHTML = `<food-nutrient-link food-list="${foodListJson}"></food-nutrient-link>`;
+        // Replace the original text with the component
+        newContent = newContent.replace(originalText, componentHTML);
     }
     return newContent;
 }

@@ -1,8 +1,8 @@
-import * as foodapi from './api.js'; // Adjust the import path as needed
+import * as foodapi from './api.js';
 
 class NutrientHtml extends HTMLElement {
   static get observedAttributes() {
-    return ['food-name', 'nutrients']; // Add 'nutrients' to observed attributes
+    return ['food-list'];
   }
 
   constructor() {
@@ -11,170 +11,122 @@ class NutrientHtml extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         .nutrient-list {
-          max-height: 400px;
-          overflow-y: auto;
-          text-align: left;
-          margin-top: 15px;
+          max-height: 400px; overflow-y: auto; text-align: left; margin-top: 15px;
         }
         .category-section {
-          margin-bottom: 20px;
-          padding: 10px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          background: #f9f9f9;
+          margin-bottom: 20px; padding: 10px; border: 1px solid #ddd;
+          border-radius: 8px; background: #f9f9f9;
         }
         .category-title {
-          font-size: 18px;
-          font-weight: bold;
-          margin-bottom: 10px;
-          color: #333;
+          font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #333;
         }
         .nutrient-item {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 10px;
-          font-size: 14px;
+          display: flex; align-items: center; justify-content: space-between;
+          margin-bottom: 10px; font-size: 14px;
         }
-        .nutrient-name {
-          width: 180px;
-          font-weight: bold;
-        }
+        .nutrient-name { width: 180px; font-weight: bold; }
         .progress-bar-container {
-          width: 200px;
-          background: #eee;
-          border-radius: 5px;
-          height: 14px;
-          overflow: hidden;
+          width: 200px; background: #eee; border-radius: 5px; height: 14px; overflow: hidden;
         }
-        .progress-bar {
-          height: 100%;
-          background: lightgreen;
-          transition: width 0.5s ease-in-out;
-        }
-        .nutrient-value {
-          width: 150px;
-          text-align: right;
-          font-size: 12px;
-          color: #555;
-        }
+        .progress-bar { height: 100%; background: lightgreen; transition: width: 0.5s ease-in-out; }
+        .nutrient-value { width: 150px; text-align: right; font-size: 12px; color: #555; }
       </style>
       <div id="nutrient-content"></div>
     `;
   }
 
   async attributeChangedCallback(name, oldValue, newValue) {
-    if (name === 'food-name' && newValue !== oldValue) {
-      await this.renderNutrientHtml(newValue);
-    } else if (name === 'nutrients' && newValue !== oldValue) {
-      this.renderAggregatedNutrients(JSON.parse(newValue));
+    if (name === 'food-list' && newValue !== oldValue) {
+      const foodList = JSON.parse(newValue);
+      if (foodList.length > 0) {
+        await this.renderNutrients(foodList);
+      } else {
+        this.shadowRoot.querySelector('#nutrient-content').innerHTML = '<p>No food data</p>';
+      }
     }
   }
 
-  async renderNutrientHtml(foodName) {
+  async renderNutrients(foodList) {
     const contentDiv = this.shadowRoot.querySelector('#nutrient-content');
     contentDiv.innerHTML = '';
 
     await foodapi.ensureDataLoaded();
-    const normalizedFoodName = foodName.toLowerCase();
-    const foodKey = Object.keys(foodapi.foodData).find(
-      (key) => key.toLowerCase() === normalizedFoodName
-    );
 
-    if (!foodKey) {
-      contentDiv.innerHTML = '<p>Food not found</p>';
-      return;
+    // Aggregate nutrients from all food items
+    const aggregatedNutrients = {};
+    for (const { foodName, quantity } of foodList) {
+      const normalizedFoodName = foodName.toLowerCase();
+      const foodKey = Object.keys(foodapi.foodData).find(
+        (key) => key.toLowerCase() === normalizedFoodName
+      );
+      if (foodKey) {
+        const nutrients = foodapi.foodData[foodKey].nutrients;
+        const scaleFactor = parseFloat(quantity) / 100;
+        Object.entries(nutrients).forEach(([name, details]) => {
+          const scaledAmount = parseFloat(details.amount) * scaleFactor;
+          if (!aggregatedNutrients[name]) {
+            aggregatedNutrients[name] = { ...details, totalAmount: 0 };
+          }
+          aggregatedNutrients[name].totalAmount += scaledAmount;
+        });
+      }
     }
 
-    const foodCategory = foodapi.foodData[foodKey].category;
-    const nutrients = foodapi.foodData[foodKey].nutrients;
-
+    // Organize nutrients by category
     const nutrientsByCategory = {};
-    Object.entries(nutrients).forEach(([name, details]) => {
+    Object.entries(aggregatedNutrients).forEach(([name, details]) => {
       const cat = details.category || 'Other';
       nutrientsByCategory[cat] = nutrientsByCategory[cat] || [];
-      nutrientsByCategory[cat].push({ name, ...details });
+      nutrientsByCategory[cat].push({
+        name,
+        ...details,
+        amount: details.totalAmount.toFixed(2),
+      });
     });
 
-    const html = `
-      <h2>${foodName} (${foodCategory})</h2>
-      <div class="nutrient-list">
-        ${Object.entries(nutrientsByCategory)
-          .map(
-            ([category, catNutrients]) => `
-          <div class="category-section">
-            <div class="category-title">${category}</div>
-            ${catNutrients
-              .map((n) => {
-                const amountValue = parseFloat(n.amount);
-                const drvValue = parseFloat(n.drv);
-                const percentage =
-                  !isNaN(amountValue) && !isNaN(drvValue) && drvValue > 0
-                    ? Math.min((amountValue / drvValue) * 100, 100)
-                    : 0;
-                return `
+    // Set the header dynamically
+    let header;
+    if (foodList.length === 1) {
+      const { foodName, quantity } = foodList[0];
+      const normalizedFoodName = foodName.toLowerCase();
+      const foodKey = Object.keys(foodapi.foodData).find(
+        (key) => key.toLowerCase() === normalizedFoodName
+      );
+      const foodCategory = foodKey ? foodapi.foodData[foodKey].category : 'Unknown';
+      header = `<h2>${quantity}g of ${foodName} (${foodCategory})</h2>`;
+    } else {
+      header = `<h2>Aggregated Nutrients</h2>`;
+    }
+
+    // Generate nutrient HTML using the single-food structure
+    const nutrientHtml = Object.entries(nutrientsByCategory)
+      .map(([category, catNutrients]) => `
+        <div class="category-section">
+          <div class="category-title">${category}</div>
+          ${catNutrients
+            .map((n) => {
+              const amountValue = parseFloat(n.amount);
+              const drvValue = parseFloat(n.drv);
+              const percentage =
+                !isNaN(amountValue) && !isNaN(drvValue) && drvValue > 0
+                  ? Math.min((amountValue / drvValue) * 100, 100)
+                  : 0;
+              return `
                 <div class="nutrient-item">
                   <span class="nutrient-name">${n.name}</span>
                   <div class="progress-bar-container">
                     <div class="progress-bar" style="width: ${percentage}%;"></div>
                   </div>
-                  <span class="nutrient-value">${n.amount} ${n.unit} / ${
-                  n.drv || 'N/A'
-                } ${n.unit}</span>
+                  <span class="nutrient-value">${n.amount} ${n.unit} / ${n.drv || 'N/A'} ${n.unit}</span>
                 </div>
               `;
-              })
-              .join('')}
-          </div>
-        `
-          )
-          .join('')}
-      </div>
-    `;
-    contentDiv.innerHTML = html;
-  }
+            })
+            .join('')}
+        </div>
+      `)
+      .join('');
 
-  renderAggregatedNutrients(nutrients) {
-    const contentDiv = this.shadowRoot.querySelector('#nutrient-content');
-    contentDiv.innerHTML = '';
-
-    const nutrientsByCategory = {};
-    Object.entries(nutrients).forEach(([name, details]) => {
-      const cat = details.category || 'Other';
-      nutrientsByCategory[cat] = nutrientsByCategory[cat] || [];
-      nutrientsByCategory[cat].push({ name, ...details });
-    });
-
-    const html = `
-      <h2>Aggregated Nutrients</h2>
-      <div class="nutrient-list">
-        ${Object.entries(nutrientsByCategory)
-          .map(
-            ([category, catNutrients]) => `
-          <div class="category-section">
-            <div class="category-title">${category}</div>
-            ${catNutrients
-              .map((n) => {
-                const amountValue = parseFloat(n.totalAmount);
-                // For aggregated data, DRV might not apply, so skip progress bar or fetch DRV separately if available
-                return `
-                <div class="nutrient-item">
-                  <span class="nutrient-name">${n.name}</span>
-                  <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: 0%;"></div> <!-- Adjust if DRV is available -->
-                  </div>
-                  <span class="nutrient-value">${amountValue.toFixed(2)} ${n.unit}</span>
-                </div>
-              `;
-              })
-              .join('')}
-          </div>
-        `
-          )
-          .join('')}
-      </div>
-    `;
-    contentDiv.innerHTML = html;
+    contentDiv.innerHTML = `${header}<div class="nutrient-list">${nutrientHtml}</div>`;
   }
 }
 

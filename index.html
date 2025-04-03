@@ -6,9 +6,9 @@
     <title>Meal Planner</title>
     <link rel="stylesheet" type="text/css" href="index.css">
     <script src="./api/api.js" type="module"></script>
-    <script type="module" src="./api/nutrient-html.js"></script> 
+    <script src="./api/nutrient-html.js" type="module"></script>
     <script src="./api/food-nutrient-link.js" type="module"></script>
-
+    <script src="./api/aggregated-food-items.js" type="module"></script> <!-- Add new component -->
 </head>
 <body>
     <div class="meal-plan" id="meal-plan"></div>
@@ -16,7 +16,7 @@
     <div id="aggregation-section">
         <div id="aggregated-ingredients">
             <h3>Aggregated Ingredients</h3>
-            <ul id="ingredients-list"><li>No meals selected</li></ul>
+            <aggregated-food-items id="aggregated-food-display"></aggregated-food-items> <!-- Replace ul -->
         </div>
         <div id="aggregated-nutrients">
             <h3>Aggregated Nutrients</h3>
@@ -36,9 +36,12 @@
     </div>
 
     <script type="module">
-
         import * as api from './api/api.js';
         window.api = api; // For debugging in the console
+
+        function cleanTitle(title) {
+            return title.replace(/^#+\s*/, '');
+        }
 
         async function renderMealPlan() {
             const mealPlanContainer = document.getElementById('meal-plan');
@@ -71,24 +74,23 @@
                                 const versionDiv = document.createElement('div');
                                 versionDiv.classList.add('meal');
                                 const mealData = api.data[day][meal][version];
-                                versionDiv.textContent = mealData.title;
+                                versionDiv.textContent = cleanTitle(mealData.title);
 
                                 versionDiv.dataset.day = day;
                                 versionDiv.dataset.meal = meal;
                                 versionDiv.dataset.version = version;
 
-                                api.addLongPressListeners(versionDiv)
+                                api.addLongPressListeners(versionDiv);
 
-                                // Click handler for popup, only if not a long-press
                                 versionDiv.addEventListener('click', async (event) => {
-                                    console.log(event)
                                     if (versionDiv._longPressTriggered) {
                                         versionDiv._longPressTriggered = false;
                                         return;
                                     }
+                                    let parsedTitle = api.parseMarkdown(mealData.title);
                                     let htmlContent = api.parseMarkdown(mealData.content);
                                     let linkedContent = await api.parseAndLinkMealContent(htmlContent);
-                                    popupContent.innerHTML = `<h2>${mealData.title}</h2><p>${linkedContent}</p>`;
+                                    popupContent.innerHTML = `${parsedTitle}<p>${linkedContent}</p>`;
                                     popup.style.display = 'block';
                                     overlay.style.display = 'block';
                                 });
@@ -110,13 +112,9 @@
                 popup.style.display = 'none';
                 overlay.style.display = 'none';
             });
-
-
         }
-        
 
         const overlay = document.getElementById('overlay');
-
 
         api.fetchData().then(() => {
             console.log("fetchData resolved");
@@ -130,6 +128,46 @@
             console.error("Error fetching data:", error);
         });
 
+        // Updated calculateAggregations function
+        function parseIngredients(content) {
+            const matches = [];
+            let match;
+            while ((match = api.foodRegex.exec(content)) !== null) {
+                const quantity = parseInt(match[1], 10);
+                const ingredientName = match[2];
+                matches.push([quantity, ingredientName]);
+            }
+            return matches;
+        }
+
+        async function calculateAggregations() {
+            const aggregatedFoodDisplay = document.getElementById('aggregated-food-display');
+            const aggregatedNutrientsDisplay = document.getElementById('aggregated-nutrients-display');
+
+            if (api.selected_meals.size === 0) {
+                aggregatedFoodDisplay.setAttribute('food-list', JSON.stringify([]));
+                aggregatedNutrientsDisplay.setAttribute('food-list', JSON.stringify([]));
+                return;
+            }
+
+            // Collect all food items from selected meals
+            const allFoodItems = [];
+            for (const mealKey of api.selected_meals) {
+                const [day, mealTime, version] = mealKey.split('-');
+                const content = api.data[day][mealTime][version].content;
+                const ingredients = parseIngredients(content);
+                for (const [quantity, ingredientName] of ingredients) {
+                    allFoodItems.push({ foodName: ingredientName, quantity: quantity });
+                }
+            }
+
+            // Pass food items to both components
+            aggregatedFoodDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
+            aggregatedNutrientsDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
+        }
+
+        // Ensure calculateAggregations is called from longpress.js
+        window.calculateAggregations = calculateAggregations; // Make it globally accessible
     </script>
 </body>
 </html>

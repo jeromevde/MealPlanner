@@ -16,3 +16,5 @@ export const food_category_csv = "./fooddata/food_category.csv";
 export const selected_meals = new Set();
 export const selected_foods = {}
 export const selected_nutrients = {}
+
+export const foodRegex = /\{(\d+(?:\.\d+)?)g\s*of\s*[^\{]*?\{([^}]+)\}\}/g;

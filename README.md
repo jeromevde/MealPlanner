@@ -18,10 +18,25 @@ live-server --mount=/MealPlanner:.
 
 
 TODO
-- generate images with ai and add to readme's
 
-- handle quantities in nutrient popup -> multiplication factor
+- fix click in touch mode
 
-- aggregate nutrients/foods given a list of meals -> reduce operation
-- Allow for selection of meals which does call nutrients popup with aggregation 
-- Allow for selection of meals which calls aggregation of foods with quantities & displays it
+- fix nutrient poup gravity
+- click outside closes popup's
+- layout of aggregations needs to improve
+- add number of people normalization to the meal squares
+- add modifyable quantities to the aggregated foods
+- add calory normalization to the nutrient popup
+- add grams to unit conversion of the food to the ingredient nutrient poup
+
+- improve precesssing data
+    - more foods
+    - include all nutrients for every food
+    - units better displayed 
+    - drv's 
+    - ordering of the nutrient categories
+    - aggregated some of the nutrients (pufa)
+    - rename some of the nutrients (vitamin C)
+
+
+- cleanup & improve all recipes
