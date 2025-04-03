@@ -28,6 +28,7 @@ TODO
 - add modifyable quantities to the aggregated foods
 - add calory normalization to the nutrient popup
 - add grams to unit conversion of the food to the ingredient nutrient poup
+- add layout rules compatible on phone
 
 - improve precesssing data
     - more foods
