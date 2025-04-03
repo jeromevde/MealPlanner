@@ -39,5 +39,7 @@ TODO
     - aggregated some of the nutrients (pufa)
     - rename some of the nutrients (vitamin C)
 
+- save state with cookies ?
+- refresh state cleanup
 
 - cleanup & improve all recipes
