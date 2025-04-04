@@ -38,6 +38,5 @@ TODO
 
 
 3)FINISHING TOUCHES:
-- add layout rules compatible on phone
 - save state with cookies ? If posssible, then add also a refresh state button
 - cleanup & improve all recipes

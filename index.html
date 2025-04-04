@@ -85,9 +85,8 @@
                                 api.addLongPressListeners(versionDiv);
 
                                 versionDiv.addEventListener('click', async (event) => {
-                                    console.log("versiondiv click")
                                     if (versionDiv._longPressTriggered) {
-                                        console.log("was a long click")
+                                        console.log("was a long click");
                                         return;
                                     }
                                     let parsedTitle = api.parseMarkdown(mealData.title);
@@ -111,6 +110,25 @@
 
             mealPlanContainer.appendChild(fragment);
 
+            document.querySelectorAll('.day').forEach(day => {
+                day.addEventListener('click', (event) => {
+                    console.log("ey")
+                    console.log(event.target.tagName)
+                    if (!event.target.classList.contains("meal")) {
+                        const meals = day.querySelectorAll('.meal');
+                        meals.forEach(meal => {
+                            const mealKey = `${meal.dataset.day}-${meal.dataset.meal}-${meal.dataset.version}`;
+                            if (api.selected_meals.has(mealKey)) {
+                                api.selected_meals.delete(mealKey);
+                                meal.classList.remove('selected');
+                            }
+                        });
+                        window.calculateAggregations();
+                    }
+                });
+            });
+
+            // Existing popup and overlay event listeners remain unchanged
             document.querySelectorAll('.popup-close').forEach(closeButton => {
                 closeButton.addEventListener('click', () => {
                     const popup = closeButton.closest('.popup');
@@ -123,7 +141,7 @@
 
             document.querySelectorAll('.popup').forEach(popup => {
                 popup.addEventListener('click', (event) => {
-                    if (event.target.tagName.toLowerCase() != "food-nutrient-link") {
+                    if (event.target.tagName.toLowerCase() !== "food-nutrient-link") {
                         const nutrientLinks = popup.querySelectorAll('food-nutrient-link');
                         nutrientLinks.forEach(link => {
                             if (link.hidePopup) {
