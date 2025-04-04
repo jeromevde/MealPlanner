@@ -11,32 +11,41 @@ class FoodNutrientLink extends HTMLElement {
       <style>
         #link { text-decoration: none; color: #007bff; }
         #link:hover { text-decoration: underline; }
-        #popup {
-          display: none; position: absolute; background: white;
-          border: 1px solid #ccc; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-          z-index: 1000;
-        }
-        #close { float: right; border: none; background: none; font-size: 16px; cursor: pointer; }
       </style>
       <a href="#" id="link"></a>
-      <div id="popup">
-        <button id="close">×</button>
-        <nutrient-html id="nutrient-display"></nutrient-html>
-      </div>
     `;
+
+    // Create popup and append to body
+    this.popup = document.createElement('div');
+    this.popup.id = 'popup';
+    this.popup.innerHTML = `
+      <style>
+        :host { display: none; position: absolute; background: white; border: 1px solid #ccc; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 1000; }
+        #close { float: right; border: none; background: none; font-size: 16px; cursor: pointer; }
+      </style>
+      <button id="close">×</button>
+      <nutrient-html id="nutrient-display"></nutrient-html>
+    `;
+    this.popup.style.display = 'none';
+    this.popup.style.position = 'absolute';
+    this.popup.style.background = 'white';
+    this.popup.style.border = '1px solid #ccc';
+    this.popup.style.padding = '10px';
+    this.popup.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+    this.popup.style.zIndex = '1000';
+    document.body.appendChild(this.popup);
+
+    this.closeButton = this.popup.querySelector('#close');
   }
 
   connectedCallback() {
     const link = this.shadowRoot.querySelector('#link');
-    const popup = this.shadowRoot.querySelector('#popup');
-    const closeButton = this.shadowRoot.querySelector('#close');
-
     link.addEventListener('click', (event) => {
       event.preventDefault();
       this.showPopup();
     });
 
-    closeButton.addEventListener('click', () => this.hidePopup());
+    this.closeButton.addEventListener('click', () => this.hidePopup());
 
     this.updateFoodListAndText();
   }
@@ -91,20 +100,36 @@ class FoodNutrientLink extends HTMLElement {
   }
 
   showPopup() {
-    const nutrientDisplay = this.shadowRoot.querySelector('#nutrient-display');
+    const nutrientDisplay = this.popup.querySelector('#nutrient-display');
     nutrientDisplay.setAttribute('food-list', JSON.stringify(this.foodList));
     const link = this.shadowRoot.querySelector('#link');
-    const popup = this.shadowRoot.querySelector('#popup');
-    const top = link.offsetTop + link.offsetHeight;
-    const left = link.offsetLeft;
-    popup.style.top = `${top}px`;
-    popup.style.left = `${left}px`;
-    popup.style.display = 'block';
+    const linkRect = link.getBoundingClientRect();
+
+    this.popup.style.display = 'block';
+    const popupWidth = this.popup.offsetWidth;
+    const popupHeight = this.popup.offsetHeight;
+
+    let top = linkRect.bottom;
+    let left = linkRect.left;
+
+    if (top + popupHeight > window.innerHeight) {
+      top = linkRect.top - popupHeight;
+    }
+
+    if (left + popupWidth > window.innerWidth) {
+      left = linkRect.right - popupWidth;
+    }
+
+    if (left < 0) {
+      left = 0;
+    }
+
+    this.popup.style.top = `${top}px`;
+    this.popup.style.left = `${left}px`;
   }
 
   hidePopup() {
-    const popup = this.shadowRoot.querySelector('#popup');
-    popup.style.display = 'none';
+    this.popup.style.display = 'none';
   }
 }
 

@@ -1,6 +1,4 @@
 export * from './fooddata.js';
-export * from './meals.js';
-export * from './nutrients.js';
 export * from './markdown.js';
 export * from './longpress.js';
 
