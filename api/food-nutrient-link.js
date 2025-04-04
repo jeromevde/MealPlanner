@@ -1,4 +1,6 @@
 class FoodNutrientLink extends HTMLElement {
+  static maxZIndex = 1000;
+
   static get observedAttributes() {
     return ['food-list', 'display-mode'];
   }
@@ -9,43 +11,76 @@ class FoodNutrientLink extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
       <style>
+        :host { position: relative; }
         #link { text-decoration: none; color: #007bff; }
         #link:hover { text-decoration: underline; }
-      </style>
-      <a href="#" id="link"></a>
-    `;
-
-    // Create popup and append to body
-    this.popup = document.createElement('div');
-    this.popup.id = 'popup';
-    this.popup.innerHTML = `
-      <style>
-        :host { display: none; position: absolute; background: white; border: 1px solid #ccc; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 1000; }
+        #popup {
+          display: none; position: absolute; background: white;
+          border: 1px solid #ccc; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+          z-index: 1000; cursor: move;
+        }
         #close { float: right; border: none; background: none; font-size: 16px; cursor: pointer; }
       </style>
-      <button id="close">×</button>
-      <nutrient-html id="nutrient-display"></nutrient-html>
+      <a href="#" id="link"></a>
+      <div id="popup">
+        <button id="close">×</button>
+        <nutrient-html id="nutrient-display"></nutrient-html>
+      </div>
     `;
-    this.popup.style.display = 'none';
-    this.popup.style.position = 'absolute';
-    this.popup.style.background = 'white';
-    this.popup.style.border = '1px solid #ccc';
-    this.popup.style.padding = '10px';
-    this.popup.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-    this.popup.style.zIndex = '1000';
-    document.body.appendChild(this.popup);
-
-    this.closeButton = this.popup.querySelector('#close');
   }
 
   connectedCallback() {
     const link = this.shadowRoot.querySelector('#link');
+    const popup = this.shadowRoot.querySelector('#popup');
+    const closeButton = this.shadowRoot.querySelector('#close');
+
+    // Show popup on link click
     link.addEventListener('click', (event) => {
       event.preventDefault();
       this.showPopup();
     });
 
-    this.closeButton.addEventListener('click', () => this.hidePopup());
+    // Hide popup on close button click
+    closeButton.addEventListener('click', () => this.hidePopup());
+
+    // Bring popup to front on click
+    popup.addEventListener('click', (event) => {
+      if (event.target === popup) {
+        this.bringToFront();
+      }
+    });
+
+    // Dragging functionality
+    let isDragging = false;
+    let offsetX, offsetY;
+    let container;
+
+    popup.addEventListener('mousedown', (event) => {
+      if (event.target === popup) {
+        event.preventDefault();
+        isDragging = true;
+        const popupRect = popup.getBoundingClientRect();
+        container = this.getContainer();
+        const containerRect = container.getBoundingClientRect();
+        offsetX = event.clientX - popupRect.left;
+        offsetY = event.clientY - popupRect.top;
+        this.bringToFront();
+      }
+    });
+
+    document.addEventListener('mousemove', (event) => {
+      if (isDragging) {
+        const containerRect = container.getBoundingClientRect();
+        let newLeft = event.clientX - containerRect.left - offsetX;
+        let newTop = event.clientY - containerRect.top - offsetY;
+        popup.style.left = `${newLeft}px`;
+        popup.style.top = `${newTop}px`;
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
 
     this.updateFoodListAndText();
   }
@@ -100,36 +135,64 @@ class FoodNutrientLink extends HTMLElement {
   }
 
   showPopup() {
-    const nutrientDisplay = this.popup.querySelector('#nutrient-display');
+    const nutrientDisplay = this.shadowRoot.querySelector('#nutrient-display');
     nutrientDisplay.setAttribute('food-list', JSON.stringify(this.foodList));
     const link = this.shadowRoot.querySelector('#link');
-    const linkRect = link.getBoundingClientRect();
+    const popup = this.shadowRoot.querySelector('#popup');
 
-    this.popup.style.display = 'block';
-    const popupWidth = this.popup.offsetWidth;
-    const popupHeight = this.popup.offsetHeight;
+    const container = this.getContainer();
+    const hostRect = container.getBoundingClientRect();
 
-    let top = linkRect.bottom;
-    let left = linkRect.left;
+    popup.style.position = 'absolute';
+    popup.style.left = '-9999px';
+    popup.style.top = '-9999px';
+    popup.style.display = 'block';
 
-    if (top + popupHeight > window.innerHeight) {
-      top = linkRect.top - popupHeight;
+    const popupWidth = popup.offsetWidth;
+    const popupHeight = popup.offsetHeight;
+
+    popup.style.display = 'none';
+
+    let popupLeft = link.offsetLeft;
+    let popupTop = link.offsetTop + link.offsetHeight;
+
+    const popupRight = hostRect.left + popupLeft + popupWidth;
+
+    if (popupRight > hostRect.right) {
+      popupLeft = hostRect.right - hostRect.left - popupWidth;
     }
 
-    if (left + popupWidth > window.innerWidth) {
-      left = linkRect.right - popupWidth;
+    if (popupLeft < 0) {
+      popupLeft = 0;
     }
 
-    if (left < 0) {
-      left = 0;
-    }
-
-    this.popup.style.top = `${top}px`;
-    this.popup.style.left = `${left}px`;
+    popup.style.left = `${popupLeft}px`;
+    popup.style.top = `${popupTop}px`;
+    this.constructor.maxZIndex += 1;
+    popup.style.zIndex = this.constructor.maxZIndex;
+    popup.style.display = 'block';
   }
 
   hidePopup() {
-    this.popup.style.display = 'none';
+    const popup = this.shadowRoot.querySelector('#popup');
+    popup.style.display = 'none';
+  }
+
+  bringToFront() {
+    const popup = this.shadowRoot.querySelector('#popup');
+    this.constructor.maxZIndex += 1;
+    popup.style.zIndex = this.constructor.maxZIndex;
+  }
+
+  getContainer() {
+    let current = this.parentElement;
+    while (current) {
+      if (current.id && current.id.includes('popup')) {
+        return current;
+      }
+      current = current.parentElement;
+    }
+    return this;
   }
 }
 

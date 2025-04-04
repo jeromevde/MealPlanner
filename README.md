@@ -19,24 +19,25 @@ live-server --mount=/MealPlanner:.
 
 TODO
 
-- click outside closes popup's
-- layout of both aggregations needs to improve (maybe a slider to switch ?)
-- add number of people normalization to the meal squares
-- add modifyable quantities to the aggregated foods
-- add calory normalization to the nutrient popup
-- add grams to unit conversion of the food to the ingredient nutrient poup
-- add layout rules compatible on phone
+1)AGGREGATIONS:
++ add number of people normalization to the meal squares
++ add modifyable quantities to the aggregated foods
++ add calory normalization to the nutrient popup
 
+
+2)PREPROCESSING:
 - improve precesssing data
+    - empty drv's ?
     - more foods
     - include all nutrients for every food
     - units better displayed 
-    - drv's 
     - ordering of the nutrient categories
     - aggregated some of the nutrients (pufa)
     - rename some of the nutrients (vitamin C)
+    - add grams to unit conversion of the food to the ingredient nutrient poup
 
-- save state with cookies ?
-- refresh state cleanup
 
+3)FINISHING TOUCHES:
+- add layout rules compatible on phone
+- save state with cookies ? If posssible, then add also a refresh state button
 - cleanup & improve all recipes

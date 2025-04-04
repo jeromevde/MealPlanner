@@ -11,7 +11,7 @@ class NutrientHtml extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         .nutrient-list {
-          max-height: 400px; overflow-y: auto; text-align: left; margin-top: 15px;
+         /*max-height: 400px;*/ overflow-y: auto; text-align: left; margin-top: 15px;
         }
         .category-section {
           margin-bottom: 20px; padding: 10px; border: 1px solid #ddd;
@@ -110,7 +110,7 @@ class NutrientHtml extends HTMLElement {
               const percentage =
                 !isNaN(amountValue) && !isNaN(drvValue) && drvValue > 0
                   ? Math.min((amountValue / drvValue) * 100, 100)
-                  : 0;
+                  : 100;
               return `
                 <div class="nutrient-item">
                   <span class="nutrient-name">${n.name}</span>

@@ -1,39 +1,52 @@
 .meal-plan {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(7, 1fr); /* 7 columns for desktop */
     gap: 20px;
 }
+
 .day {
     border: 1px solid #ccc;
     padding: 10px;
 }
+
 .schedule {
     margin-bottom: 20px;
 }
+
 .meals {
     display: flex;
     gap: 10px;
 }
+
 .meal {
     border: 1px solid #ccc;
-    padding: 10px;
+    padding: 15px; /* Increased for touch-friendliness */
     transition: background-color 0.3s, color 0.3s;
     cursor: pointer;
     display: flex;
     align-items: center;
-    user-select: none; /* prevent selection of text */
-    -webkit-user-select: none; /* For Chrome & Safari */
-    -moz-user-select: none;    /* For Firefox */
-    -ms-user-select: none;     /* For IE/Edge */
-
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    font-size: 16px; /* Improved readability on mobile */
 }
+
 .meal input[type="checkbox"] {
     margin-right: 10px;
+    width: 20px; /* Larger for touch */
+    height: 20px;
 }
+
 .meal:hover {
     background-color: #f0f0f0;
     color: #333;
 }
+
+.meal.selected {
+    background-color: grey;
+}
+
 .overlay {
     display: none;
     position: fixed;
@@ -44,13 +57,14 @@
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 999;
 }
+
 .popup {
     display: none;
     position: fixed;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 70%;
+    width: 70%; /* Default for desktop */
     height: 80%;
     background-color: white;
     border: 1px solid #ccc;
@@ -66,22 +80,62 @@
     right: 10px;
     font-size: 24px;
     cursor: pointer;
-}
-.meal.selected {
-    background-color: grey;
+    padding: 10px; /* Larger tap area */
 }
 
+/* Tab View Styles */
 #aggregation-section {
-    display: flex;
-    justify-content: space-between;
     margin-top: 20px;
+    width: 95%; /* Full width on all screens */
 }
 
-#aggregated-ingredients, #aggregated-nutrients {
-    width: 48%;
+.tabs {
+    display: flex;
+    flex-wrap: wrap; /* Allows tabs to wrap on small screens if needed */
+    border-bottom: 1px solid #ccc;
+}
+
+.tab-button {
+    padding: 10px 20px;
+    background: white;
+    border: none;
+    cursor: pointer;
+}
+
+.tab-button.active {
+    background: white;
+    border-bottom: 2px solid #007bff; /* Visual indicator for active tab */
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+    width: 100%; /* Full width on all screens */
+}
+
+.tab-content.active {
+    display: block;
 }
 
 #ingredients-list, #nutrients-list {
     list-style-type: none;
     padding: 0;
+}
+
+/* Mobile-Friendly Adjustments */
+@media (max-width: 768px) {
+    .meal-plan {
+        grid-template-columns: repeat(7, 1fr); /* Keep 7 columns for scrolling */
+        overflow-x: auto; /* Ensure horizontal scrolling */
+        -webkit-overflow-scrolling: touch;
+    }
+    .day {
+        min-width: 70vw; /* Each day takes full viewport width on mobile */
+        min-height: 70vh;
+    }
+    .popup {
+        width: 90%; /* Wider on mobile */
+        height: auto;
+        max-height: 80%; /* Prevents overflow */
+    }
 }

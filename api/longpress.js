@@ -22,7 +22,7 @@ function startLongPress(event) {
         mealDiv._longPressTriggered = true;
         setTimeout(() => {
             mealDiv._longPressTriggered = false;
-        }, 100); // Reset flag after 100ms
+        }, 1000); // Reset flag after 100ms
     }, 500);
 }
 

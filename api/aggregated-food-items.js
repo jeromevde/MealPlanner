@@ -11,7 +11,7 @@ class AggregatedFoodItems extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         .food-list {
-          max-height: 400px;
+         /*max-height: 400px;*/
           overflow-y: auto;
           text-align: left;
           margin-top: 15px;
