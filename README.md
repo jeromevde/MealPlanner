@@ -39,4 +39,7 @@ TODO
 
 3)FINISHING TOUCHES:
 - save state with cookies ? If posssible, then add also a refresh state button
+- save state to url with code (day,meal,version,#people)
+    --> state to url
+    --> url to state on render
 - cleanup & improve all recipes
