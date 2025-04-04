@@ -22,7 +22,7 @@
     display: flex;
     align-items: center;
     user-select: none; /* prevent selection of text */
-    -webkit-user-select: none; /* For Safari */
+    -webkit-user-select: none; /* For Chrome & Safari */
     -moz-user-select: none;    /* For Firefox */
     -ms-user-select: none;     /* For IE/Edge */
 

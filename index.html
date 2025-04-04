@@ -15,11 +15,9 @@
     <!-- Aggregation Section -->
     <div id="aggregation-section">
         <div id="aggregated-ingredients">
-            <h3>Aggregated Ingredients</h3>
             <aggregated-food-items id="aggregated-food-display"></aggregated-food-items> <!-- Replace ul -->
         </div>
         <div id="aggregated-nutrients">
-            <h3>Aggregated Nutrients</h3>
             <nutrient-html id="aggregated-nutrients-display"></nutrient-html>
         </div>
     </div>
@@ -84,7 +82,6 @@
 
                                 versionDiv.addEventListener('click', async (event) => {
                                     if (versionDiv._longPressTriggered) {
-                                        versionDiv._longPressTriggered = false;
                                         return;
                                     }
                                     let parsedTitle = api.parseMarkdown(mealData.title);

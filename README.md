@@ -19,8 +19,6 @@ live-server --mount=/MealPlanner:.
 
 TODO
 
-- fix click in touch mode selecting text
-- fix nutrient poup gravity
 - click outside closes popup's
 - layout of both aggregations needs to improve (maybe a slider to switch ?)
 - add number of people normalization to the meal squares

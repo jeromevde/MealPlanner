@@ -1,12 +1,10 @@
 function startLongPress(event) {
     const mealDiv = event.currentTarget;
-    // Only call preventDefault for touch events, and we'll handle taps manually
     if (event.type === 'touchstart') {
-        mealDiv._isTouching = true; // Flag to track touch in progress
+        mealDiv._isTouching = true;
     } else {
-        event.preventDefault(); // Keep preventDefault for mouse events if needed
+        event.preventDefault();
     }
-    mealDiv._longPressTriggered = false;
     mealDiv._longPressTimeout = setTimeout(() => {
         mealDiv.classList.toggle('selected');
         const day = mealDiv.dataset.day;
@@ -22,16 +20,16 @@ function startLongPress(event) {
 
         window.calculateAggregations();
         mealDiv._longPressTriggered = true;
-        mealDiv._isTouching = false; // Reset touch flag
+        setTimeout(() => {
+            mealDiv._longPressTriggered = false;
+        }, 100); // Reset flag after 100ms
     }, 500);
 }
 
 function endPress(event) {
     const mealDiv = event.currentTarget;
     clearTimeout(mealDiv._longPressTimeout);
-    // Handle short tap on touch devices
     if (event.type === 'touchend' && mealDiv._isTouching && !mealDiv._longPressTriggered) {
-        // Simulate the click event for a short tap
         mealDiv.click();
     }
     mealDiv._isTouching = false;

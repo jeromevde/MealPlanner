@@ -97,6 +97,7 @@ class AggregatedFoodItems extends HTMLElement {
     
     const html = `
       <div class="food-list">
+        <h2>Ingredients to buy </h2>
         ${sortedCategories
           .map((category) => `
             <div class="category-section">

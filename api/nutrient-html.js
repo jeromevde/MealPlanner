@@ -95,7 +95,7 @@ class NutrientHtml extends HTMLElement {
       const foodCategory = foodKey ? foodapi.foodData[foodKey].category : 'Unknown';
       header = `<h2>${quantity}g of ${foodName} (${foodCategory})</h2>`;
     } else {
-      header = `<h2>Aggregated Nutrients</h2>`;
+      header = `<h2>Normalized nutrients of the selected plan</h2>`;
     }
 
     // Generate nutrient HTML using the single-food structure
