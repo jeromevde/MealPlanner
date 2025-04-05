@@ -1,6 +1,7 @@
+/* Meal Planner Layout */
 .meal-plan {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); /* 7 columns for desktop */
+    grid-template-columns: repeat(7, 1fr);
     gap: 20px;
 }
 
@@ -19,23 +20,15 @@
 }
 
 .meal {
+    position: relative;
     border: 1px solid #ccc;
-    padding: 15px; /* Increased for touch-friendliness */
+    padding: 15px;
     transition: background-color 0.3s, color 0.3s;
     cursor: pointer;
     display: flex;
     align-items: center;
     user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    font-size: 16px; /* Improved readability on mobile */
-}
-
-.meal input[type="checkbox"] {
-    margin-right: 10px;
-    width: 20px; /* Larger for touch */
-    height: 20px;
+    font-size: 16px;
 }
 
 .meal:hover {
@@ -44,9 +37,84 @@
 }
 
 .meal.selected {
-    background-color: grey;
+    background-color: #e0e0e0;
 }
 
+/* Meal Control */
+.meal-control {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.quantity-circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    line-height: 20px; /* Matches the height for vertical centering */
+    text-align: center; /* Ensures horizontal centering */
+    margin: 0; /* Removes any unwanted spacing */
+    padding: 0; /* Removes any unwanted spacing */
+    color: white;
+
+}
+
+.quantity-circle.active {
+    background-color: #e0e0e0;
+    color: white;
+}
+
+/* Custom Dropdown */
+.custom-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 10;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+/* Circle Buttons inside Custom Dropdown */
+.circle-button {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.circle-button:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Popup and Overlay */
 .overlay {
     display: none;
     position: fixed;
@@ -64,7 +132,7 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 70%; /* Default for desktop */
+    width: 70%;
     height: 80%;
     background-color: white;
     border: 1px solid #ccc;
@@ -80,18 +148,18 @@
     right: 10px;
     font-size: 24px;
     cursor: pointer;
-    padding: 10px; /* Larger tap area */
+    padding: 10px;
 }
 
 /* Tab View Styles */
 #aggregation-section {
     margin-top: 20px;
-    width: 95%; /* Full width on all screens */
+    width: 95%;
 }
 
 .tabs {
     display: flex;
-    flex-wrap: wrap; /* Allows tabs to wrap on small screens if needed */
+    flex-wrap: wrap;
     border-bottom: 1px solid #ccc;
 }
 
@@ -104,38 +172,33 @@
 
 .tab-button.active {
     background: white;
-    border-bottom: 2px solid #007bff; /* Visual indicator for active tab */
+    border-bottom: 2px solid #007bff;
 }
 
 .tab-content {
     display: none;
     padding: 20px;
-    width: 100%; /* Full width on all screens */
+    width: 100%;
 }
 
 .tab-content.active {
     display: block;
 }
 
-#ingredients-list, #nutrients-list {
-    list-style-type: none;
-    padding: 0;
-}
-
 /* Mobile-Friendly Adjustments */
 @media (max-width: 768px) {
     .meal-plan {
-        grid-template-columns: repeat(7, 1fr); /* Keep 7 columns for scrolling */
-        overflow-x: auto; /* Ensure horizontal scrolling */
+        grid-template-columns: repeat(7, 1fr);
+        overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
     .day {
-        min-width: 70vw; /* Each day takes full viewport width on mobile */
+        min-width: 70vw;
         min-height: 70vh;
     }
     .popup {
-        width: 90%; /* Wider on mobile */
+        width: 90%;
         height: auto;
-        max-height: 80%; /* Prevents overflow */
+        max-height: 80%;
     }
 }

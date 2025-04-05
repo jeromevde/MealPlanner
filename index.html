@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meal Planner</title>
     <link rel="stylesheet" type="text/css" href="index.css">
-    <script src="./api/api.js" type="module"></script>
-    <script src="./api/nutrient-html.js" type="module"></script>
-    <script src="./api/food-nutrient-link.js" type="module"></script>
-    <script src="./api/aggregated-food-items.js" type="module"></script>
 </head>
 <body>
+    <!-- Meal Plan Container -->
     <div class="meal-plan" id="meal-plan"></div>
+
     <!-- Aggregation Section with Tabs -->
     <div id="aggregation-section">
         <div class="tabs">
@@ -25,18 +23,19 @@
             <nutrient-html id="aggregated-nutrients-display"></nutrient-html>
         </div>
     </div>
-    
+
+    <!-- Overlay and Popups -->
     <div id="overlay" class="overlay"></div>
     <div id="popup" class="popup">
         <span class="popup-close">×</span>
         <div id="popup-content"></div>
     </div>
-    <!-- Nutrient Popup for Individual Meals -->
     <div id="nutrient-popup" class="popup" style="display: none;">
         <span class="popup-close">×</span>
         <nutrient-html id="nutrient-display"></nutrient-html>
     </div>
 
+    <!-- Main JavaScript Logic -->
     <script type="module">
         import * as api from './api/api.js';
         window.api = api;
@@ -50,7 +49,6 @@
             const popup = document.getElementById('popup');
             const popupContent = document.getElementById('popup-content');
             const overlay = document.getElementById('overlay');
-
             const fragment = document.createDocumentFragment();
 
             for (const day of api.days) {
@@ -77,16 +75,63 @@
                                 versionDiv.classList.add('meal');
                                 const mealData = api.data[day][meal][version];
                                 versionDiv.textContent = cleanTitle(mealData.title);
-
                                 versionDiv.dataset.day = day;
                                 versionDiv.dataset.meal = meal;
                                 versionDiv.dataset.version = version;
 
-                                api.addLongPressListeners(versionDiv);
+                                const mealKey = `${day}-${meal}-${version}`;
+                                api.mealQuantities.set(mealKey, 0);
+
+                                const controlDiv = document.createElement('div');
+                                controlDiv.classList.add('meal-control');
+
+                                const quantityCircle = document.createElement('div');
+                                quantityCircle.classList.add('quantity-circle');
+                                quantityCircle.textContent = '0';
+                                quantityCircle.style.display = 'block';
+
+                                // Create custom dropdown as a div with circle buttons
+                                const customDropdown = document.createElement('div');
+                                customDropdown.classList.add('custom-dropdown');
+                                customDropdown.style.display = 'none'; // Hidden initially
+
+                                // Add circle buttons for quantities 0 to 15
+                                for (let i = 0; i <= 15; i++) {
+                                    const circleButton = document.createElement('button');
+                                    circleButton.classList.add('circle-button');
+                                    circleButton.textContent = i;
+                                    circleButton.addEventListener('click', () => {
+                                        const value = i;
+                                        api.mealQuantities.set(mealKey, value);
+                                        quantityCircle.textContent = value;
+                                        if (value > 0) {
+                                            versionDiv.classList.add('selected');
+                                            quantityCircle.classList.add('active');
+                                        } else {
+                                            versionDiv.classList.remove('selected');
+                                            quantityCircle.classList.remove('active');
+                                        }
+                                        customDropdown.style.display = 'none'; // Hide dropdown
+                                        quantityCircle.style.display = 'block'; // Show circle
+                                        window.calculateAggregations();
+                                    });
+                                    customDropdown.appendChild(circleButton);
+                                }
+
+                                controlDiv.appendChild(quantityCircle);
+                                controlDiv.appendChild(customDropdown);
+                                versionDiv.appendChild(controlDiv);
+
+                                // Show custom dropdown immediately on click
+                                quantityCircle.addEventListener('click', (event) => {
+                                    event.stopPropagation();
+                                    quantityCircle.style.display = 'none';
+                                    customDropdown.style.display = 'flex'; // Show custom dropdown
+                                });
 
                                 versionDiv.addEventListener('click', async (event) => {
-                                    if (versionDiv._longPressTriggered) {
-                                        console.log("was a long click");
+                                    if (event.target.closest('.meal-control')) {
+                                        event.stopPropagation();
                                         return;
                                     }
                                     let parsedTitle = api.parseMarkdown(mealData.title);
@@ -99,7 +144,6 @@
 
                                 mealsDiv.appendChild(versionDiv);
                             }
-
                             mealDiv.appendChild(mealsDiv);
                             dayDiv.appendChild(mealDiv);
                         }
@@ -112,14 +156,19 @@
 
             document.querySelectorAll('.day').forEach(day => {
                 day.addEventListener('click', (event) => {
-                    console.log("ey")
-                    console.log(event.target.tagName)
                     if (!event.target.classList.contains("meal")) {
                         const meals = day.querySelectorAll('.meal');
                         meals.forEach(meal => {
                             const mealKey = `${meal.dataset.day}-${meal.dataset.meal}-${meal.dataset.version}`;
-                            if (api.selected_meals.has(mealKey)) {
-                                api.selected_meals.delete(mealKey);
+                            api.mealQuantities.set(mealKey, 0);
+                            const controlDiv = meal.querySelector('.meal-control');
+                            if (controlDiv) {
+                                const circle = controlDiv.querySelector('.quantity-circle');
+                                const customDropdown = controlDiv.querySelector('.custom-dropdown');
+                                circle.textContent = '0';
+                                circle.classList.remove('active');
+                                circle.style.display = 'block';
+                                customDropdown.style.display = 'none';
                                 meal.classList.remove('selected');
                             }
                         });
@@ -128,7 +177,6 @@
                 });
             });
 
-            // Existing popup and overlay event listeners remain unchanged
             document.querySelectorAll('.popup-close').forEach(closeButton => {
                 closeButton.addEventListener('click', () => {
                     const popup = closeButton.closest('.popup');
@@ -191,30 +239,24 @@
         async function calculateAggregations() {
             const aggregatedFoodDisplay = document.getElementById('aggregated-food-display');
             const aggregatedNutrientsDisplay = document.getElementById('aggregated-nutrients-display');
-
-            if (api.selected_meals.size === 0) {
-                aggregatedFoodDisplay.setAttribute('food-list', JSON.stringify([]));
-                aggregatedNutrientsDisplay.setAttribute('food-list', JSON.stringify([]));
-                return;
-            }
-
             const allFoodItems = [];
-            for (const mealKey of api.selected_meals) {
-                const [day, mealTime, version] = mealKey.split('-');
-                const content = api.data[day][mealTime][version].content;
-                const ingredients = parseIngredients(content);
-                for (const [quantity, ingredientName] of ingredients) {
-                    allFoodItems.push({ foodName: ingredientName, quantity: quantity });
+            for (const [mealKey, quantity] of api.mealQuantities) {
+                if (quantity > 0) {
+                    const [day, mealTime, version] = mealKey.split('-');
+                    const content = api.data[day][mealTime][version].content;
+                    const ingredients = parseIngredients(content);
+                    for (const [ingQuantity, ingredientName] of ingredients) {
+                        const totalQuantity = ingQuantity * quantity;
+                        allFoodItems.push({ foodName: ingredientName, quantity: totalQuantity });
+                    }
                 }
             }
-
             aggregatedFoodDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
             aggregatedNutrientsDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
         }
 
         window.calculateAggregations = calculateAggregations;
 
-        // Tab switching logic
         document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
                 document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -225,5 +267,11 @@
             });
         });
     </script>
+
+    <!-- Additional JavaScript Files -->
+    <script src="./api/api.js" type="module"></script>
+    <script src="./api/nutrient-html.js" type="module"></script>
+    <script src="./api/food-nutrient-link.js" type="module"></script>
+    <script src="./api/aggregated-food-items.js" type="module"></script>
 </body>
 </html>
