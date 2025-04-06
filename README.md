@@ -19,13 +19,9 @@ live-server --mount=/MealPlanner:.
 
 TODO
 
-1)AGGREGATIONS:
-+ add number of people normalization to the meal squares
-+ add modifyable quantities to the aggregated foods
-+ add calory normalization to the nutrient popup
 
 
-2)PREPROCESSING:
+1))PREPROCESSING:
 - improve precesssing data
     - empty drv's ?
     - more foods
@@ -35,6 +31,11 @@ TODO
     - aggregated some of the nutrients (pufa)
     - rename some of the nutrients (vitamin C)
     - add grams to unit conversion of the food to the ingredient nutrient poup
+
+2)
+- restructure, creatre components for the meals
+- separated css for comonents
+- improve layout after restructuring (for example the #meals amounts)
 
 
 3)FINISHING TOUCHES:
