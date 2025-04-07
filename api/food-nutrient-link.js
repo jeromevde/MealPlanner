@@ -1,3 +1,6 @@
+
+import * as api from './api.js';
+
 class FoodNutrientLink extends HTMLElement {
   static maxZIndex = 1000;
 
@@ -113,7 +116,7 @@ class FoodNutrientLink extends HTMLElement {
     const displayMode = this.getAttribute('display-mode') || 'full';
     if (this.foodList.length === 1) {
       const { foodName, quantity } = this.foodList[0];
-      const displayName = this.computeDisplayName(foodName);
+      const displayName = this.computeDisplayName(foodName, quantity);
       if (displayMode === 'name-only') {
         link.textContent = displayName;
       } else {
@@ -126,12 +129,43 @@ class FoodNutrientLink extends HTMLElement {
     }
   }
 
-  computeDisplayName(foodName) {
-    const parts = foodName.split(',').map(part => part.trim());
-    if (parts.length >= 2) {
-      return [parts[1], parts[0]].join(' ').toLowerCase();
+  computeDisplayName(foodName, quantity) {
+    let portionText = '';
+  
+    // Check if quantity is a valid number
+    if (typeof quantity === 'number' && !isNaN(quantity)) {
+      // Normalize foodName for case-insensitive lookup
+      const normalizedFoodName = foodName.toLowerCase();
+      // Find the matching food key in api.fooddata
+      const foodKey = Object.keys(api.foodData).find(key => key.toLowerCase() === normalizedFoodName);
+  
+      // If food is found and has portion data
+      if (foodKey && api.foodData[foodKey].portion_unit_name && api.foodData[foodKey].portion_gram_weight) {
+        const portionUnitName = api.foodData[foodKey].portion_unit_name;
+        const portionGramWeight = parseFloat(api.foodData[foodKey].portion_gram_weight);
+  
+        // Ensure portionGramWeight is a valid, positive number
+        if (!isNaN(portionGramWeight) && portionGramWeight > 0) {
+          const numPortions = quantity / portionGramWeight;
+          // Singular if exactly 1, plural otherwise
+          const unitText = numPortions === 1 ? portionUnitName : portionUnitName + 's';
+          // Format number of portions to 2 decimal places
+          portionText = `${numPortions.toFixed(2)} ${unitText} of `;
+        }
+      }
     }
-    return foodName.toLowerCase();
+
+    // Compute the base display name (original logic)
+    const parts = foodName.split(',').map(part => part.trim());
+    let baseDisplayName;
+    if (parts.length >= 2) {
+      baseDisplayName = [parts[1], parts[0]].join(' ').toLowerCase();
+    } else {
+      baseDisplayName = foodName.toLowerCase();
+    }
+  
+    // Return the portion text prepended to the base display name
+    return portionText + baseDisplayName;
   }
 
   showPopup() {

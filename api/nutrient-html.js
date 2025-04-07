@@ -146,7 +146,7 @@ class NutrientHtml extends HTMLElement {
                   <div class="progress-bar-container">
                     <div class="progress-bar" style="width: ${percentage}%;"></div>
                   </div>
-                  <span class="nutrient-value">${n.displayAmount} ${n.unit} / ${n.drv || 'N/A'} ${n.unit}</span>
+                  <span class="nutrient-value">${n.displayAmount} ${n.unit_name} / ${n.drv || 'N/A'} ${n.unit_name}</span>
                 </div>
               `;
             })

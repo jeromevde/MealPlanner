@@ -11,6 +11,8 @@ export async function loadData() {
             loadingDataPromise = (async () => {
                 try {
                     const response = await fetch('./fooddata/fooddata.json');
+                    console.log("ela")
+                    console.log(response)
                     if (!response.ok) {
                         throw new Error(`Could not fetch fooddata.json, received ${response.status}`);
                     }
@@ -104,7 +106,7 @@ export async function getNutrientsForName(foodName) {
     return Object.entries(nutrients).map(([name, details]) => ({
         name,
         amount: details.amount,
-        unit: details.unit,
+        unit_name: details.unit_name,
         category: details.category,
         drv: details.drv
     }));
