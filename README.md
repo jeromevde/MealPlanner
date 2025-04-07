@@ -23,8 +23,9 @@ TODO
 
 
 1)
-- restructure, creatre components for the meals
-- separated css for comonents
+- restructure
+- create a components for the meals (adapt clicklisteners etc)
+- separated css for components
 - improve layout after restructuring (for example the #meals amounts)
 
 
