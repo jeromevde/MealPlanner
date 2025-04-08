@@ -11,8 +11,6 @@ export async function loadData() {
             loadingDataPromise = (async () => {
                 try {
                     const response = await fetch('./fooddata/fooddata.json');
-                    console.log("ela")
-                    console.log(response)
                     if (!response.ok) {
                         throw new Error(`Could not fetch fooddata.json, received ${response.status}`);
                     }
@@ -78,10 +76,7 @@ export async function fetchData() {
 export async function parseAndLinkMealContent(content) {
     let match;
     let newContent = content;
-
-    while ((match = api.foodRegex.exec(content)) !== null) {
-        const [, amount, foodName] = match;
-        const originalText = match[0];
+    for (const [amount, foodName, originalText] of api.parseIngredients(content)){
         // Create a foodList array with one item
         const foodList = [{ foodName: foodName, quantity: amount }];
         // Convert to JSON string, escaping double quotes for HTML attributes

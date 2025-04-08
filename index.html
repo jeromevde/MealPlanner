@@ -216,7 +216,6 @@
         api.fetchData().then(() => {
             console.log("fetchData resolved");
             renderMealPlan().then(() => {
-                console.log(api.data);
                 console.log("Meal plan rendered successfully.");
             }).catch(error => {
                 console.error("Error rendering meal plan:", error);
@@ -228,9 +227,7 @@
         function parseIngredients(content) {
             const matches = [];
             let match;
-            while ((match = api.foodRegex.exec(content)) !== null) {
-                const quantity = parseInt(match[1], 10);
-                const ingredientName = match[2];
+            for(const [quantity, ingredientName, originalText] of api.parseIngredients(content)) {
                 matches.push([quantity, ingredientName]);
             }
             return matches;

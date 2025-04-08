@@ -22,24 +22,26 @@ TODO
 
 
 
-1)
+1) IMPROVE CODE
 - restructure
-- create a components for the meals (adapt clicklisteners etc)
+- create a components for
+    - meals
+    - agg-ingredients (adapt clicklisteners etc)
 - separated css for components
 - improve layout after restructuring (for example the #meals amounts)
+- make foodData keys lowercase & lowercase the access to it
 
+2) IMROVE DATA
+- find missing foods & nutrients ?
 
-2)
-- improve nutrient data & display
-- improve portions data & display
-
-3)
+3) IMPROVE MEALS
 - cleanup & improve all recipes
 
-4)
+4) OPTIONAL
 - save state with cookies ? If posssible, then add also a refresh state button
 - save state to url with code (day,meal,version,#people)
     --> state to url
     --> url to state on render
 
-- make foodData keys lowercase & lowercase the access to it
+
+
