@@ -31,6 +31,7 @@ TODO
     - agg-ingredients (adapt clicklisteners etc)
 - separated css for components
 - improve layout after restructuring (for example the #meals amounts)
+- make the first day of recipes unitary person
 
 2) IMROVE DATA
 - find missing foods & nutrients ?
