@@ -69,17 +69,16 @@ class AggregatedFoodItems extends HTMLElement {
       const normalizedFoodName = foodName.toLowerCase();
       const foodKey = Object.keys(foodapi.foodData).find(
         (key) => key.toLowerCase() === normalizedFoodName
-      );
-      if (foodKey) {
-        const currentTotal = aggregatedFoods.get(foodKey) || 0;
-        aggregatedFoods.set(foodKey, currentTotal + parseFloat(quantity));
-      }
+      ) || normalizedFoodName;
+      const currentTotal = aggregatedFoods.get(foodKey) || 0;
+      aggregatedFoods.set(foodKey, currentTotal + parseFloat(quantity));
+      
     }
 
     // Group by category
     const foodsByCategory = {};
     for (const [foodKey, totalQuantity] of aggregatedFoods) {
-      const category = foodapi.foodData[foodKey].category || 'Other';
+      const category = foodapi.foodData[foodKey]?.category || 'Other';
       if (!foodsByCategory[category]) {
         foodsByCategory[category] = [];
       }

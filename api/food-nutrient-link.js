@@ -122,6 +122,12 @@ class FoodNutrientLink extends HTMLElement {
       } else {
         link.textContent = `${quantity}g of ${displayName}`;
       }
+      // set the link color
+      api.ensureDataLoaded();
+      const normalizedFoodName = foodName.toLowerCase();
+      if (!Object.keys(api.foodData).find((key) => key.toLowerCase() === normalizedFoodName)){
+        link.style.color = "red"
+      }
     } else if (this.foodList.length > 1) {
       link.textContent = 'Mixed Foods';
     } else {

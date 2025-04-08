@@ -4,7 +4,7 @@ const inlinePatterns = [
     { regex: /__(.+?)__/g, replacement: '<strong>$1</strong>' },     // __bold__
     { regex: /\*(.+?)\*/g, replacement: '<em>$1</em>' },            // *italic*
     { regex: /_(.+?)_/g, replacement: '<em>$1</em>' },              // _italic_
-    { regex: /!\[(.+?)\]\((.+?)\)/g, replacement: '<img src="$2" alt="$1">' }, // ![alt](URL)
+    { regex: /!\[(.+?)\]\((.+?)\)/g, replacement: '<img src="$2" alt="$1" style="max-width:100%; height:auto;">' }, // ![alt](URL)
     { regex: /\[(.+?)\]\((.+?)\)/g, replacement: '<a href="$2">$1</a>' }, // [text](URL)
     { regex: /`(.+?)`/g, replacement: '<code>$1</code>' }          // `code`
 ];

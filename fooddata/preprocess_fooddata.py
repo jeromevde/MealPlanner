@@ -11,7 +11,8 @@ food_df = pd.merge(food_df, food_category_df[['category_id', 'category_descripti
                    left_on='food_category_id', right_on='category_id', how='left')
 
 # Filter for foundation foods
-foundation_foods = food_df[food_df['data_type'] == 'foundation_food']
+# foundation_foods = food_df[food_df['data_type'] == 'foundation_food']
+foundation_foods = food_df
 
 # Merge food data with nutrient data
 food_nutrient_df = pd.read_csv('FoodData_Central_October_2024/food_nutrient.csv')

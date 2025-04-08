@@ -41,3 +41,5 @@ TODO
 - save state to url with code (day,meal,version,#people)
     --> state to url
     --> url to state on render
+
+- make foodData keys lowercase & lowercase the access to it

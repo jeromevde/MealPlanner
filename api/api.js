@@ -18,4 +18,4 @@ export const mealQuantities = new Map();
 export const selected_foods = {}
 export const selected_nutrients = {}
 
-export const foodRegex = /\{(\d+(?:\.\d+)?)g\s*of\s*[^\{]*?\{([^}]+)\}\}/g;
+export const foodRegex = /\{(\d+(?:\.\d+)?)\s*[a-zA-Z]+\s*of\s*[^\{]*?\{([^}]+)\}\}/g;
