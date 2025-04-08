@@ -134,6 +134,7 @@
                                         event.stopPropagation();
                                         return;
                                     }
+                                    await api.ensureDataLoaded();
                                     let parsedTitle = api.parseMarkdown(mealData.title);
                                     let htmlContent = api.parseMarkdown(mealData.content);
                                     let linkedContent = await api.parseAndLinkMealContent(htmlContent);
