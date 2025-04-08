@@ -23,13 +23,14 @@ TODO
 
 
 1) IMPROVE CODE
+- make foodData keys lowercase & lowercase the access to it
+- fix link formatting and encoding, not satisfying
 - restructure
 - create a components for
     - meals
     - agg-ingredients (adapt clicklisteners etc)
 - separated css for components
 - improve layout after restructuring (for example the #meals amounts)
-- make foodData keys lowercase & lowercase the access to it
 
 2) IMROVE DATA
 - find missing foods & nutrients ?
