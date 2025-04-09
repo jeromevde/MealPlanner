@@ -27,19 +27,18 @@ TODO
 - fix link formatting and encoding, not satisfying
 - remove aggregation function from index.html
 - improve layout after restructuring (for example the #meals amounts)
-- make the first day of recipes unitary person
+- add "for 1 person to title of meal"
 
 2) IMROVE DATA
 - find missing foods & nutrients ?
 
 3) IMPROVE MEALS
 - cleanup & improve all recipes
+- for 1 person by default
 
 4) OPTIONAL
-- save state with cookies ? If posssible, then add also a refresh state button
-- save state to url with code (day,meal,version,#people)
-    --> state to url
-    --> url to state on render
-
+- fix broken link logic & cookies
+- add a selector of meals in the aggregation componenent
+- add a displayer of meals in the ingredients aggregation component
 
 

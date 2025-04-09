@@ -93,9 +93,28 @@
                 if (api.data[day]) {
                     const dayDiv = document.createElement('div');
                     dayDiv.classList.add('day');
+    
+                    // Create a header container for the title and refresh button
+                    const dayHeader = document.createElement('div');
+                    dayHeader.style.display = 'flex';
+                    dayHeader.style.alignItems = 'center';
+    
                     const dayTitle = document.createElement('h2');
                     dayTitle.textContent = day.charAt(0).toUpperCase() + day.slice(1);
-                    dayDiv.appendChild(dayTitle);
+                    dayHeader.appendChild(dayTitle);
+    
+                    // Add the refresh button
+                    const refreshButton = document.createElement('button');
+                    refreshButton.textContent = '↻'; // Unicode refresh symbol
+                    refreshButton.title = 'Reset selections for this day';
+                    refreshButton.style.marginLeft = '10px';
+                    refreshButton.style.cursor = 'pointer';
+                    refreshButton.addEventListener('click', () => {
+                        resetDaySelections(day);
+                    });
+                    dayHeader.appendChild(refreshButton);
+    
+                    dayDiv.appendChild(dayHeader);
     
                     for (const meal of api.meals) {
                         if (api.data[day][meal]) {
@@ -125,29 +144,6 @@
             }
     
             mealPlanContainer.appendChild(fragment);
-    
-            // Reset quantities on day click (excluding meal clicks)
-            document.querySelectorAll('.day').forEach(day => {
-                day.addEventListener('click', (event) => {
-                    if (!event.target.closest('meal-element')) {
-                        const meals = day.querySelectorAll('meal-element');
-                        meals.forEach(meal => {
-                            const mealKey = `${meal.getAttribute('day')}-${meal.getAttribute('meal')}-${meal.getAttribute('version')}`;
-                            api.mealQuantities.set(mealKey, 0);
-                            const shadowRoot = meal.shadowRoot;
-                            const quantityCircle = shadowRoot.querySelector('.quantity-circle');
-                            const customDropdown = shadowRoot.querySelector('.custom-dropdown');
-                            const mealDiv = shadowRoot.querySelector('.meal');
-                            quantityCircle.textContent = '0';
-                            quantityCircle.classList.remove('active');
-                            quantityCircle.style.display = 'block';
-                            customDropdown.style.display = 'none';
-                            mealDiv.classList.remove('selected');
-                        });
-                        window.calculateAggregations();
-                    }
-                });
-            });
     
             // Close popups
             document.querySelectorAll('.popup-close').forEach(closeButton => {
@@ -186,19 +182,56 @@
             });
         }
     
+        // Function to reset selections for a specific day
+        function resetDaySelections(day) {
+            const meals = document.querySelectorAll(`meal-element[day="${day}"]`);
+            meals.forEach(meal => {
+                const mealKey = `${meal.getAttribute('day')}-${meal.getAttribute('meal')}-${meal.getAttribute('version')}`;
+                api.mealQuantities.set(mealKey, 0);
+                const shadowRoot = meal.shadowRoot;
+                const quantityCircle = shadowRoot.querySelector('.quantity-circle');
+                const customDropdown = shadowRoot.querySelector('.custom-dropdown');
+                const mealDiv = shadowRoot.querySelector('.meal');
+                quantityCircle.textContent = '0';
+                quantityCircle.classList.remove('active');
+                quantityCircle.style.display = 'block';
+                customDropdown.style.display = 'none';
+                mealDiv.classList.remove('selected');
+            });
+            window.calculateAggregations();
+        }
+    
         api.fetchData().then(() => {
             console.log("fetchData resolved");
             renderMealPlan().then(() => {
                 console.log("Meal plan rendered successfully.");
-                const fragment = location.hash.slice(1);
+                
+                const fragment = location.hash.slice(1); // Get URL fragment (after #)
+                let selections;
+                
                 if (fragment) {
-                    const decoded = decodeSelections(fragment);
-                    api.mealQuantities = decoded;
-                    document.querySelectorAll('meal-element').forEach(meal => {
-                        meal.refresh();
-                    });
-                    window.calculateAggregations();
+                    // If URL fragment exists, use it
+                    selections = decodeSelections(fragment);
+                } else {
+                    // If URL is blank, check the cookie
+                    const cookieSelections = getCookie('mealSelections');
+                    if (cookieSelections) {
+                        selections = decodeSelections(cookieSelections);
+                    } else {
+                        selections = new Map(); // Default to empty selections
+                    }
                 }
+                
+                // Apply the selections
+                api.mealQuantities = selections;
+                
+                // Refresh meal elements
+                document.querySelectorAll('meal-element').forEach(meal => {
+                    meal.refresh();
+                });
+                
+                // Recalculate aggregations
+                window.calculateAggregations();
             }).catch(error => {
                 console.error("Error rendering meal plan:", error);
             });
@@ -218,6 +251,7 @@
             const aggregatedFoodDisplay = document.getElementById('aggregated-food-display');
             const aggregatedNutrientsDisplay = document.getElementById('aggregated-nutrients-display');
             const allFoodItems = [];
+            
             for (const [mealKey, quantity] of api.mealQuantities) {
                 if (quantity > 0) {
                     const [day, mealTime, version] = mealKey.split('-');
@@ -229,9 +263,34 @@
                     }
                 }
             }
+            
             aggregatedFoodDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
             aggregatedNutrientsDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
-            history.replaceState(null, '', '#' + encodeSelections());
+            
+            // Save selections to a cookie
+            const encoded = encodeSelections();
+            setCookie('mealSelections', encoded, 7); // Save for 7 days
+        }
+    
+        // Set a cookie with a name, value, and expiration in days
+        function setCookie(name, value, days) {
+            console.log("set");
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+    
+        // Get a cookie by name
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
         }
     
         window.calculateAggregations = calculateAggregations;
