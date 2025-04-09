@@ -1,0 +1,33 @@
+
+.food-list {
+  /*max-height: 400px;*/
+  overflow-y: auto;
+  text-align: left;
+  margin-top: 15px;
+}
+.category-section {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+.category-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+.food-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.food-name {
+  width: 200px;
+}
+.food-quantity {
+  width: 100px;
+  text-align: right;
+}

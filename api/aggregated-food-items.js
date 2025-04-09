@@ -9,42 +9,13 @@ class AggregatedFoodItems extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
-      <style>
-        .food-list {
-         /*max-height: 400px;*/
-          overflow-y: auto;
-          text-align: left;
-          margin-top: 15px;
-        }
-        .category-section {
-          margin-bottom: 20px;
-          padding: 10px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          background: #f9f9f9;
-        }
-        .category-title {
-          font-size: 18px;
-          font-weight: bold;
-          margin-bottom: 10px;
-          color: #333;
-        }
-        .food-item {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 10px;
-          font-size: 14px;
-        }
-        .food-name {
-          width: 200px;
-        }
-        .food-quantity {
-          width: 100px;
-          text-align: right;
-        }
-      </style>
       <div id="food-content"></div>
     `;
+    const linkElem = document.createElement('link');
+    linkElem.setAttribute('rel', 'stylesheet');
+    const cssUrl = new URL('./aggregated-food-items.css', import.meta.url).href;
+    linkElem.setAttribute('href', cssUrl);
+    this.shadowRoot.appendChild(linkElem);
   }
 
   async attributeChangedCallback(name, oldValue, newValue) {
@@ -72,7 +43,6 @@ class AggregatedFoodItems extends HTMLElement {
       ) || normalizedFoodName;
       const currentTotal = aggregatedFoods.get(foodKey) || 0;
       aggregatedFoods.set(foodKey, currentTotal + parseFloat(quantity));
-      
     }
 
     // Group by category

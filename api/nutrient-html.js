@@ -8,45 +8,16 @@ class NutrientHtml extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.shadowRoot.innerHTML = `
-      <style>
-        .nutrient-list {
-          overflow-y: auto; text-align: left; margin-top: 15px;
-        }
-        .category-section {
-          margin-bottom: 20px; padding: 10px; border: 1px solid #ddd;
-          border-radius: 8px; background: #f9f9f9;
-        }
-        .category-title {
-          font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #333;
-        }
-        .nutrient-item {
-          display: flex; align-items: center; justify-content: space-between;
-          margin-bottom: 10px; font-size: 14px;
-        }
-        .nutrient-name { width: 180px; font-weight: bold; }
-        .progress-bar-container {
-          width: 200px; background: #eee; border-radius: 5px; height: 14px; overflow: hidden;
-        }
-        .progress-bar { height: 100%; background: lightgreen; transition: width: 0.5s ease-in-out; }
-        .nutrient-value { width: 150px; text-align: right; font-size: 12px; color: #555; }
-        .header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 10px;
-        }
-        #calorie-button {
-          padding: 5px 10px;
-          background: #007bff;
-          color: white;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-        }
-      </style>
-      <div id="nutrient-content"></div>
-    `;
+    // Set the basic HTML structure without embedded styles
+    this.shadowRoot.innerHTML = '<div id="nutrient-content"></div>';
+    
+    // Load the external CSS file
+    const linkElem = document.createElement('link');
+    linkElem.setAttribute('rel', 'stylesheet');
+    const cssUrl = new URL('./nutrient-html.css', import.meta.url).href;
+    linkElem.setAttribute('href', cssUrl);
+    this.shadowRoot.appendChild(linkElem);
+    
     // Initialize state variables
     this.foodList = [];
     this.originalTotalCalories = 0;

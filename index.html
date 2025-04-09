@@ -46,8 +46,6 @@
 
         async function renderMealPlan() {
             const mealPlanContainer = document.getElementById('meal-plan');
-            const popup = document.getElementById('popup');
-            const popupContent = document.getElementById('popup-content');
             const overlay = document.getElementById('overlay');
             const fragment = document.createDocumentFragment();
 
@@ -71,79 +69,12 @@
                             mealsDiv.classList.add('meals');
 
                             for (const version of Object.keys(api.data[day][meal])) {
-                                const versionDiv = document.createElement('div');
-                                versionDiv.classList.add('meal');
-                                const mealData = api.data[day][meal][version];
-                                versionDiv.textContent = cleanTitle(mealData.title);
-                                versionDiv.dataset.day = day;
-                                versionDiv.dataset.meal = meal;
-                                versionDiv.dataset.version = version;
-
-                                const mealKey = `${day}-${meal}-${version}`;
-                                api.mealQuantities.set(mealKey, 0);
-
-                                const controlDiv = document.createElement('div');
-                                controlDiv.classList.add('meal-control');
-
-                                const quantityCircle = document.createElement('div');
-                                quantityCircle.classList.add('quantity-circle');
-                                quantityCircle.textContent = '0';
-                                quantityCircle.style.display = 'block';
-
-                                // Create custom dropdown as a div with circle buttons
-                                const customDropdown = document.createElement('div');
-                                customDropdown.classList.add('custom-dropdown');
-                                customDropdown.style.display = 'none'; // Hidden initially
-
-                                // Add circle buttons for quantities 0 to 15
-                                for (let i = 0; i <= 15; i++) {
-                                    const circleButton = document.createElement('button');
-                                    circleButton.classList.add('circle-button');
-                                    circleButton.textContent = i;
-                                    circleButton.addEventListener('click', () => {
-                                        const value = i;
-                                        api.mealQuantities.set(mealKey, value);
-                                        quantityCircle.textContent = value;
-                                        if (value > 0) {
-                                            versionDiv.classList.add('selected');
-                                            quantityCircle.classList.add('active');
-                                        } else {
-                                            versionDiv.classList.remove('selected');
-                                            quantityCircle.classList.remove('active');
-                                        }
-                                        customDropdown.style.display = 'none'; // Hide dropdown
-                                        quantityCircle.style.display = 'block'; // Show circle
-                                        window.calculateAggregations();
-                                    });
-                                    customDropdown.appendChild(circleButton);
-                                }
-
-                                controlDiv.appendChild(quantityCircle);
-                                controlDiv.appendChild(customDropdown);
-                                versionDiv.appendChild(controlDiv);
-
-                                // Show custom dropdown immediately on click
-                                quantityCircle.addEventListener('click', (event) => {
-                                    event.stopPropagation();
-                                    quantityCircle.style.display = 'none';
-                                    customDropdown.style.display = 'flex'; // Show custom dropdown
-                                });
-
-                                versionDiv.addEventListener('click', async (event) => {
-                                    if (event.target.closest('.meal-control')) {
-                                        event.stopPropagation();
-                                        return;
-                                    }
-                                    await api.ensureDataLoaded();
-                                    let parsedTitle = api.parseMarkdown(mealData.title);
-                                    let htmlContent = api.parseMarkdown(mealData.content);
-                                    let linkedContent = await api.parseAndLinkMealContent(htmlContent);
-                                    popupContent.innerHTML = `${parsedTitle}<p>${linkedContent}</p>`;
-                                    popup.style.display = 'block';
-                                    overlay.style.display = 'block';
-                                });
-
-                                mealsDiv.appendChild(versionDiv);
+                                const mealElement = document.createElement('meal-element');
+                                mealElement.setAttribute('day', day);
+                                mealElement.setAttribute('meal', meal);
+                                mealElement.setAttribute('version', version);
+                                mealElement.setAttribute('title', cleanTitle(api.data[day][meal][version].title));
+                                mealsDiv.appendChild(mealElement);
                             }
                             mealDiv.appendChild(mealsDiv);
                             dayDiv.appendChild(mealDiv);
@@ -155,29 +86,30 @@
 
             mealPlanContainer.appendChild(fragment);
 
+            // Reset quantities on day click (excluding meal clicks)
             document.querySelectorAll('.day').forEach(day => {
                 day.addEventListener('click', (event) => {
-                    if (!event.target.classList.contains("meal")) {
-                        const meals = day.querySelectorAll('.meal');
+                    if (!event.target.closest('meal-element')) {
+                        const meals = day.querySelectorAll('meal-element');
                         meals.forEach(meal => {
-                            const mealKey = `${meal.dataset.day}-${meal.dataset.meal}-${meal.dataset.version}`;
+                            const mealKey = `${meal.getAttribute('day')}-${meal.getAttribute('meal')}-${meal.getAttribute('version')}`;
                             api.mealQuantities.set(mealKey, 0);
-                            const controlDiv = meal.querySelector('.meal-control');
-                            if (controlDiv) {
-                                const circle = controlDiv.querySelector('.quantity-circle');
-                                const customDropdown = controlDiv.querySelector('.custom-dropdown');
-                                circle.textContent = '0';
-                                circle.classList.remove('active');
-                                circle.style.display = 'block';
-                                customDropdown.style.display = 'none';
-                                meal.classList.remove('selected');
-                            }
+                            const shadowRoot = meal.shadowRoot;
+                            const quantityCircle = shadowRoot.querySelector('.quantity-circle');
+                            const customDropdown = shadowRoot.querySelector('.custom-dropdown');
+                            const mealDiv = shadowRoot.querySelector('.meal');
+                            quantityCircle.textContent = '0';
+                            quantityCircle.classList.remove('active');
+                            quantityCircle.style.display = 'block';
+                            customDropdown.style.display = 'none';
+                            mealDiv.classList.remove('selected');
                         });
                         window.calculateAggregations();
                     }
                 });
             });
 
+            // Close popups
             document.querySelectorAll('.popup-close').forEach(closeButton => {
                 closeButton.addEventListener('click', () => {
                     const popup = closeButton.closest('.popup');
@@ -227,8 +159,7 @@
 
         function parseIngredients(content) {
             const matches = [];
-            let match;
-            for(const [quantity, ingredientName, originalText] of api.parseIngredients(content)) {
+            for (const [quantity, ingredientName, originalText] of api.parseIngredients(content)) {
                 matches.push([quantity, ingredientName]);
             }
             return matches;
@@ -268,6 +199,7 @@
 
     <!-- Additional JavaScript Files -->
     <script src="./api/api.js" type="module"></script>
+    <script src="./api/meal-element.js" type="module"></script>
     <script src="./api/nutrient-html.js" type="module"></script>
     <script src="./api/food-nutrient-link.js" type="module"></script>
     <script src="./api/aggregated-food-items.js" type="module"></script>
