@@ -13,7 +13,7 @@ class MealElement extends HTMLElement {
           justify-content: space-between;
           align-items: center;
           position: relative;
-          border-radius: 5px;
+          border-radius: 10px;
           color: grey
         }
         .meal-title {
@@ -24,6 +24,7 @@ class MealElement extends HTMLElement {
         }
         .meal.selected {
           border: 2px solid blue;
+          color: blue;
         }
         .quantity-circle {
           display: block;
