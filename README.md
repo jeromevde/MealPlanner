@@ -25,11 +25,7 @@ TODO
 1) IMPROVE CODE
 - make foodData keys lowercase & lowercase the access to it
 - fix link formatting and encoding, not satisfying
-- restructure
-- create a components for
-    - meals
-    - agg-ingredients (adapt clicklisteners etc)
-- separated css for components
+- remove aggregation function from index.html
 - improve layout after restructuring (for example the #meals amounts)
 - make the first day of recipes unitary person
 

@@ -154,6 +154,23 @@ class MealElement extends HTMLElement {
       document.getElementById('overlay').style.display = 'block';
     });
   }
+
+  refresh() {
+    const mealKey = `${this.getAttribute('day')}-${this.getAttribute('meal')}-${this.getAttribute('version')}`;
+    const quantity = window.api.mealQuantities.get(mealKey) || 0;
+    const quantityCircle = this.shadowRoot.querySelector('.quantity-circle');
+    const mealDiv = this.shadowRoot.querySelector('.meal');
+    quantityCircle.textContent = quantity;
+    if (quantity > 0) {
+        mealDiv.classList.add('selected');
+        quantityCircle.classList.add('active');
+    } else {
+        mealDiv.classList.remove('selected');
+        quantityCircle.classList.remove('active');
+    }
+}
+
+
 }
 
 // Register the custom element

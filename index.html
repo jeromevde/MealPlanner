@@ -39,16 +39,56 @@
     <script type="module">
         import * as api from './api/api.js';
         window.api = api;
-
+    
+        // Helper Functions
+        function getMealIndices(mealKey) {
+            const [day, meal, version] = mealKey.split('-');
+            const dayIndex = api.days.indexOf(day);
+            const mealIndex = api.meals.indexOf(meal);
+            const versionIndex = parseInt(version, 10);
+            return { dayIndex, mealIndex, versionIndex };
+        }
+    
+        function getMealKey(dayIndex, mealIndex, versionIndex) {
+            const day = api.days[dayIndex];
+            const meal = api.meals[mealIndex];
+            const version = versionIndex.toString();
+            return `${day}-${meal}-${version}`;
+        }
+    
+        function encodeSelections() {
+            const selections = [];
+            for (const [mealKey, quantity] of api.mealQuantities) {
+                if (quantity > 0) {
+                    const { dayIndex, mealIndex, versionIndex } = getMealIndices(mealKey);
+                    selections.push(`${dayIndex}-${mealIndex}-${versionIndex}-${quantity}`);
+                }
+            }
+            return selections.join('|');
+        }
+    
+        function decodeSelections(encoded) {
+            const parts = encoded.split('|');
+            const mealQuantities = new Map();
+            for (const part of parts) {
+                if (part) {
+                    const [dayIndex, mealIndex, versionIndex, quantity] = part.split('-').map(Number);
+                    const mealKey = getMealKey(dayIndex, mealIndex, versionIndex);
+                    mealQuantities.set(mealKey, quantity);
+                }
+            }
+            return mealQuantities;
+        }
+    
         function cleanTitle(title) {
             return title.replace(/^#+\s*/, '');
         }
-
+    
         async function renderMealPlan() {
             const mealPlanContainer = document.getElementById('meal-plan');
             const overlay = document.getElementById('overlay');
             const fragment = document.createDocumentFragment();
-
+    
             for (const day of api.days) {
                 if (api.data[day]) {
                     const dayDiv = document.createElement('div');
@@ -56,7 +96,7 @@
                     const dayTitle = document.createElement('h2');
                     dayTitle.textContent = day.charAt(0).toUpperCase() + day.slice(1);
                     dayDiv.appendChild(dayTitle);
-
+    
                     for (const meal of api.meals) {
                         if (api.data[day][meal]) {
                             const mealDiv = document.createElement('div');
@@ -64,10 +104,10 @@
                             const mealTitle = document.createElement('h3');
                             mealTitle.textContent = meal.charAt(0).toUpperCase() + meal.slice(1);
                             mealDiv.appendChild(mealTitle);
-
+    
                             const mealsDiv = document.createElement('div');
                             mealsDiv.classList.add('meals');
-
+    
                             for (const version of Object.keys(api.data[day][meal])) {
                                 const mealElement = document.createElement('meal-element');
                                 mealElement.setAttribute('day', day);
@@ -83,9 +123,9 @@
                     fragment.appendChild(dayDiv);
                 }
             }
-
+    
             mealPlanContainer.appendChild(fragment);
-
+    
             // Reset quantities on day click (excluding meal clicks)
             document.querySelectorAll('.day').forEach(day => {
                 day.addEventListener('click', (event) => {
@@ -108,7 +148,7 @@
                     }
                 });
             });
-
+    
             // Close popups
             document.querySelectorAll('.popup-close').forEach(closeButton => {
                 closeButton.addEventListener('click', () => {
@@ -119,7 +159,7 @@
                     }
                 });
             });
-
+    
             document.querySelectorAll('.popup').forEach(popup => {
                 popup.addEventListener('click', (event) => {
                     if (event.target.tagName.toLowerCase() !== "food-nutrient-link") {
@@ -132,7 +172,7 @@
                     }
                 });
             });
-
+    
             overlay.addEventListener('click', () => {
                 document.querySelectorAll('.popup').forEach(popup => {
                     popup.style.display = 'none';
@@ -145,18 +185,27 @@
                 overlay.style.display = 'none';
             });
         }
-
+    
         api.fetchData().then(() => {
             console.log("fetchData resolved");
             renderMealPlan().then(() => {
                 console.log("Meal plan rendered successfully.");
+                const fragment = location.hash.slice(1);
+                if (fragment) {
+                    const decoded = decodeSelections(fragment);
+                    api.mealQuantities = decoded;
+                    document.querySelectorAll('meal-element').forEach(meal => {
+                        meal.refresh();
+                    });
+                    window.calculateAggregations();
+                }
             }).catch(error => {
                 console.error("Error rendering meal plan:", error);
             });
         }).catch(error => {
             console.error("Error fetching data:", error);
         });
-
+    
         function parseIngredients(content) {
             const matches = [];
             for (const [quantity, ingredientName, originalText] of api.parseIngredients(content)) {
@@ -164,7 +213,7 @@
             }
             return matches;
         }
-
+    
         async function calculateAggregations() {
             const aggregatedFoodDisplay = document.getElementById('aggregated-food-display');
             const aggregatedNutrientsDisplay = document.getElementById('aggregated-nutrients-display');
@@ -182,10 +231,11 @@
             }
             aggregatedFoodDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
             aggregatedNutrientsDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
+            history.replaceState(null, '', '#' + encodeSelections());
         }
-
+    
         window.calculateAggregations = calculateAggregations;
-
+    
         document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
                 document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
