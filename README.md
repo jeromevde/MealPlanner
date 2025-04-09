@@ -40,5 +40,6 @@ TODO
 - fix broken link logic & cookies
 - add a selector of meals in the aggregation componenent
 - add a displayer of meals in the ingredients aggregation component
+- modify the meal-element component to adapt to changing #people for that meal
 
 
