@@ -37,7 +37,7 @@ TODO
 - for 1 person by default
 
 4) OPTIONAL
-- fix broken link logic & cookies
+- fix broken link logic & cookies (& move it to a separate .js file for clarity)
 - add a selector of meals in the aggregation componenent
 - add a displayer of meals in the ingredients aggregation component
 - modify the meal-element component to adapt to changing #people for that meal
