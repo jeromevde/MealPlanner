@@ -38,5 +38,7 @@ TODO
 - add a displayer of meals in the ingredients aggregation component
 - modify the meal-element component to adapt to changing #people for that meal
 - add checkbox button in front of the aggregated ingredients
+- zoom in zoom out text recipe
+- link to githubdev to adapt recipes
 
 
