@@ -19,16 +19,13 @@ live-server --mount=/MealPlanner:.
 
 TODO
 
-
-1) IMROVE DATA
-- find missing foods & nutrients ?
-
-
-2) IMPROVE CODE
+ IMPROVE CODE
 - make foodData keys lowercase & lowercase the access to it
 - remove aggregation function from index.html
 - add "for 1 person to title of meal"
 
+ IMROVE DATA
+- find missing foods & nutrients ?
 
 OPTIONAL
 - fix broken link logic & cookies (& move it to a separate .js file for clarity)

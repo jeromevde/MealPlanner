@@ -140,6 +140,11 @@ class FoodNutrientLink extends HTMLElement {
     }
   }
 
+  /** Rounds a number to the nearest 0.25 increment */
+  roundToNearestQuarter(value) {
+    return (Math.round(value * 4) / 4).toFixed(2);
+  }
+
   /** Generates HTML for a single food item */
   generateFoodItemHTML(food, foodKey) {
     const { foodName, quantity } = food;
@@ -147,7 +152,7 @@ class FoodNutrientLink extends HTMLElement {
     const words = transformedFoodName.split(' '); // Split into words
     const nameClass = foodKey ? 'food-word' : 'food-word not-found';
     const wordHTML = words.map(word => `<span class="${nameClass}">${word}</span>`).join(' ');
-    const quantityHTML = `<span class="quantity">${quantity}g</span>`;
+    const quantityHTML = quantity ? `<span class="quantity">${quantity}g</span>`: `<span/>` ;
 
     let portionHTML = '';
     if (foodKey && api.foodData[foodKey].portion_unit_name && api.foodData[foodKey].portion_gram_weight) {
@@ -155,8 +160,9 @@ class FoodNutrientLink extends HTMLElement {
       const portionGramWeight = parseFloat(api.foodData[foodKey].portion_gram_weight);
       if (!isNaN(portionGramWeight) && portionGramWeight > 0) {
         const numPortions = quantity / portionGramWeight;
-        const unitText = numPortions === 1 ? portionUnitName : portionUnitName + 's';
-        portionHTML = `<span class="portion">${numPortions.toFixed(2)} ${unitText}</span>`;
+        const roundedPortions = this.roundToNearestQuarter(numPortions);
+        const unitText = parseFloat(roundedPortions) <= 1 ? portionUnitName : portionUnitName + 's';
+        portionHTML = `<span class="portion">${roundedPortions} ${unitText}</span>`;
       }
     }
 
