@@ -20,11 +20,10 @@ live-server --mount=/MealPlanner:.
 TODO
 
  IMPROVE CODE
-- make foodData keys lowercase & lowercase the access to it
 - remove aggregation function from index.html
 - add "for 1 person to title of meal"
 
- IMROVE DATA
+IMROVE DATA
 - find missing foods & nutrients ?
 
 OPTIONAL

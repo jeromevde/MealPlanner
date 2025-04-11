@@ -47,7 +47,7 @@ class NutrientHtml extends HTMLElement {
     for (const { foodName, quantity } of this.foodList) {
       const normalizedFoodName = foodName.toLowerCase();
       const foodKey = Object.keys(foodapi.foodData).find(
-        (key) => key.toLowerCase() === normalizedFoodName
+        (key) => key === normalizedFoodName
       );
       if (foodKey) {
         const nutrients = foodapi.foodData[foodKey].nutrients;
@@ -90,7 +90,7 @@ class NutrientHtml extends HTMLElement {
       const { foodName, quantity } = this.foodList[0];
       const normalizedFoodName = foodName.toLowerCase();
       const foodKey = Object.keys(foodapi.foodData).find(
-        (key) => key.toLowerCase() === normalizedFoodName
+        (key) => key === normalizedFoodName
       );
       const foodCategory = foodKey ? foodapi.foodData[foodKey].category : 'Unknown';
       headerText = `${quantity}g of ${foodName} (${foodCategory})`;

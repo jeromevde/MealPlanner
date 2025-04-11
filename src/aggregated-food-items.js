@@ -57,7 +57,7 @@ class AggregatedFoodItems extends HTMLElement {
     for (const { foodName, quantity } of foodList) {
       const normalizedFoodName = foodName.toLowerCase();
       const foodKey = Object.keys(foodapi.foodData).find(
-        (key) => key.toLowerCase() === normalizedFoodName
+        (key) => key === normalizedFoodName
       ) || normalizedFoodName;
       const currentTotal = aggregatedFoods.get(foodKey) || 0;
       aggregatedFoods.set(foodKey, currentTotal + parseFloat(quantity));

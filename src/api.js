@@ -53,7 +53,10 @@ export async function loadData() {
                     if (!response.ok) {
                         throw new Error(`Could not fetch fooddata.json, received ${response.status}`);
                     }
-                    foodData = await response.json();
+                    const data = await response.json();
+                    foodData = Object.fromEntries(
+                        Object.entries(data).map(([key, value]) => [key.toLowerCase(), value])
+                    );
                 } catch (error) {
                     console.error("Error loading data:", error);
                     throw error; // Re-throw to allow caller handling
@@ -78,7 +81,7 @@ export async function findClosestMatches(partialName) {
     await ensureDataLoaded();
     const normalizedPartialName = partialName.toLowerCase();
     return Object.keys(foodData)
-        .filter(description => description.toLowerCase().includes(normalizedPartialName))
+        .filter(description => description.includes(normalizedPartialName))
         .slice(0, 10);
 }
 
@@ -132,7 +135,7 @@ export async function parseAndLinkMealContent(content) {
 export async function getNutrientsForName(foodName) {
     await ensureDataLoaded();
     const normalizedFoodName = foodName.toLowerCase();
-    const foodKey = Object.keys(foodData).find(key => key.toLowerCase() === normalizedFoodName);
+    const foodKey = Object.keys(foodData).find(key => key === normalizedFoodName);
     if (!foodKey) {
         return { error: "Food not found" };
     }

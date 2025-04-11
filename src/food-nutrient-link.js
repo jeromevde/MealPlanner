@@ -182,7 +182,7 @@ class FoodNutrientLink extends HTMLElement {
 
     this.foodList.forEach((food, index) => {
       const normalizedFoodName = food.foodName.toLowerCase();
-      const foodKey = Object.keys(api.foodData).find(key => key.toLowerCase() === normalizedFoodName);
+      const foodKey = Object.keys(api.foodData).find(key => key === normalizedFoodName);
       const foodItemHTML = this.generateFoodItemHTML(food, foodKey);
       link.insertAdjacentHTML('beforeend', foodItemHTML);
       if (index < this.foodList.length - 1) {

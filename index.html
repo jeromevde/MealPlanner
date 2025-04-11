@@ -38,9 +38,10 @@
     <!-- Main JavaScript Logic -->
     <script type="module">
         import * as api from './src/api.js';
+        import { loadState, saveState } from './src/state.js';
         window.api = api;
-    
-        // Helper Functions (unchanged)
+
+        // Helper Functions
         function getMealIndices(mealKey) {
             const [day, meal, version] = mealKey.split('-');
             const dayIndex = api.days.indexOf(day);
@@ -48,14 +49,14 @@
             const versionIndex = parseInt(version, 10);
             return { dayIndex, mealIndex, versionIndex };
         }
-    
+
         function getMealKey(dayIndex, mealIndex, versionIndex) {
             const day = api.days[dayIndex];
             const meal = api.meals[mealIndex];
             const version = versionIndex.toString();
             return `${day}-${meal}-${version}`;
         }
-    
+
         function encodeSelections() {
             const selections = [];
             for (const [mealKey, quantity] of api.mealQuantities) {
@@ -66,7 +67,7 @@
             }
             return selections.join('|');
         }
-    
+
         function decodeSelections(encoded) {
             const parts = encoded.split('|');
             const mealQuantities = new Map();
@@ -79,11 +80,19 @@
             }
             return mealQuantities;
         }
-    
+
         function cleanTitle(title) {
             return title.replace(/^#+\s*/, '');
         }
-    
+
+        function scaleMarkdownContent(content, scale) {
+            const res = content.replace(/\{(\d+(?:\.\d+)?)\s*(\w+)\s*\{([^}]+)\}\}/g, (match, quantity, unit, ingredient) => {
+                const scaledQuantity = (parseFloat(quantity) * scale).toFixed(2).replace(/\.00$/, '');
+                return `{${scaledQuantity} ${unit} {${ingredient}}}`;
+            });
+            return res;
+        }
+
         async function renderMealPlan() {
             const mealPlanContainer = document.getElementById('meal-plan');
             const overlay = document.getElementById('overlay');
@@ -94,18 +103,21 @@
                     const dayDiv = document.createElement('div');
                     dayDiv.classList.add('day');
 
+                    // Create day header with flexbox for alignment
                     const dayHeader = document.createElement('div');
                     dayHeader.style.display = 'flex';
                     dayHeader.style.alignItems = 'center';
 
+                    // Day title
                     const dayTitle = document.createElement('h2');
                     dayTitle.textContent = day.charAt(0).toUpperCase() + day.slice(1);
                     dayHeader.appendChild(dayTitle);
 
+                    // Refresh button
                     const refreshButton = document.createElement('button');
-                    refreshButton.className = "refresh-button";
-                    refreshButton.textContent = '↻';
-                    refreshButton.title = 'Reset selections for this day';
+                    refreshButton.className = 'refresh-button';
+                    refreshButton.textContent = '↻'; // Unicode refresh symbol
+                    refreshButton.title = 'Reset selections for this day'; // Tooltip
                     refreshButton.style.marginLeft = '10px';
                     refreshButton.style.cursor = 'pointer';
                     refreshButton.addEventListener('click', () => {
@@ -132,21 +144,72 @@
                                 mealElement.setAttribute('meal', meal);
                                 mealElement.setAttribute('version', version);
                                 mealElement.setAttribute('title', cleanTitle(api.data[day][meal][version].title));
-                                
-                                // Explicit popup opening logic
+
                                 mealElement.addEventListener('click', async (event) => {
-                                    if (event.target.closest('.meal-control')) {
-                                        return; // Ignore clicks on controls
-                                    }
+                                    if (event.target.closest('.meal-control')) return;
                                     await window.api.ensureDataLoaded();
                                     const mealData = api.data[day][meal][version];
-                                    const parsedTitle = window.api.parseMarkdown(mealData.title);
-                                    const htmlContent = window.api.parseMarkdown(mealData.content);
-                                    const linkedContent = await window.api.parseAndLinkMealContent(htmlContent);
-                                    const popupContent = document.getElementById('popup-content');
-                                    popupContent.innerHTML = `${parsedTitle}<p>${linkedContent}</p>`;
+                                    const mealKey = `${day}-${meal}-${version}`;
+                                    const quantity = api.mealQuantities.get(mealKey) || 0;
+                                    let people = Math.max(1, quantity);
+                                    const titleText = cleanTitle(mealData.title);
+
+                                    const updatePopupContent = async () => {
+                                        const scaledContent = scaleMarkdownContent(mealData.content, people);
+                                        const htmlContent = window.api.parseMarkdown(scaledContent);
+                                        const linkedContent = await window.api.parseAndLinkMealContent(htmlContent);
+                                        const popupContent = document.getElementById('popup-content');
+                                        popupContent.innerHTML = `
+                                            <div class="popup-header">
+                                                <h2>${titleText} for <span id="popup-people">${people}</span> people</h2>
+                                                <div class="quantity-control">
+                                                    <button class="decrement">-</button>
+                                                    <input type="number" min="1" step="1" value="${people}" id="popup-people-input">
+                                                    <button class="increment">+</button>
+                                                </div>
+                                            </div>
+                                            <div class="popup-body">${linkedContent}</div>
+                                        `;
+                                    };
+
+                                    await updatePopupContent();
                                     document.getElementById('popup').style.display = 'block';
                                     document.getElementById('overlay').style.display = 'block';
+
+                                    const popupContent = document.getElementById('popup-content');
+                                    const decrementButton = popupContent.querySelector('.decrement');
+                                    const incrementButton = popupContent.querySelector('.increment');
+                                    const peopleInput = popupContent.querySelector('#popup-people-input');
+
+                                    decrementButton.addEventListener('click', async () => {
+                                        if (people > 1) {
+                                            people -= 1;
+                                            peopleInput.value = people;
+                                            api.mealQuantities.set(mealKey, people);
+                                            await updatePopupContent();
+                                            window.calculateAggregations();
+                                        }
+                                    });
+
+                                    incrementButton.addEventListener('click', async () => {
+                                        people += 1;
+                                        peopleInput.value = people;
+                                        api.mealQuantities.set(mealKey, people);
+                                        await updatePopupContent();
+                                        window.calculateAggregations();
+                                    });
+
+                                    peopleInput.addEventListener('change', async () => {
+                                        const newPeople = parseInt(peopleInput.value, 10);
+                                        if (newPeople >= 1 && !isNaN(newPeople)) {
+                                            people = newPeople;
+                                            api.mealQuantities.set(mealKey, people);
+                                            await updatePopupContent();
+                                            window.calculateAggregations();
+                                        } else {
+                                            peopleInput.value = people;
+                                        }
+                                    });
                                 });
 
                                 mealsDiv.appendChild(mealElement);
@@ -161,7 +224,7 @@
 
             mealPlanContainer.appendChild(fragment);
 
-            // Close popups
+            // Popup close functionality
             document.querySelectorAll('.popup-close').forEach(closeButton => {
                 closeButton.addEventListener('click', () => {
                     const popup = closeButton.closest('.popup');
@@ -196,43 +259,31 @@
                 });
                 overlay.style.display = 'none';
             });
-        }    
-        // Updated resetDaySelections function
+        }
+
+        // Reset selections for a specific day
         function resetDaySelections(day) {
             const meals = document.querySelectorAll(`meal-element[day="${day}"]`);
             meals.forEach(meal => {
                 const mealKey = `${meal.getAttribute('day')}-${meal.getAttribute('meal')}-${meal.getAttribute('version')}`;
                 api.mealQuantities.set(mealKey, 0);
-                meal.refresh();  // Call refresh to update the display
+                meal.refresh(); // Update display
             });
             window.calculateAggregations();
         }
-    
+
         api.fetchData().then(() => {
-            console.log("fetchData resolved");
             renderMealPlan().then(() => {
-                console.log("Meal plan rendered successfully.");
-                
-                const fragment = location.hash.slice(1);
-                let selections;
-                
-                if (fragment) {
-                    selections = decodeSelections(fragment);
-                } else {
-                    const cookieSelections = getCookie('mealSelections');
-                    if (cookieSelections) {
-                        selections = decodeSelections(cookieSelections);
-                    } else {
-                        selections = new Map();
-                    }
+                const encoded = loadState();
+                const selections = encoded ? decodeSelections(encoded) : new Map();
+                api.mealQuantities.clear();
+                for (const [key, value] of selections) {
+                    api.mealQuantities.set(key, value);
                 }
-                
-                api.mealQuantities = selections;
-                
                 document.querySelectorAll('meal-element').forEach(meal => {
                     meal.refresh();
                 });
-                
+
                 window.calculateAggregations();
             }).catch(error => {
                 console.error("Error rendering meal plan:", error);
@@ -240,7 +291,7 @@
         }).catch(error => {
             console.error("Error fetching data:", error);
         });
-    
+
         function parseIngredients(content) {
             const matches = [];
             for (const [quantity, ingredientName, originalText] of api.parseIngredients(content)) {
@@ -248,12 +299,12 @@
             }
             return matches;
         }
-    
+
         async function calculateAggregations() {
             const aggregatedFoodDisplay = document.getElementById('aggregated-food-display');
             const aggregatedNutrientsDisplay = document.getElementById('aggregated-nutrients-display');
             const allFoodItems = [];
-            
+
             for (const [mealKey, quantity] of api.mealQuantities) {
                 if (quantity > 0) {
                     const [day, mealTime, version] = mealKey.split('-');
@@ -265,35 +316,16 @@
                     }
                 }
             }
-            
+
             aggregatedFoodDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
             aggregatedNutrientsDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
-            
-            const encoded = encodeSelections();
-            setCookie('mealSelections', encoded, 7);
+
+            saveState(encodeSelections());
         }
-    
-        function setCookie(name, value, days) {
-            console.log("set");
-            const date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            const expires = "expires=" + date.toUTCString();
-            document.cookie = name + "=" + value + ";" + expires + ";path=/";
-        }
-    
-        function getCookie(name) {
-            const nameEQ = name + "=";
-            const ca = document.cookie.split(';');
-            for (let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-            }
-            return null;
-        }
-    
+
         window.calculateAggregations = calculateAggregations;
-    
+
+        // Tab switching
         document.querySelectorAll('.tab-button').forEach(button => {
             button.addEventListener('click', () => {
                 document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));

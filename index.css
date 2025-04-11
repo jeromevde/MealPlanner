@@ -225,3 +225,32 @@ p{
 .refresh-button:hover {
     background-color: #e0e0e0; /* Slightly darker grey on hover */
 }
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-control button {
+    width: 25px;
+    height: 25px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.quantity-control input {
+    width: 50px;
+    text-align: center;
+    margin: 0 5px;
+}
+
+.popup-body {
+    margin-top: 10px;
+}
