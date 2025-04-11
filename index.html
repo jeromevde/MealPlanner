@@ -40,7 +40,7 @@
         import * as api from './src/api.js';
         window.api = api;
     
-        // Helper Functions
+        // Helper Functions (unchanged)
         function getMealIndices(mealKey) {
             const [day, meal, version] = mealKey.split('-');
             const dayIndex = api.days.indexOf(day);
@@ -88,24 +88,23 @@
             const mealPlanContainer = document.getElementById('meal-plan');
             const overlay = document.getElementById('overlay');
             const fragment = document.createDocumentFragment();
-    
+
             for (const day of api.days) {
                 if (api.data[day]) {
                     const dayDiv = document.createElement('div');
                     dayDiv.classList.add('day');
-    
-                    // Create a header container for the title and refresh button
+
                     const dayHeader = document.createElement('div');
                     dayHeader.style.display = 'flex';
                     dayHeader.style.alignItems = 'center';
-    
+
                     const dayTitle = document.createElement('h2');
                     dayTitle.textContent = day.charAt(0).toUpperCase() + day.slice(1);
                     dayHeader.appendChild(dayTitle);
-    
-                    // Add the refresh button
+
                     const refreshButton = document.createElement('button');
-                    refreshButton.textContent = '↻'; // Unicode refresh symbol
+                    refreshButton.className = "refresh-button";
+                    refreshButton.textContent = '↻';
                     refreshButton.title = 'Reset selections for this day';
                     refreshButton.style.marginLeft = '10px';
                     refreshButton.style.cursor = 'pointer';
@@ -113,9 +112,9 @@
                         resetDaySelections(day);
                     });
                     dayHeader.appendChild(refreshButton);
-    
+
                     dayDiv.appendChild(dayHeader);
-    
+
                     for (const meal of api.meals) {
                         if (api.data[day][meal]) {
                             const mealDiv = document.createElement('div');
@@ -123,16 +122,33 @@
                             const mealTitle = document.createElement('h3');
                             mealTitle.textContent = meal.charAt(0).toUpperCase() + meal.slice(1);
                             mealDiv.appendChild(mealTitle);
-    
+
                             const mealsDiv = document.createElement('div');
                             mealsDiv.classList.add('meals');
-    
+
                             for (const version of Object.keys(api.data[day][meal])) {
                                 const mealElement = document.createElement('meal-element');
                                 mealElement.setAttribute('day', day);
                                 mealElement.setAttribute('meal', meal);
                                 mealElement.setAttribute('version', version);
                                 mealElement.setAttribute('title', cleanTitle(api.data[day][meal][version].title));
+                                
+                                // Explicit popup opening logic
+                                mealElement.addEventListener('click', async (event) => {
+                                    if (event.target.closest('.meal-control')) {
+                                        return; // Ignore clicks on controls
+                                    }
+                                    await window.api.ensureDataLoaded();
+                                    const mealData = api.data[day][meal][version];
+                                    const parsedTitle = window.api.parseMarkdown(mealData.title);
+                                    const htmlContent = window.api.parseMarkdown(mealData.content);
+                                    const linkedContent = await window.api.parseAndLinkMealContent(htmlContent);
+                                    const popupContent = document.getElementById('popup-content');
+                                    popupContent.innerHTML = `${parsedTitle}<p>${linkedContent}</p>`;
+                                    document.getElementById('popup').style.display = 'block';
+                                    document.getElementById('overlay').style.display = 'block';
+                                });
+
                                 mealsDiv.appendChild(mealElement);
                             }
                             mealDiv.appendChild(mealsDiv);
@@ -142,9 +158,9 @@
                     fragment.appendChild(dayDiv);
                 }
             }
-    
+
             mealPlanContainer.appendChild(fragment);
-    
+
             // Close popups
             document.querySelectorAll('.popup-close').forEach(closeButton => {
                 closeButton.addEventListener('click', () => {
@@ -155,7 +171,7 @@
                     }
                 });
             });
-    
+
             document.querySelectorAll('.popup').forEach(popup => {
                 popup.addEventListener('click', (event) => {
                     if (event.target.tagName.toLowerCase() !== "food-nutrient-link") {
@@ -168,7 +184,7 @@
                     }
                 });
             });
-    
+
             overlay.addEventListener('click', () => {
                 document.querySelectorAll('.popup').forEach(popup => {
                     popup.style.display = 'none';
@@ -180,23 +196,14 @@
                 });
                 overlay.style.display = 'none';
             });
-        }
-    
-        // Function to reset selections for a specific day
+        }    
+        // Updated resetDaySelections function
         function resetDaySelections(day) {
             const meals = document.querySelectorAll(`meal-element[day="${day}"]`);
             meals.forEach(meal => {
                 const mealKey = `${meal.getAttribute('day')}-${meal.getAttribute('meal')}-${meal.getAttribute('version')}`;
                 api.mealQuantities.set(mealKey, 0);
-                const shadowRoot = meal.shadowRoot;
-                const quantityCircle = shadowRoot.querySelector('.quantity-circle');
-                const customDropdown = shadowRoot.querySelector('.custom-dropdown');
-                const mealDiv = shadowRoot.querySelector('.meal');
-                quantityCircle.textContent = '0';
-                quantityCircle.classList.remove('active');
-                quantityCircle.style.display = 'block';
-                customDropdown.style.display = 'none';
-                mealDiv.classList.remove('selected');
+                meal.refresh();  // Call refresh to update the display
             });
             window.calculateAggregations();
         }
@@ -206,31 +213,26 @@
             renderMealPlan().then(() => {
                 console.log("Meal plan rendered successfully.");
                 
-                const fragment = location.hash.slice(1); // Get URL fragment (after #)
+                const fragment = location.hash.slice(1);
                 let selections;
                 
                 if (fragment) {
-                    // If URL fragment exists, use it
                     selections = decodeSelections(fragment);
                 } else {
-                    // If URL is blank, check the cookie
                     const cookieSelections = getCookie('mealSelections');
                     if (cookieSelections) {
                         selections = decodeSelections(cookieSelections);
                     } else {
-                        selections = new Map(); // Default to empty selections
+                        selections = new Map();
                     }
                 }
                 
-                // Apply the selections
                 api.mealQuantities = selections;
                 
-                // Refresh meal elements
                 document.querySelectorAll('meal-element').forEach(meal => {
                     meal.refresh();
                 });
                 
-                // Recalculate aggregations
                 window.calculateAggregations();
             }).catch(error => {
                 console.error("Error rendering meal plan:", error);
@@ -267,12 +269,10 @@
             aggregatedFoodDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
             aggregatedNutrientsDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
             
-            // Save selections to a cookie
             const encoded = encodeSelections();
-            setCookie('mealSelections', encoded, 7); // Save for 7 days
+            setCookie('mealSelections', encoded, 7);
         }
     
-        // Set a cookie with a name, value, and expiration in days
         function setCookie(name, value, days) {
             console.log("set");
             const date = new Date();
@@ -281,7 +281,6 @@
             document.cookie = name + "=" + value + ";" + expires + ";path=/";
         }
     
-        // Get a cookie by name
         function getCookie(name) {
             const nameEQ = name + "=";
             const ca = document.cookie.split(';');

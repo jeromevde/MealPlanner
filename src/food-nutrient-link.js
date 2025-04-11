@@ -1,4 +1,3 @@
-
 import * as api from './api.js';
 
 class FoodNutrientLink extends HTMLElement {
@@ -15,14 +14,38 @@ class FoodNutrientLink extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host { position: relative; }
-        #link { text-decoration: none; color: #007bff; }
-        #link:hover { text-decoration: underline; }
-        #popup {
-          display: none; position: absolute; background: white;
-          border: 1px solid #ccc; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-          z-index: 1000; cursor: move;
+        #link {
+          display: inline; /* Flows with text */
+          text-decoration: none;
+          color: #007bff;
+          background-color: transparent; /* No container background */
+          border-radius: 3px; /* No Rounded corners */
+          border: 1px solid #ccc;
+          margin: 0px 2px 0px 2px;
+          padding: 0px 4px 0px 4px;
         }
-        #close { float: right; border: none; background: none; font-size: 16px; cursor: pointer; }
+        .food-word, .quantity, .portion {
+          display: inline-block; /* Individual blocks that wrap */
+        }
+        .food-word { font-weight: bold; }
+        .not-found .food-word { color: red; }
+        #popup {
+          display: none;
+          position: absolute;
+          background: white;
+          border: 1px solid #ccc;
+          padding: 10px;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+          z-index: 1000;
+          cursor: move;
+        }
+        #close {
+          float: right;
+          border: none;
+          background: none;
+          font-size: 16px;
+          cursor: pointer;
+        }
       </style>
       <a href="#" id="link"></a>
       <div id="popup">
@@ -37,23 +60,19 @@ class FoodNutrientLink extends HTMLElement {
     const popup = this.shadowRoot.querySelector('#popup');
     const closeButton = this.shadowRoot.querySelector('#close');
 
-    // Show popup on link click
     link.addEventListener('click', (event) => {
       event.preventDefault();
       this.showPopup();
     });
 
-    // Hide popup on close button click
     closeButton.addEventListener('click', () => this.hidePopup());
 
-    // Bring popup to front on click
     popup.addEventListener('click', (event) => {
       if (event.target === popup) {
         this.bringToFront();
       }
     });
 
-    // Dragging functionality
     let isDragging = false;
     let offsetX, offsetY;
     let container;
@@ -111,67 +130,59 @@ class FoodNutrientLink extends HTMLElement {
     this.updateLinkText();
   }
 
-  updateLinkText() {
-    const link = this.shadowRoot.querySelector('#link');
-    const displayMode = this.getAttribute('display-mode') || 'full';
-    if (this.foodList.length === 1) {
-      const { foodName, quantity } = this.foodList[0];
-      const displayName = this.computeDisplayName(foodName, quantity);
-      if (displayMode === 'name-only') {
-        link.textContent = displayName;
-      } else {
-        link.textContent = `${quantity}g of ${displayName}`;
-      }
-      // set the link color
-      api.ensureDataLoaded();
-      const normalizedFoodName = foodName.toLowerCase();
-      if (!Object.keys(api.foodData).find((key) => key.toLowerCase() === normalizedFoodName)){
-        link.style.color = "red"
-      }
-    } else if (this.foodList.length > 1) {
-      link.textContent = 'Mixed Foods';
+  /** Transforms the food name by inverting the first two parts and converting to lowercase */
+  getTransformedFoodName(foodName) {
+    const parts = foodName.split(',').map(part => part.trim());
+    if (parts.length >= 2) {
+      return [parts[1], parts[0]].join(' ').toLowerCase();
     } else {
-      link.textContent = 'No food specified';
+      return foodName.toLowerCase();
     }
   }
 
-  computeDisplayName(foodName, quantity) {
-    let portionText = '';
-  
-    // Check if quantity is a valid number
-    if (typeof quantity === 'number' && !isNaN(quantity)) {
-      // Normalize foodName for case-insensitive lookup
-      const normalizedFoodName = foodName.toLowerCase();
-      // Find the matching food key in api.fooddata
-      const foodKey = Object.keys(api.foodData).find(key => key.toLowerCase() === normalizedFoodName);
-  
-      // If food is found and has portion data
-      if (foodKey && api.foodData[foodKey].portion_unit_name && api.foodData[foodKey].portion_gram_weight) {
-        const portionUnitName = api.foodData[foodKey].portion_unit_name;
-        const portionGramWeight = parseFloat(api.foodData[foodKey].portion_gram_weight);
-  
-        // Ensure portionGramWeight is a valid, positive number
-        if (!isNaN(portionGramWeight) && portionGramWeight > 0) {
-          const numPortions = quantity / portionGramWeight;
-          // Singular if exactly 1, plural otherwise
-          const unitText = numPortions === 1 ? portionUnitName : portionUnitName + 's';
-          // Format number of portions to 2 decimal places
-          portionText = `${numPortions.toFixed(2)} ${unitText} of `;
-        }
+  /** Generates HTML for a single food item */
+  generateFoodItemHTML(food, foodKey) {
+    const { foodName, quantity } = food;
+    const transformedFoodName = this.getTransformedFoodName(foodName);
+    const words = transformedFoodName.split(' '); // Split into words
+    const nameClass = foodKey ? 'food-word' : 'food-word not-found';
+    const wordHTML = words.map(word => `<span class="${nameClass}">${word}</span>`).join(' ');
+    const quantityHTML = `<span class="quantity">${quantity}g</span>`;
+
+    let portionHTML = '';
+    if (foodKey && api.foodData[foodKey].portion_unit_name && api.foodData[foodKey].portion_gram_weight) {
+      const portionUnitName = api.foodData[foodKey].portion_unit_name;
+      const portionGramWeight = parseFloat(api.foodData[foodKey].portion_gram_weight);
+      if (!isNaN(portionGramWeight) && portionGramWeight > 0) {
+        const numPortions = quantity / portionGramWeight;
+        const unitText = numPortions === 1 ? portionUnitName : portionUnitName + 's';
+        portionHTML = `<span class="portion">${numPortions.toFixed(2)} ${unitText}</span>`;
       }
     }
 
-    // Compute the base display name (original logic)
-    const parts = foodName.split(',').map(part => part.trim());
-    let baseDisplayName;
-    if (parts.length >= 2) {
-      baseDisplayName = [parts[1], parts[0]].join(' ').toLowerCase();
-    } else {
-      baseDisplayName = foodName.toLowerCase();
+    return `${wordHTML} ${quantityHTML} ${portionHTML}`;
+  }
+
+  updateLinkText() {
+    const link = this.shadowRoot.querySelector('#link');
+    link.innerHTML = ''; // Clear existing content
+
+    if (this.foodList.length === 0) {
+      link.textContent = 'No food8 specified';
+      return;
     }
-  
-    // Return the portion text prepended to the base display name
-    return portionText + baseDisplayName;
+
+    api.ensureDataLoaded();
+
+    this.foodList.forEach((food, index) => {
+      const normalizedFoodName = food.foodName.toLowerCase();
+      const foodKey = Object.keys(api.foodData).find(key => key.toLowerCase() === normalizedFoodName);
+      const foodItemHTML = this.generateFoodItemHTML(food, foodKey);
+      link.insertAdjacentHTML('beforeend', foodItemHTML);
+      if (index < this.foodList.length - 1) {
+        link.insertAdjacentHTML('beforeend', ', '); // Separate items with commas
+      }
+    });
   }
 
   showPopup() {

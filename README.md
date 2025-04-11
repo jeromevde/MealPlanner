@@ -26,19 +26,16 @@ TODO
 
 2) IMPROVE CODE
 - make foodData keys lowercase & lowercase the access to it
-- fix link formatting and encoding, not satisfying
 - remove aggregation function from index.html
-- improve layout after restructuring (for example the #meals amounts)
 - add "for 1 person to title of meal"
 
 
-3) OPTIONAL
+OPTIONAL
 - fix broken link logic & cookies (& move it to a separate .js file for clarity)
 - add a selector of meals in the aggregation componenent
 - add a displayer of meals in the ingredients aggregation component
+- add a displayer of meals & ingredients in the nutrients list
 - modify the meal-element component to adapt to changing #people for that meal
 - add checkbox button in front of the aggregated ingredients
 - zoom in zoom out text recipe
 - link to githubdev to adapt recipes
-
-

@@ -1,4 +1,8 @@
 /* Meal Planner Layout */
+p{
+    line-height: 1.5;
+}
+
 .meal-plan {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -202,4 +206,22 @@
         height: auto;
         max-height: 80%;
     }
+}
+.refresh-button {
+    background-color: white; /* Light grey background */
+    border: 1px solid #ccc;    /* Subtle border */
+    border-radius: 4px;        /* Makes it circular */
+    width: 20px;               /* Consistent size */
+    height: 20px;              /* Consistent size */
+    display: flex;             /* Center the icon */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;           /* Hand cursor on hover */
+    font-size: 18px;           /* Size of the refresh symbol */
+    color: #ccc;            /* Blue to match your theme */
+    transition: background-color 0.3s ease; /* Smooth hover transition */
+}
+
+.refresh-button:hover {
+    background-color: #e0e0e0; /* Slightly darker grey on hover */
 }

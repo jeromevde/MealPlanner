@@ -15,36 +15,25 @@ export const mealQuantities = new Map();
 export const selected_foods = {}
 export const selected_nutrients = {}
 
-const foodRegex = /(?:\{([^{}]+)\s*of\s*[^{]*\{([^{}]+)\}\})|(?:\{{2}([^{}]+)\}{2})/g;
-
-/*
-    {pinch each of {dried oregano}} → [null, "dried oregano", "{pinch each of {dried oregano}}"]
-    {{thyme}} → [null, "thyme", "{{thyme}}"]
-    {{red pepper flakes}} → [null, "red pepper flakes", "{{red pepper flakes}}"]
-    {1-2 cloves of {garlic}} → [null, "garlic", "{1-2 cloves of {garlic}}"]
-    {2 1/4 teaspoons of {instant yeast}} → [null, "instant yeast", "{2 1/4 teaspoons of {instant yeast}}"]
-    {150 g of {salt}} → [150, "salt", "{150 g of {salt}}"]
-    {150g of {salt}} → [150, "salt", "{150g of {salt}}"]
-    {120g of ripe {Bananas, ripe and slightly ripe, raw}} [120, "Bananas, ripe and slightly ripe, raw", "{120g of ripe {Bananas, ripe and slightly ripe, raw}}"]
-*/
-
+// Regex to match two patterns:
+// 1. {quantity g {ingredient}} (e.g., {150g {salt}})
+// 2. {{ingredient}} (e.g., {{thyme}})
+const foodRegex = /(?:\{(\d+(?:\.\d+)?)\s*g\s*\{([^{}]+)\}\})|(?:\{{2}([^{}]+)\}{2})/g;
 export function parseIngredients(content) {
     const matches = [];
     let match;
     while ((match = foodRegex.exec(content)) !== null) {
-        const fullMatch = match[0]; // The whole matched string
-        if (match[1] && match[2]) { // From the first pattern
-            const prefix = match[1].trim(); // e.g., "120g"
-            const ingredient = match[2];    // e.g., "Bananas, ripe and slightly ripe, raw"
-            const quantityMatch = prefix.match(/^(\d+(?:\.\d+)?)\s*g$/);
-
-            if (quantityMatch) {
-                const quantity = parseFloat(quantityMatch[1]); // e.g., 120
-                matches.push([quantity, ingredient, fullMatch]);
-            } else {
-                matches.push([null, ingredient, fullMatch]);
-            }
+        let quantity, ingredient, fullMatch;
+        if (match[1] && match[2]) {
+            quantity = parseFloat(match[1]);
+            ingredient = match[2].trim();
+        } else if (match[3]) {
+            quantity = null;
+            ingredient = match[3].trim();
         }
+        fullMatch = match[0];
+        console.log([quantity, ingredient, fullMatch]);
+        matches.push([quantity, ingredient, fullMatch]);
     }
     return matches;
 }
