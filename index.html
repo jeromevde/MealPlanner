@@ -42,45 +42,6 @@
         window.api = api;
 
         // Helper Functions
-        function getMealIndices(mealKey) {
-            const [day, meal, version] = mealKey.split('-');
-            const dayIndex = api.days.indexOf(day);
-            const mealIndex = api.meals.indexOf(meal);
-            const versionIndex = parseInt(version, 10);
-            return { dayIndex, mealIndex, versionIndex };
-        }
-
-        function getMealKey(dayIndex, mealIndex, versionIndex) {
-            const day = api.days[dayIndex];
-            const meal = api.meals[mealIndex];
-            const version = versionIndex.toString();
-            return `${day}-${meal}-${version}`;
-        }
-
-        function encodeSelections() {
-            const selections = [];
-            for (const [mealKey, quantity] of api.mealQuantities) {
-                if (quantity > 0) {
-                    const { dayIndex, mealIndex, versionIndex } = getMealIndices(mealKey);
-                    selections.push(`${dayIndex}-${mealIndex}-${versionIndex}-${quantity}`);
-                }
-            }
-            return selections.join('|');
-        }
-
-        function decodeSelections(encoded) {
-            const parts = encoded.split('|');
-            const mealQuantities = new Map();
-            for (const part of parts) {
-                if (part) {
-                    const [dayIndex, mealIndex, versionIndex, quantity] = part.split('-').map(Number);
-                    const mealKey = getMealKey(dayIndex, mealIndex, versionIndex);
-                    mealQuantities.set(mealKey, quantity);
-                }
-            }
-            return mealQuantities;
-        }
-
         function cleanTitle(title) {
             return title.replace(/^#+\s*/, '');
         }
@@ -274,16 +235,15 @@
 
         api.fetchData().then(() => {
             renderMealPlan().then(() => {
-                const encoded = loadState();
-                const selections = encoded ? decodeSelections(encoded) : new Map();
+                // Load and decode state
+                const loadedQuantities = loadState(api.days, api.meals);
                 api.mealQuantities.clear();
-                for (const [key, value] of selections) {
+                for (const [key, value] of loadedQuantities) {
                     api.mealQuantities.set(key, value);
                 }
                 document.querySelectorAll('meal-element').forEach(meal => {
                     meal.refresh();
                 });
-
                 window.calculateAggregations();
             }).catch(error => {
                 console.error("Error rendering meal plan:", error);
@@ -320,7 +280,8 @@
             aggregatedFoodDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
             aggregatedNutrientsDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
 
-            saveState(encodeSelections());
+            // Encode and save state
+            saveState(api.mealQuantities, api.days, api.meals);
         }
 
         window.calculateAggregations = calculateAggregations;

@@ -1,5 +1,6 @@
 export * from './markdown.js';
 
+// CONSTANTS
 export const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 export const meals = ["morning", "midday", "evening"];
 export const versions = ["1", "2", "3"];
@@ -9,11 +10,12 @@ export const nutrient_csv = "./fooddata/nutrient.csv";
 export const food_nutrient_csv = "./fooddata/food_nutrient.csv";
 export const food_category_csv = "./fooddata/food_category.csv";
 
-export const selected_meals = new Set();
+// DATA
+export let foodData = null;
+
+// STATE
 export const mealQuantities = new Map();
 
-export const selected_foods = {}
-export const selected_nutrients = {}
 
 // Regex to match two patterns:
 // 1. {quantity g {ingredient}} (e.g., {150g {salt}})
@@ -39,10 +41,8 @@ export function parseIngredients(content) {
 }
 
 
-// Variables to store the JSON data and loading promise
-export let foodData = null;
-let loadingDataPromise = null;
 
+let loadingDataPromise = null;
 // Load the preprocessed JSON data
 export async function loadData() {
     if (foodData === null) {
