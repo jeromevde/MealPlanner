@@ -4,7 +4,7 @@ In a pan, grill {50g  {Onions, red, raw}} with one clove of {5g {Garlic, raw}} a
 
 Alternatively, the potatoes can be cooked in water before added to the plate and mashed with {{butter}}, {{milk}}, {{salt}} & {{pepper}}.
 
-In a baking dish, combine diced the potatoes, a fillet of {150g {Fish, salmon, Atlantic, farm raised, raw}}, a fillet of {150g {Fish, cod, Atlantic, wild caught, raw}}, sliced {100g {Tomatoes, grape, raw}}, and optionally {100g {Squash, summer, green, zucchini, includes skin, raw}}. Drizzle with a tablespoon of {15g {Oil, olive, extra virgin}}, squeeze some {{lemon juice}}, sprinkle with {{lemon zest}}, {{oregano}}, {{dill}}, {{smoked paprika}}, {2g {Salt, table, iodized}}, and {{pepper}}, then toss gently. Cover with foil and bake for 25–30 minutes until the fish flakes and potatoes soften. Remove the fish and veggies, 
+In a baking dish, combine diced the potatoes, a fillet of {150g {Fish, salmon, Atlantic, farm raised, raw}}, a fillet of {150g {Fish, cod, Atlantic, wild caught, raw}}, sliced {100g {Tomatoes, grape, raw}}, and optionally {100g {Squash, summer, green, zucchini, includes skin, raw}}. Drizzle with a tablespoon of {15g {Oil, olive, extra virgin}}, squeeze some {{lemon juice}}, sprinkle with {{lemon zest}}, {{oregano}}, {{dill}}, {{smoked paprika}}, {2g {Salt, table, iodized}}, and {{pepper}}, then toss gently. Cover with foil and bake for 25–30 minutes until the fish flakes and potatoes soften.
 
 
 
