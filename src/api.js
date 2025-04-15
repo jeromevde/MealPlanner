@@ -49,7 +49,7 @@ export async function loadData() {
         if (!loadingDataPromise) {
             loadingDataPromise = (async () => {
                 try {
-                    const response = await fetch('./fooddata/fooddata.json');
+                    const response = await fetch('./data/fooddata.json');
                     if (!response.ok) {
                         throw new Error(`Could not fetch fooddata.json, received ${response.status}`);
                     }
