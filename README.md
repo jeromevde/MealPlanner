@@ -25,6 +25,7 @@ TODO
 
 IMROVE DATA
 - find missing foods & nutrients ?
+- data interface instead of accessing dict directly --> modular to data input
 
 OPTIONAL
 - fix broken link logic & cookies (& move it to a separate .js file for clarity)
