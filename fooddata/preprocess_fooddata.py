@@ -3,6 +3,9 @@ import pandas as pd
 import json
 import matplotlib.pyplot as plt
 import numpy as np
+from upsetplot import UpSet, from_indicators
+import pandas as pd
+import matplotlib.pyplot as plt
 
 def load_and_merge_data(fooddata_folder):
     """Load and merge food, nutrient, and portion data from CSV files with specific columns."""
@@ -71,7 +74,6 @@ def clean_and_process_data(df):
     df = df.sort_values(by=['description', 'nutrient_order'])
     df['amount'] = df['amount'].fillna('N/A')
     df['portion_gram_weight'] = df['portion_gram_weight'].fillna('N/A')
-    df = df[df['drv'].notna()]
     df = df.drop_duplicates(subset=['description', 'name'])
     return df
 
@@ -83,7 +85,7 @@ def filter_foods(df, min_nutrients=None):
     selected_foods = nutrient_counts[nutrient_counts >= min_nutrients].index
     return df[df['description'].isin(selected_foods)]
 
-def create_csv(df, output_csv):
+def create_csv(df):
     """Create a CSV file from the processed DataFrame with a #nutrients column."""
     # Create nutrient column identifier
     df['nutrient_col'] = df['name'] + '|' + df['category'] + '|' + df['drv'].astype(str) + '|' + df['unit_name']
@@ -97,6 +99,7 @@ def create_csv(df, output_csv):
     # Extract food-level info
     food_info = df.groupby('description').agg({
         'category_description': 'first',
+        'data_type': "first",
         'portion_unit_name': 'first',
         'portion_gram_weight': 'first'
     }).reset_index()
@@ -111,7 +114,7 @@ def create_csv(df, output_csv):
     # Rename and reorder columns
     csv_df = csv_df.rename(columns={'description': 'food_name', 'category_description': 'category'})
     nutrient_cols = [col for col in csv_df.columns if '|' in col]
-    csv_df = csv_df[['food_name', 'category', 'portion_unit_name', 'portion_gram_weight', '#nutrients'] + nutrient_cols]
+    csv_df = csv_df[['food_name', 'data_type', 'category', 'portion_unit_name', 'portion_gram_weight', '#nutrients'] + nutrient_cols]
     
     return csv_df
 
@@ -147,34 +150,62 @@ def plot_distribution(df):
     plt.show()
 
 
+def plot_upset(df, max_combinations=20):
+    """
+    Plot an UpSet plot showing the most common nutrient combinations across foods.
+
+    Parameters:
+    - df: DataFrame with processed nutrient data (columns: 'description', 'name', 'amount', etc.).
+    - max_combinations: Maximum number of nutrient combinations to display (default: 20).
+    """
+    binary_df = df.pivot_table(index='description',
+                               columns='name',
+                               values='amount',
+                               aggfunc=lambda x: (x != 'N/A').any()).fillna(False)
+    upset_data = from_indicators(binary_df.columns, data=binary_df)
+    upset = UpSet(upset_data, subset_size='count', show_counts=True)
+    upset.plot()
+    plt.title('UpSet Plot of Nutrient Combinations Across Foods')
+    plt.show()
+
+
+
 #%%
 fooddata_folder = "/Users/jf41043/Downloads/FoodData_Central_csv_2024-10-31"
-fooddata_folder = "/Users/jf41043/Downloads/FoodData_Central_foundation_food_csv_2024-10-31"
-output_json = '../data/fooddata.json'
-output_csv = '../data/fooddata.csv'
-
-#%%
-df = load_and_merge_data(fooddata_folder)
-
-#%%
-df = clean_and_process_data(df)
+data = load_and_merge_data(fooddata_folder)
+data = clean_and_process_data(data)
+data = data[data['drv'].notna()]
 
 #%% Plot nutrient distribution
-plot_distribution(df)
+df = data
 
-# Filter foods
-min_nutrients=10
+df = df[
+        (df["data_type"]=="foundation_food") |  
+        (df["data_type"]=="branded_food") | 
+        (df["data_type"]=="sr_legacy_food") |
+        (df["data_type"]=="survey_fndds_food") 
+        ]
+plot_distribution(df)
+#plot_upset(df)
+
+#%% Filter foods
+min_nutrients=1
 df = filter_foods(df, min_nutrients)
 print(f"Selected {len(df['description'].unique())} foods with at least {min_nutrients} non-missing nutrients.")
 
 
 #%% Create CSV first
-csv_df = create_csv(df, output_csv)
-csv_df.to_csv(output_csv, index=False, na_rep='')
+
+csv_df = create_csv(df)
+csv_df.to_excel('../data/fooddata.xlsx', index=False, na_rep='')
+csv_df.to_csv('../data/fooddata.csv', index=False, na_rep='')
+
 print("CSV created")
 
-#%% Then create JSON
-json_dict = create_json_dict(df)
-with open(output_json, 'w') as fp:
-    json.dump(json_dict, fp)
-print("JSON dictionary created")
+
+if False:
+    json_dict = create_json_dict(df)
+    with open('../data/fooddata.json', 'w') as fp:
+        json.dump(json_dict, fp)
+    print("JSON dictionary created")
+
