@@ -36,3 +36,5 @@ OPTIONAL
 - add checkbox button in front of the aggregated ingredients
 - zoom in zoom out text recipe
 - link to githubdev to adapt recipes
+- make mealplanner full screen in pc mode
+- center content (recipes for example)
