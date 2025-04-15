@@ -24,6 +24,7 @@ TODO
 - add "for 1 person to title of meal"
 
 IMROVE DATA
+- fix missing energy stuff
 - find missing foods & nutrients ?
 - data interface instead of accessing dict directly --> modular to data input
 
