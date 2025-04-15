@@ -133,11 +133,6 @@ def create_json_dict(df):
     return final_dict
 
 
-def save(df, output_filename):
-    output_json = output_filename + ".json"
-    output_csv = output_filename + ".csv"
-
-
 def plot_distribution(df):
     nutrient_counts = df[df['amount'] != 'N/A'].groupby('description').size()
     plt.figure(figsize=(10, 6))
@@ -154,7 +149,7 @@ def plot_distribution(df):
 
 #%%
 fooddata_folder = "/Users/jf41043/Downloads/FoodData_Central_csv_2024-10-31"
-#fooddata_folder = "/Users/jf41043/Downloads/FoodData_Central_foundation_food_csv_2024-10-31"
+fooddata_folder = "/Users/jf41043/Downloads/FoodData_Central_foundation_food_csv_2024-10-31"
 output_json = '../data/fooddata.json'
 output_csv = '../data/fooddata.csv'
 
@@ -171,6 +166,7 @@ plot_distribution(df)
 min_nutrients=10
 df = filter_foods(df, min_nutrients)
 print(f"Selected {len(df['description'].unique())} foods with at least {min_nutrients} non-missing nutrients.")
+
 
 #%% Create CSV first
 csv_df = create_csv(df, output_csv)
