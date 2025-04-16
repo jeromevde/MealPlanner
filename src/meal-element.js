@@ -2,77 +2,9 @@ class MealElement extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    const styleUrl = new URL('meal-element.css', import.meta.url).href;
     this.shadowRoot.innerHTML = `
-      <style>
-        .meal {
-          cursor: pointer;
-          padding: 10px;
-          border: 2px solid #ccc;
-          margin: 5px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          position: relative;
-          border-radius: 10px;
-          color: grey
-        }
-        .meal-title {
-          flex: 1;
-          margin-right: 10px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .meal.selected {
-          border: 2px solid blue;
-          color: blue;
-        }
-        .quantity-circle {
-          display: block;
-          width: 15px;
-          height: 15px;
-          border-radius: 5px 0px 5px 0px;
-          background-color: white;
-          border: 2px solid #ccc;
-          color: grey;
-          text-align: center;
-          font-size: 12px;
-          font-weight: bold;
-          position: absolute;
-          bottom: -2px;
-          right: -2px;
-        }
-        .quantity-circle.active {
-          background-color: white;
-          border: 2px solid blue;
-          color: blue;
-        }
-        .custom-dropdown {
-          display: none;
-          position: absolute;
-          background: white;
-          border: 1px solid #ccc;
-          padding: 10px;
-          z-index: 10000;
-          flex-wrap: wrap;
-          right: 0;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .circle-button {
-          width: 25px;
-          height: 25px;
-          border-radius: 5px 0px 5px 0px;
-          background-color: white;
-          color: grey;
-          text-align: center;
-          border: 2px solid #ccc;
-          font-size: 12px;
-          margin: 2px;
-          cursor: pointer;
-        }
-        .circle-button:hover {
-          background-color: #ccc;
-        }
-      </style>
+      <link rel="stylesheet" href="${styleUrl}">
       <div class="meal">
         <span class="meal-title"></span>
         <div class="meal-control">

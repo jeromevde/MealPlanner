@@ -11,42 +11,9 @@ class FoodNutrientLink extends HTMLElement {
     super();
     this.foodList = [];
     this.attachShadow({ mode: 'open' });
+    const styleUrl = new URL('food-nutrient-link.css', import.meta.url).href;
     this.shadowRoot.innerHTML = `
-      <style>
-        :host { position: relative; }
-        #link {
-          display: inline; /* Flows with text */
-          text-decoration: none;
-          color: #007bff;
-          background-color: transparent; /* No container background */
-          border-radius: 3px; /* No Rounded corners */
-          border: 1px solid #ccc;
-          margin: 0px 2px 0px 2px;
-          padding: 0px 4px 0px 4px;
-        }
-        .food-word, .quantity, .portion {
-          display: inline-block; /* Individual blocks that wrap */
-        }
-        .food-word { font-weight: bold; }
-        .not-found .food-word { color: red; }
-        #popup {
-          display: none;
-          position: absolute;
-          background: white;
-          border: 1px solid #ccc;
-          padding: 10px;
-          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-          z-index: 1000;
-          cursor: move;
-        }
-        #close {
-          float: right;
-          border: none;
-          background: none;
-          font-size: 16px;
-          cursor: pointer;
-        }
-      </style>
+      <link rel="stylesheet" href="${styleUrl}">
       <a href="#" id="link"></a>
       <div id="popup">
         <button id="close">×</button>
@@ -155,9 +122,9 @@ class FoodNutrientLink extends HTMLElement {
     const quantityHTML = quantity ? `<span class="quantity">${quantity}g</span>`: `<span/>` ;
 
     let portionHTML = '';
-    if (foodKey && api.foodData[foodKey].portion_unit_name && api.foodData[foodKey].portion_gram_weight) {
-      const portionUnitName = api.foodData[foodKey].portion_unit_name;
-      const portionGramWeight = parseFloat(api.foodData[foodKey].portion_gram_weight);
+    const portionUnitName = api.get_portion_unit_name(foodKey)
+    const portionGramWeight = api.get_portion_gram_weight(foodKey);
+    if (foodKey && portionUnitName && portionGramWeight) {
       if (!isNaN(portionGramWeight) && portionGramWeight > 0) {
         const numPortions = quantity / portionGramWeight;
         const roundedPortions = this.roundToNearestQuarter(numPortions);
@@ -174,15 +141,14 @@ class FoodNutrientLink extends HTMLElement {
     link.innerHTML = ''; // Clear existing content
 
     if (this.foodList.length === 0) {
-      link.textContent = 'No food8 specified';
+      link.textContent = 'No food specified';
       return;
     }
 
     api.ensureDataLoaded();
 
     this.foodList.forEach((food, index) => {
-      const normalizedFoodName = food.foodName.toLowerCase();
-      const foodKey = Object.keys(api.foodData).find(key => key === normalizedFoodName);
+      const foodKey = food.foodName.toLowerCase();
       const foodItemHTML = this.generateFoodItemHTML(food, foodKey);
       link.insertAdjacentHTML('beforeend', foodItemHTML);
       if (index < this.foodList.length - 1) {

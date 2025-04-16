@@ -25,8 +25,6 @@ TODO
 
 IMROVE DATA
 - fix missing energy stuff
-- find missing foods & nutrients ?
-- data interface instead of accessing dict directly --> modular to data input
 
 OPTIONAL
 - fix broken link logic & cookies (& move it to a separate .js file for clarity)
@@ -39,3 +37,5 @@ OPTIONAL
 - link to githubdev to adapt recipes
 - make mealplanner full screen in pc mode
 - center content (recipes for example)
+- ask chat for layout improvements
+- share mealplan button

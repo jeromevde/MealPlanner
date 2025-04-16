@@ -1,4 +1,8 @@
 export * from './markdown.js';
+export * from './fooddata.js'
+export *  from './state.js'
+
+
 
 // CONSTANTS
 export const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
@@ -9,12 +13,6 @@ export const food_csv = "./fooddata/food.csv";
 export const nutrient_csv = "./fooddata/nutrient.csv";
 export const food_nutrient_csv = "./fooddata/food_nutrient.csv";
 export const food_category_csv = "./fooddata/food_category.csv";
-
-// DATA
-export let foodData = null;
-
-// STATE
-export const mealQuantities = new Map();
 
 
 // Regex to match two patterns:
@@ -42,55 +40,12 @@ export function parseIngredients(content) {
 
 
 
-let loadingDataPromise = null;
-// Load the preprocessed JSON data
-export async function loadData() {
-    if (foodData === null) {
-        if (!loadingDataPromise) {
-            loadingDataPromise = (async () => {
-                try {
-                    const response = await fetch('./data/fooddata.json');
-                    if (!response.ok) {
-                        throw new Error(`Could not fetch fooddata.json, received ${response.status}`);
-                    }
-                    const data = await response.json();
-                    foodData = Object.fromEntries(
-                        Object.entries(data).map(([key, value]) => [key.toLowerCase(), value])
-                    );
-                } catch (error) {
-                    console.error("Error loading data:", error);
-                    throw error; // Re-throw to allow caller handling
-                } finally {
-                    loadingDataPromise = null; // Reset promise for potential reloads
-                }
-            })();
-        }
-        return loadingDataPromise;
-    }
-}
-
-// Ensure data is loaded before proceeding
-export async function ensureDataLoaded() {
-    if (foodData === null) {
-        await loadData();
-    }
-}
-
-// Find up to 10 food descriptions matching the partial name
-export async function findClosestMatches(partialName) {
-    await ensureDataLoaded();
-    const normalizedPartialName = partialName.toLowerCase();
-    return Object.keys(foodData)
-        .filter(description => description.includes(normalizedPartialName))
-        .slice(0, 10);
-}
 
 export async function fetchData() {
     const fetchPromises = [];
-
     for (const day of days) {
         for (const meal of  meals) {
-            for (const version of  versions) {
+            for (const version of versions) {
                 const filePath = `meals/${day}_${meal}_${version}.md`;
                 fetchPromises.push(fetch(filePath).then(async (response) => {
                     if (response.ok) {
@@ -129,22 +84,4 @@ export async function parseAndLinkMealContent(content) {
         newContent = newContent.replace(originalText, componentHTML);
     }
     return newContent;
-}
-
-// Get nutrients for a specific food name using foodData from JSON
-export async function getNutrientsForName(foodName) {
-    await ensureDataLoaded();
-    const normalizedFoodName = foodName.toLowerCase();
-    const foodKey = Object.keys(foodData).find(key => key === normalizedFoodName);
-    if (!foodKey) {
-        return { error: "Food not found" };
-    }
-    const nutrients = foodData[foodKey].nutrients;
-    return Object.entries(nutrients).map(([name, details]) => ({
-        name,
-        amount: details.amount,
-        unit_name: details.unit_name,
-        category: details.category,
-        drv: details.drv
-    }));
 }

@@ -55,18 +55,14 @@ class AggregatedFoodItems extends HTMLElement {
     // Aggregate quantities for each food item
     const aggregatedFoods = new Map();
     for (const { foodName, quantity } of foodList) {
-      const normalizedFoodName = foodName.toLowerCase();
-      const foodKey = Object.keys(foodapi.foodData).find(
-        (key) => key === normalizedFoodName
-      ) || normalizedFoodName;
-      const currentTotal = aggregatedFoods.get(foodKey) || 0;
+      const currentTotal = aggregatedFoods.get(foodName) || 0;
       aggregatedFoods.set(foodKey, currentTotal + parseFloat(quantity));
     }
 
     // Group by category
     const foodsByCategory = {};
     for (const [foodKey, totalQuantity] of aggregatedFoods) {
-      const category = foodapi.foodData[foodKey]?.category || 'Other';
+      const category = foodapi.get_category(foodKey);
       if (!foodsByCategory[category]) {
         foodsByCategory[category] = [];
       }

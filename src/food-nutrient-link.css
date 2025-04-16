@@ -1,0 +1,33 @@
+:host { position: relative; }
+#link {
+  display: inline; /* Flows with text */
+  text-decoration: none;
+  color: #007bff;
+  background-color: transparent; /* No container background */
+  border-radius: 3px; /* No Rounded corners */
+  border: 1px solid #ccc;
+  margin: 0px 2px 0px 2px;
+  padding: 0px 4px 0px 4px;
+}
+.food-word, .quantity, .portion {
+  display: inline-block; /* Individual blocks that wrap */
+}
+.food-word { font-weight: bold; }
+.not-found .food-word { color: red; }
+#popup {
+  display: none;
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1000;
+  cursor: move;
+}
+#close {
+  float: right;
+  border: none;
+  background: none;
+  font-size: 16px;
+  cursor: pointer;
+}

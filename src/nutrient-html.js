@@ -45,12 +45,8 @@ class NutrientHtml extends HTMLElement {
     // Aggregate nutrients from all food items
     const aggregatedNutrients = {};
     for (const { foodName, quantity } of this.foodList) {
-      const normalizedFoodName = foodName.toLowerCase();
-      const foodKey = Object.keys(foodapi.foodData).find(
-        (key) => key === normalizedFoodName
-      );
-      if (foodKey) {
-        const nutrients = foodapi.foodData[foodKey].nutrients;
+      if (foodName) {
+        const nutrients =  foodapi.get_nutrients(foodName);
         const scaleFactor = parseFloat(quantity) / 100;
         Object.entries(nutrients).forEach(([name, details]) => {
           const scaledAmount = parseFloat(details.amount) * scaleFactor;
@@ -88,11 +84,7 @@ class NutrientHtml extends HTMLElement {
     let headerText;
     if (this.foodList.length === 1) {
       const { foodName, quantity } = this.foodList[0];
-      const normalizedFoodName = foodName.toLowerCase();
-      const foodKey = Object.keys(foodapi.foodData).find(
-        (key) => key === normalizedFoodName
-      );
-      const foodCategory = foodKey ? foodapi.foodData[foodKey].category : 'Unknown';
+      const foodCategory = foodapi.get_category(foodName);
       headerText = `${quantity}g of ${foodName} (${foodCategory})`;
     } else {
       headerText = `Normalized nutrients of the selected plan`;

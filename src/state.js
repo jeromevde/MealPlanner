@@ -1,4 +1,7 @@
-// Utility functions (unchanged)
+// STATE
+export const mealQuantities = new Map();
+
+
 export function getCookie(name) {
     const nameEQ = name + "=";
     const ca = document.cookie.split(';');
