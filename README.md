@@ -22,8 +22,9 @@ TODO
  IMPROVE CODE
 - remove aggregation function from index.html
 - add "for 1 person to title of meal"
-- shadowdom to lightdom
 - clean the index.html and increase #persons logic with it
+- shadowdom to lightdom
+
 
 IMROVE DATA
 - fix missing energy stuff

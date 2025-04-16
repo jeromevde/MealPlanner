@@ -7,33 +7,14 @@ class AggregatedFoodItems extends HTMLElement {
 
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
-    this.shadowRoot.innerHTML = `
-      <style>
-        .categories-wrapper {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 20px;
-        }
-        .category-section {
-          flex: 1;
-          min-width: 200px; /* Ensures categories don’t get too narrow */
-          display: flex;
-          flex-direction: column;
-        }
-        .food-items-container {
-          display: flex;
-          flex-direction: column;
-          gap: 10px; /* Adds space between food items */
-        }
-      </style>
+    this.innerHTML = `
       <div id="food-content"></div>
     `;
     const linkElem = document.createElement('link');
     linkElem.setAttribute('rel', 'stylesheet');
     const cssUrl = new URL('./aggregated-food-items.css', import.meta.url).href;
     linkElem.setAttribute('href', cssUrl);
-    this.shadowRoot.appendChild(linkElem);
+    this.appendChild(linkElem);
   }
 
   async attributeChangedCallback(name, oldValue, newValue) {
@@ -44,7 +25,7 @@ class AggregatedFoodItems extends HTMLElement {
   }
 
   async aggregateAndRender(foodList) {
-    const contentDiv = this.shadowRoot.querySelector('#food-content');
+    const contentDiv = this.querySelector('#food-content');
     if (foodList.length === 0) {
       contentDiv.innerHTML = '<p>No food items</p>';
       return;
@@ -56,7 +37,7 @@ class AggregatedFoodItems extends HTMLElement {
     const aggregatedFoods = new Map();
     for (const { foodName, quantity } of foodList) {
       const currentTotal = aggregatedFoods.get(foodName) || 0;
-      aggregatedFoods.set(foodKey, currentTotal + parseFloat(quantity));
+      aggregatedFoods.set(foodName, currentTotal + parseFloat(quantity));
     }
 
     // Group by category
@@ -73,7 +54,7 @@ class AggregatedFoodItems extends HTMLElement {
   }
 
   render(foodsByCategory) {
-    const contentDiv = this.shadowRoot.querySelector('#food-content');
+    const contentDiv = this.querySelector('#food-content');
     const sortedCategories = Object.keys(foodsByCategory).sort();
 
     const html = `

@@ -7,16 +7,15 @@ class NutrientHtml extends HTMLElement {
 
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
     // Set the basic HTML structure without embedded styles
-    this.shadowRoot.innerHTML = '<div id="nutrient-content"></div>';
+    this.innerHTML = '<div id="nutrient-content"></div>';
     
     // Load the external CSS file
     const linkElem = document.createElement('link');
     linkElem.setAttribute('rel', 'stylesheet');
     const cssUrl = new URL('./nutrient-html.css', import.meta.url).href;
     linkElem.setAttribute('href', cssUrl);
-    this.shadowRoot.appendChild(linkElem);
+    this.appendChild(linkElem);
     
     // Initialize state variables
     this.foodList = [];
@@ -31,13 +30,13 @@ class NutrientHtml extends HTMLElement {
       if (this.foodList.length > 0) {
         await this.renderNutrients();
       } else {
-        this.shadowRoot.querySelector('#nutrient-content').innerHTML = '<p>No food data</p>';
+        this.querySelector('#nutrient-content').innerHTML = '<p>No food data</p>';
       }
     }
   }
 
   async renderNutrients() {
-    const contentDiv = this.shadowRoot.querySelector('#nutrient-content');
+    const contentDiv = this.querySelector('#nutrient-content');
     contentDiv.innerHTML = '';
 
     await foodapi.ensureDataLoaded();
@@ -48,13 +47,15 @@ class NutrientHtml extends HTMLElement {
       if (foodName) {
         const nutrients =  foodapi.get_nutrients(foodName);
         const scaleFactor = parseFloat(quantity) / 100;
-        Object.entries(nutrients).forEach(([name, details]) => {
-          const scaledAmount = parseFloat(details.amount) * scaleFactor;
-          if (!aggregatedNutrients[name]) {
-            aggregatedNutrients[name] = { ...details, totalAmount: 0 };
-          }
-          aggregatedNutrients[name].totalAmount += scaledAmount;
-        });
+        if (nutrients){
+         Object.entries(nutrients).forEach(([name, details]) => {
+            const scaledAmount = parseFloat(details.amount) * scaleFactor;
+            if (!aggregatedNutrients[name]) {
+              aggregatedNutrients[name] = { ...details, totalAmount: 0 };
+            }
+            aggregatedNutrients[name].totalAmount += scaledAmount;
+          });
+        }
       }
     }
 
@@ -137,7 +138,7 @@ class NutrientHtml extends HTMLElement {
 
     // Attach event listener to the calorie button if present
     if (showCalorieButton) {
-      const button = this.shadowRoot.querySelector('#calorie-button');
+      const button = this.querySelector('#calorie-button');
       button.addEventListener('click', () => {
         const newTarget = prompt('Enter target calories (leave empty to reset to 2500):');
         if (newTarget === null || newTarget.trim() === '') {

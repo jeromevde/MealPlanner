@@ -32,7 +32,6 @@ export function parseIngredients(content) {
             ingredient = match[3].trim();
         }
         fullMatch = match[0];
-        console.log([quantity, ingredient, fullMatch]);
         matches.push([quantity, ingredient, fullMatch]);
     }
     return matches;

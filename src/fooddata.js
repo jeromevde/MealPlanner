@@ -42,7 +42,7 @@ export function get_category(foodName){
 };
 
 export function get_nutrients(foodName){
-    return  foodData[foodName.toLowerCase()].nutrients;
+    return  foodData[foodName.toLowerCase()]?.nutrients;
 };
 
 export function get_portion_gram_weight(foodName){

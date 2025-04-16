@@ -31,3 +31,19 @@
   width: 100px;
   text-align: right;
 }
+.categories-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.category-section {
+  flex: 1;
+  min-width: 200px; /* Ensures categories don’t get too narrow */
+  display: flex;
+  flex-direction: column;
+}
+.food-items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Adds space between food items */
+}
