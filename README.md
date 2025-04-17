@@ -19,14 +19,10 @@ live-server --mount=/MealPlanner:.
 
 TODO
 
- IMPROVE CODE
 - remove aggregation function from index.html
 - add "for 1 person to title of meal"
 - clean the index.html and increase #persons logic with it
 
-
-IMROVE DATA
-- fix missing energy stuff
 
 OPTIONAL
 - fix broken link logic & cookies (& move it to a separate .js file for clarity)
