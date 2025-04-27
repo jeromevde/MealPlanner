@@ -1,5 +1,5 @@
 export * from './markdown.js';
-export * from './fooddata.js'
+export * from './fooddata_csv.js'
 export *  from './state.js'
 
 
