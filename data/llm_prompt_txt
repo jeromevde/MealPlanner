@@ -1,8 +1,7 @@
 
 
 This text file contains the instructions on how to rewrite the recipe:
-- follow this path for the image path: 
-![name](../../MealPlanner/meals/images/name_of_image.jpg)
+
 - use european units
 - make it short, make it a paragraph, no bullet points
 - keep the images if there are some ! so keep the ![](image path)
@@ -10,12 +9,24 @@ This text file contains the instructions on how to rewrite the recipe:
 - put it into a code environment so i can copy paste
 - replace the first encounter of an ingredient with {quantity g of some optional descriptive words {ingredient_name}} where unit should always be G for grams. If it is common to use another unit than grams for that ingredient, please mention it in front of the ingredient. For example "A table spoon of [sugar; 10; G]", do not make it into  [sugar; 10; G] (a tablespoon). I want the special unit in front to make it sound more natural.
 The list of possible ingredients is:
-- For example  a fillet of {150g of {salmon, Atlantic, farm raised, raw}} or {150g of diced {Potatoes, russet, without skin, raw}}
+- For example  a fillet of {150g {salmon, Atlantic, farm raised, raw}} or {150g {Potatoes, russet, without skin, raw}}
 - Do not forget to generate an image for the recipe too that i can use
 - Always Always add facilitating quantity indications if possible. For example to not keep 5g of Garlic, raw, but make it into a clove of 5g of Garlic, raw.
 - If necessary, normalize the quantities to a 1 person meal, around 700 - 1000 calories depending on the meal
 - If an ingredient is used multiple times, mention the total quantity with the regex facilitating format of {100g of {ingredient}} but mention then in the text simply what part is necessary at what stage of the recipe
 - You will find the list of possible ingredients is at the bottom here
+- follow this path for the image path: 
+![name](../../MealPlanner/meals/images/name_of_image.jpg)
+
+For example:
+In a pan, grill {50g  {Onions, red, raw}} with one clove of {5g {Garlic, raw}} and {150g {Potatoes, russet, without skin, raw}}, {150g {Potatoes, sweet}} and some {15g {Oil, olive, extra virgin}}. Preheat your oven to 200°C. 
+
+Alternatively, the potatoes can be cooked in water before added to the plate and mashed with {{butter}}, {{milk}}, {{salt}} & {{pepper}}.
+
+In a baking dish, combine diced the potatoes, a fillet of {150g {Fish, salmon, Atlantic, farm raised, raw}}, a fillet of {150g {Fish, cod, Atlantic, wild caught, raw}}, sliced {100g {Tomatoes, grape, raw}}, and optionally {100g {Squash, summer, green, zucchini, includes skin, raw}}. Drizzle with a tablespoon of {15g {Oil, olive, extra virgin}}, squeeze some {{lemon juice}}, sprinkle with {{lemon zest}}, {{oregano}}, {{dill}}, {{smoked paprika}}, {2g {Salt, table, iodized}}, and {{pepper}}, then toss gently. Cover with foil and bake for 25–30 minutes until the fish flakes and potatoes soften.
+
+here is the data available:
+
 
 1% MILK; 10 BISCUITS; 10+ HONEY; 100% COCOA; 100% FRUIT; 100% HONEY; 100% JUICE; 100% JUICE; 100% JUICE; 100% JUICE
 2 DAY DETOX; 2% FAT MILK; 2% MILK; 2% MILK FAT; 2/3 OZ SWAI; 2/3 OZ SWAI; 3.8% MILK; 3/5 OZ SWAI; 3/5 OZ SWAI; 479
