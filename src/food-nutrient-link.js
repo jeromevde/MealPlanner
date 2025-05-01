@@ -17,7 +17,7 @@ class FoodNutrientLink extends HTMLElement {
       <a href="#" id="link"></a>
       <div id="popup">
         <button id="close">×</button>
-        <nutrient-html id="nutrient-display"></nutrient-html>
+        <nutrient-html id="nutrient-display" normalization-default="false"></nutrient-html>
       </div>
     `;
   }

@@ -1,63 +1,61 @@
 class MealElement extends HTMLElement {
   constructor() {
     super();
+    // Attach shadow root and set up template
     this.attachShadow({ mode: 'open' });
-    const styleUrl = new URL('meal-element.css', import.meta.url).href;
+    const styleUrl = new URL('./meal-element.css', import.meta.url).href;
     this.shadowRoot.innerHTML = `
       <link rel="stylesheet" href="${styleUrl}">
       <div class="meal">
         <span class="meal-title"></span>
-        <div class="meal-control">
-          <div class="quantity-circle"></div> <!-- No initial "0" -->
-          <div class="custom-dropdown"></div>
-        </div>
+        <span class="quantity-circle"></span>
+        <div class="custom-dropdown"></div>
       </div>
     `;
-  }
-
-  connectedCallback() {
-    const mealDiv = this.shadowRoot.querySelector('.meal');
-    const titleSpan = this.shadowRoot.querySelector('.meal-title');
-    const quantityCircle = this.shadowRoot.querySelector('.quantity-circle');
-    const customDropdown = this.shadowRoot.querySelector('.custom-dropdown');
-
-    // Set meal title and attributes
-    titleSpan.textContent = this.getAttribute('title');
-    mealDiv.dataset.day = this.getAttribute('day');
-    mealDiv.dataset.meal = this.getAttribute('meal');
-    mealDiv.dataset.version = this.getAttribute('version');
-
-    // Initialize meal quantity
-    const mealKey = `${this.getAttribute('day')}-${this.getAttribute('meal')}-${this.getAttribute('version')}`;
-    window.api.mealQuantities.set(mealKey, 0);
-    this.refresh(); // Set initial display
-
-    // Create quantity selection buttons (0 to 15)
+    // Store references for later use
+    this.mealDiv = this.shadowRoot.querySelector('.meal');
+    this.titleSpan = this.shadowRoot.querySelector('.meal-title');
+    this.quantityCircle = this.shadowRoot.querySelector('.quantity-circle');
+    this.customDropdown = this.shadowRoot.querySelector('.custom-dropdown');
+    // Create quantity buttons ONCE
     for (let i = 0; i <= 15; i++) {
       const circleButton = document.createElement('button');
       circleButton.classList.add('circle-button');
       circleButton.textContent = i;
       circleButton.addEventListener('click', (event) => {
         event.stopPropagation();
-        const value = i;
-        window.api.mealQuantities.set(mealKey, value);
-        this.refresh(); // Update display after selection
-        customDropdown.style.display = 'none';
-        quantityCircle.style.display = 'block';
+        const mealKey = this.getMealKey();
+        window.api.mealQuantities.set(mealKey, i);
+        this.refresh();
+        this.customDropdown.style.display = 'none';
+        this.quantityCircle.style.display = 'block';
         window.calculateAggregations();
       });
-      customDropdown.appendChild(circleButton);
+      this.customDropdown.appendChild(circleButton);
     }
+  }
 
-    // Toggle dropdown on quantity circle click
-    quantityCircle.addEventListener('click', (event) => {
+  connectedCallback() {
+    // Set meal title and attributes
+    this.titleSpan.textContent = this.getAttribute('title');
+    this.mealDiv.dataset.day = this.getAttribute('day');
+    this.mealDiv.dataset.meal = this.getAttribute('meal');
+    this.mealDiv.dataset.version = this.getAttribute('version');
+    // Initialize meal quantity if not set
+    const mealKey = this.getMealKey();
+    if (!window.api.mealQuantities.has(mealKey)) {
+      window.api.mealQuantities.set(mealKey, 0);
+    }
+    this.refresh();
+    // Set up dropdown toggle
+    this.quantityCircle.onclick = (event) => {
       event.stopPropagation();
-      quantityCircle.style.display = 'none';
-      customDropdown.style.display = 'flex';
-    });
+      this.customDropdown.style.display = 'block';
+      this.quantityCircle.style.display = 'none';
+    };
 
     // Handle meal click to show popup
-    mealDiv.addEventListener('click', async (event) => {
+    this.mealDiv.addEventListener('click', async (event) => {
       if (event.target.closest('.meal-control')) {
         return;
       }
@@ -76,22 +74,23 @@ class MealElement extends HTMLElement {
     });
   }
 
+  getMealKey() {
+    return `${this.getAttribute('day')}-${this.getAttribute('meal')}-${this.getAttribute('version')}`;
+  }
+
   refresh() {
-    const mealKey = `${this.getAttribute('day')}-${this.getAttribute('meal')}-${this.getAttribute('version')}`;
+    // Example refresh logic: update displayed quantity
+    const mealKey = this.getMealKey();
     const quantity = window.api.mealQuantities.get(mealKey) || 0;
-    const quantityCircle = this.shadowRoot.querySelector('.quantity-circle');
-    const mealDiv = this.shadowRoot.querySelector('.meal');
-    // Only display quantity if greater than 0, otherwise leave blank
-    quantityCircle.textContent = quantity > 0 ? quantity : '';
+    this.quantityCircle.textContent = quantity > 0 ? quantity : '';
     if (quantity > 0) {
-      mealDiv.classList.add('selected');
-      quantityCircle.classList.add('active');
+      this.mealDiv.classList.add('selected');
+      this.quantityCircle.classList.add('active');
     } else {
-      mealDiv.classList.remove('selected');
-      quantityCircle.classList.remove('active');
+      this.mealDiv.classList.remove('selected');
+      this.quantityCircle.classList.remove('active');
     }
   }
 }
 
-// Register the custom element
 customElements.define('meal-element', MealElement);

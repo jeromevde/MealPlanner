@@ -8,8 +8,20 @@ class NutrientHtml extends HTMLElement {
   constructor() {
     super();
     // Set the basic HTML structure without embedded styles
-    this.innerHTML = '<div id="nutrient-content"></div>';
-    
+    this.innerHTML = `
+      <div id="normalization-controls">
+        <label class="switch">
+          <input type="checkbox" id="normalize-toggle" checked>
+          <span class="slider"></span>
+        </label>
+        <span id="normalize-label">Normalize to</span>
+        <input type="range" id="calorie-slider" min="1000" max="4000" step="50" value="2500">
+        <input type="number" id="calorie-input" min="1000" max="4000" step="50" value="2500" style="width:70px;">
+        <span id="calorie-value">kcal</span>
+      </div>
+      <div id="nutrient-content"></div>
+    `;
+
     // Load the external CSS file
     const linkElem = document.createElement('link');
     linkElem.setAttribute('rel', 'stylesheet');
@@ -22,6 +34,38 @@ class NutrientHtml extends HTMLElement {
     this.originalTotalCalories = 0;
     this.targetCalories = 2500; // Default to 2500 calories
     this.scalingFactor = 1;
+    // Set normalization default based on attribute
+    // If attribute 'normalization-default' is set to 'false', default is OFF, otherwise ON
+    const normalizationAttr = this.getAttribute('normalization-default');
+    this.normalizationEnabled = normalizationAttr === 'false' ? false : true;
+    // Set the toggle state accordingly
+    this.querySelector('#normalize-toggle').checked = this.normalizationEnabled;
+
+    // UI references
+    this.normalizeToggle = this.querySelector('#normalize-toggle');
+    this.calorieSlider = this.querySelector('#calorie-slider');
+    this.calorieInput = this.querySelector('#calorie-input');
+    this.calorieValue = this.querySelector('#calorie-value');
+    this.nutrientContentDiv = this.querySelector('#nutrient-content');
+
+    // Event listeners for normalization controls
+    this.normalizeToggle.addEventListener('change', () => {
+      this.normalizationEnabled = this.normalizeToggle.checked;
+      this.renderNutrients();
+    });
+    this.calorieSlider.addEventListener('input', () => {
+      this.calorieInput.value = this.calorieSlider.value;
+      this.targetCalories = parseInt(this.calorieSlider.value, 10);
+      if (this.normalizationEnabled) this.renderNutrients();
+    });
+    this.calorieInput.addEventListener('input', () => {
+      let val = parseInt(this.calorieInput.value, 10);
+      if (isNaN(val) || val < 1000) val = 1000;
+      if (val > 4000) val = 4000;
+      this.calorieSlider.value = val;
+      this.targetCalories = val;
+      if (this.normalizationEnabled) this.renderNutrients();
+    });
   }
 
   async attributeChangedCallback(name, oldValue, newValue) {
@@ -62,8 +106,8 @@ class NutrientHtml extends HTMLElement {
     // Calculate original total calories
     this.originalTotalCalories = aggregatedNutrients["Energy"]?.totalAmount || 0;
 
-    // Determine scaling factor based on target calories
-    if (this.originalTotalCalories > 0) {
+    // Determine scaling factor based on normalization toggle
+    if (this.normalizationEnabled && this.originalTotalCalories > 0) {
       this.scalingFactor = this.targetCalories / this.originalTotalCalories;
     } else {
       this.scalingFactor = 1;
@@ -77,7 +121,9 @@ class NutrientHtml extends HTMLElement {
       nutrientsByCategory[cat].push({
         name,
         ...details,
-        displayAmount: (details.totalAmount * this.scalingFactor).toFixed(2),
+        displayAmount: this.normalizationEnabled
+          ? (details.totalAmount * this.scalingFactor).toFixed(2)
+          : details.totalAmount.toFixed(2),
       });
     });
 
@@ -88,7 +134,9 @@ class NutrientHtml extends HTMLElement {
       const foodCategory = foodapi.get_category(foodName);
       headerText = `${quantity}g of ${foodName} (${foodCategory})`;
     } else {
-      headerText = `Normalized nutrients of the selected plan`;
+      headerText = this.normalizationEnabled
+        ? `Nutrients normalized to ${this.targetCalories} kcal`
+        : `Nutrients for the selected plan (no normalization)`;
     }
 
     // Generate nutrient HTML
@@ -122,39 +170,17 @@ class NutrientHtml extends HTMLElement {
     // Calculate displayed calories
     const displayedCalories = (aggregatedNutrients["Energy"]?.totalAmount * this.scalingFactor || 0).toFixed(0);
 
-    // Check if the calorie button should be shown
-    const showCalorieButton = this.hasAttribute('show-calorie-button');
-
-    // Generate header HTML with optional button
+    // Remove the calorie button in the aggregated view
+    // Only show the header and nutrient list
     const headerHtml = `
       <div class="header">
         <h2>${headerText}</h2>
-        ${showCalorieButton ? `<button id="calorie-button">Calories: ${displayedCalories} kcal</button>` : ''}
       </div>
     `;
-
+    
     // Render the content
     contentDiv.innerHTML = `${headerHtml}<div class="nutrient-list">${nutrientHtml}</div>`;
 
-    // Attach event listener to the calorie button if present
-    if (showCalorieButton) {
-      const button = this.querySelector('#calorie-button');
-      button.addEventListener('click', () => {
-        const newTarget = prompt('Enter target calories (leave empty to reset to 2500):');
-        if (newTarget === null || newTarget.trim() === '') {
-          this.targetCalories = 2500; // Reset to default 2500
-        } else {
-          const parsed = parseFloat(newTarget);
-          if (!isNaN(parsed) && parsed > 0) {
-            this.targetCalories = parsed; // Set new target calories
-          } else {
-            alert('Invalid input');
-            return;
-          }
-        }
-        this.renderNutrients(); // Re-render with updated scaling
-      });
-    }
   }
 }
 
