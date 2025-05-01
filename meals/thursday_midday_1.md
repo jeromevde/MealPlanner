@@ -1,14 +1,4 @@
-Lentil and Sweet Potato Soup -
+# Lentil and Sweet Potato Soup
 
-Start by heating 2 tablespoons of olive oil in a large pot over medium heat. 
-Add 1 chopped onion, 2 minced garlic cloves, and cook until the onion is translucent. 
-Add 2 diced carrots, 1 diced sweet potato, and sauté for another 5 minutes. 
-Stir in 1 cup of rinsed green or brown lentils, then pour in 4 cups of vegetable broth or water. 
-Season with 1 teaspoon of cumin, 1/2 teaspoon of smoked paprika, salt, and pepper. 
-Bring to a boil, then reduce to a simmer, covering the pot. 
-Cook for about 30 minutes or until the lentils and sweet potatoes are tender. 
-For a creamier texture, you can blend part of the soup or leave it chunky as preferred. 
-Finish by stirring in a handful of spinach or kale until wilted, and adjust seasoning. 
-Serve hot, garnished with fresh parsley or a dollop of yogurt if you like. 
-This soup is perfect for a nourishing midday meal.
+Heat 1/2 tablespoon of {7g {olive oil}} in a pot over medium heat. Add 1/4 of a chopped {25g {onion, yellow, raw}} and 1 minced clove of {5g {garlic, raw}}, cooking until translucent. Add {30g {carrots, raw}} (diced) and {75g {sweet potato, raw}} (diced), sauté for 5 minutes. Stir in {50g {lentils, green or brown, raw}} (rinsed), then pour in {250g {vegetable broth}}. Season with 1/4 teaspoon of {{cumin}}, a pinch of {{smoked paprika}}, salt, and pepper. Bring to a boil, then simmer covered for 30 minutes until the lentils and sweet potatoes are tender. For a creamy texture, blend part of the soup if desired. Stir in a handful of {{spinach}} or {{kale}} until wilted and serve hot, garnished with chopped {{parsley}} or a spoonful of {{yogurt}}.       
 

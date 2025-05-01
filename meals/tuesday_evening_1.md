@@ -1,14 +1,3 @@
-Vegetable soup
+# Comfort Veggie Soup
 
-To make a delicious vegetable soup, start by heating 1 tablespoon of olive oil in a large pot 
-over medium heat. Sauté a diced onion, three minced garlic cloves, and 1 cup each of diced carrots 
-and celery until softened, about 5 minutes. Add 1 cup each of diced zucchini, potatoes (or sweet 
-potatoes), and green beans, then stir in 1-2 bay leaves, 1 teaspoon of dried thyme or 
-Italian seasoning, and 1/4 teaspoon of red chili flakes for a hint of spice. Pour in 6 cups 
-of chicken or vegetable broth, bring to a boil, and reduce the heat to simmer. 
-If using, add 1 cup of shredded cooked chicken, cover, and let cook for 20-25 minutes 
-until the vegetables are tender. Stir in 1 cup of diced tomatoes and 1/2 cup of frozen peas or corn,
-cooking for another 5 minutes. Adjust the salt and pepper to taste, then remove the bay leaves. 
- Serve the soup hot, garnished with fresh parsley, a drizzle of olive oil, 
- and a sprinkle of Parmesan cheese for extra flavor. 
- This hearty and flavorful soup is perfect as a comforting meal!
+Heat 1/2 tablespoon of {7g {olive oil}} in a pot over medium heat. Add 1/4 of a diced {25g {onion, yellow, raw}}, 1 minced clove of {5g {garlic, raw}}, and {30g {carrots, raw}}, cooking until softened. Stir in {30g {potato, raw}}, {30g {zucchini, raw}}, and {30g {bell pepper, raw}}, sautéing for 5 minutes. Add {100g {tomatoes, diced, canned}} and {250g {vegetable broth}}, 1/4 teaspoon of {{dried oregano}}, a pinch of {{dried basil}}, salt, and pepper. Bring to a boil, then simmer for 20 minutes until vegetables are tender. Optionally, add {30g {white beans, cooked}} or {30g {chickpeas, cooked}} in the last 5 minutes. Serve hot, garnished with chopped {{parsley}} or {{basil}}, and a drizzle of {{olive oil}} if desired.

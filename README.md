@@ -16,10 +16,8 @@ npm install -g live-server
 live-server --mount=/MealPlanner:.
 ```
 
-
-TODO
-
-- remove aggregation function from index.html
+Todo
+- block nutrient popup within parent popup
 
 
 OPTIONAL

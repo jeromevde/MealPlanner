@@ -1,4 +1,4 @@
-Smoked Salmon on Whole Grain Toast 
+# Smoked Salmon on Whole Grain Toast
 
-start by toasting two slices of whole grain bread until golden brown. In a small bowl, mix 2 tablespoons of cream cheese (or Greek yogurt for a lighter option) with a squeeze of fresh lemon juice, salt, and pepper to taste. Spread this lemon-flavored cream cheese generously on each slice of toast. Next, layer 4 oz (about 113g) of smoked salmon over the cream cheese, folding the slices for a nice presentation if desired. Sprinkle 1 tablespoon of rinsed and drained capers and 1 tablespoon of chopped fresh dill on top, adding delightful briny flavor. For extra freshness, consider garnishing with thin slices of cucumber, red onion, or a handful of arugula. Finish with a squeeze of lemon juice for brightness, and serve immediately for a nutritious breakfast or light lunch that’s packed with protein and flavor
+Toast 1 slice of {50g {whole grain bread}} until golden. In a small bowl, mix 1 tablespoon of {{cream cheese}} (or Greek yogurt) with a squeeze of {{lemon juice}}, salt, and pepper. Spread on the toast, then layer {60g {smoked salmon}} on top. Sprinkle 1/2 tablespoon of {{capers}} and 1/2 tablespoon of {{fresh dill}}, and garnish with thin slices of {{cucumber}}, {{red onion}}, or a handful of {{arugula}}. Finish with a squeeze of lemon juice and serve immediately.
 

@@ -1,14 +1,3 @@
-Vegetable soup
+# Vegetable Soup
 
-To make a delicious vegetable soup, start by heating 1 tablespoon of olive oil in a large pot 
-over medium heat. Sauté a diced onion, three minced garlic cloves, and 1 cup each of diced carrots 
-and celery until softened, about 5 minutes. Add 1 cup each of diced zucchini, potatoes (or sweet 
-potatoes), and green beans, then stir in 1-2 bay leaves, 1 teaspoon of dried thyme or 
-Italian seasoning, and 1/4 teaspoon of red chili flakes for a hint of spice. Pour in 6 cups 
-of chicken or vegetable broth, bring to a boil, and reduce the heat to simmer. 
-If using, add 1 cup of shredded cooked chicken, cover, and let cook for 20-25 minutes 
-until the vegetables are tender. Stir in 1 cup of diced tomatoes and 1/2 cup of frozen peas or corn,
- cooking for another 5 minutes. Adjust the salt and pepper to taste, then remove the bay leaves. 
- Serve the soup hot, garnished with fresh parsley, a drizzle of olive oil, 
- and a sprinkle of Parmesan cheese for extra flavor. 
- This hearty and flavorful soup is perfect as a comforting meal!
+Heat 1/2 tablespoon of {7g {olive oil}} in a pot over medium heat. Sauté 1/4 of a diced {25g {onion, yellow, raw}}, 1 minced clove of {5g {garlic, raw}}, {30g {carrots, raw}}, and {30g {celery, raw}} for 5 minutes. Add {30g {zucchini, raw}}, {30g {potatoes, raw}} (or sweet potatoes), and {30g {green beans, raw}}, then stir in 1/2 {{bay leaf}}, a pinch of {{dried thyme}}, and a pinch of {{red chili flakes}}. Pour in {250g {vegetable broth}}, bring to a boil, then simmer. Optionally add {30g {cooked chicken, shredded}}. After 15 minutes, stir in {30g {tomatoes, diced, raw}} and {15g {peas, frozen}} or {15g {corn, frozen}}, cook 5 more minutes. Adjust salt and pepper, remove bay leaf, and serve hot, garnished with chopped {{parsley}}, a drizzle of {{olive oil}}, and a sprinkle of {{Parmesan cheese}}.

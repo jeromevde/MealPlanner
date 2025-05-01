@@ -97,15 +97,7 @@ class FoodNutrientLink extends HTMLElement {
     this.updateLinkText();
   }
 
-  /** Transforms the food name by inverting the first two parts and converting to lowercase */
-  getTransformedFoodName(foodName) {
-    const parts = foodName.split(',').map(part => part.trim());
-    if (parts.length >= 2) {
-      return [parts[1], parts[0]].join(' ').toLowerCase();
-    } else {
-      return foodName.toLowerCase();
-    }
-  }
+  // Removed getTransformedFoodName: now using foodName as-is for display.
 
   /** Rounds a number to the nearest 0.25 increment */
   roundToNearestQuarter(value) {
@@ -115,8 +107,8 @@ class FoodNutrientLink extends HTMLElement {
   /** Generates HTML for a single food item */
   generateFoodItemHTML(food, foodKey) {
     const { foodName, quantity } = food;
-    const transformedFoodName = this.getTransformedFoodName(foodName);
-    const words = transformedFoodName.split(' '); // Split into words
+    // Show the food name as-is, split by spaces for styling, but do not reorder or lowercase
+    const words = foodName.split(' ');
     const nameClass = foodKey ? 'food-word' : 'food-word not-found';
     const wordHTML = words.map(word => `<span class="${nameClass}">${word}</span>`).join(' ');
     const quantityHTML = quantity ? `<span class="quantity">${quantity}g</span>`: `<span/>` ;
@@ -126,11 +118,11 @@ class FoodNutrientLink extends HTMLElement {
     const portionGramWeight = api.get_portion_gram_weight(foodKey);
     if (foodKey && portionUnitName && portionGramWeight) {
       if (!isNaN(portionGramWeight) && portionGramWeight > 0) {
-      const numPortions = quantity / portionGramWeight;
-      const roundedPortions = this.roundToNearestQuarter(numPortions);
-      const unitText = parseFloat(roundedPortions) <= 1 ? portionUnitName : portionUnitName + 's';
-      portionHTML = `<span class="portion">${roundedPortions} ${unitText}</span>`;
-    }
+        const numPortions = quantity / portionGramWeight;
+        const roundedPortions = this.roundToNearestQuarter(numPortions);
+        const unitText = parseFloat(roundedPortions) <= 1 ? portionUnitName : portionUnitName + 's';
+        portionHTML = `<span class="portion">${roundedPortions} ${unitText}</span>`;
+      }
     }
 
     return `${wordHTML} ${quantityHTML} ${portionHTML}`;

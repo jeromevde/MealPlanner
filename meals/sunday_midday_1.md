@@ -1,17 +1,3 @@
-Super Veggie
+# Super Veggie
 
-This recipe comprises 
-300g black lentils, 
-150g broccoli, 
-150g cauliflower, 
-100g shiitake or maitake mushrooms, 
-5g ginger, 
-5g garlic, 
-juice of one lime, 
-1 Tbsp cumin, 
-1 Tbsp apple cider vinegar, 
-and 1 Tbsp hemp seeds. 
-Cook the lentils until soft, 
-lightly saute the vegetables with spices, 
-and combine. 
-It can be blended into a veggie hummus for a smoother texture or served as a hearty bowl.
+Cook {75g {black lentils}} until soft. Lightly sauté {38g {broccoli}}, {38g {cauliflower}}, {25g {shiitake or maitake mushrooms}}, {1.5g {ginger}}, and 1 clove of {1.5g {garlic}} with 1/4 tablespoon of {{cumin}}, 1/4 tablespoon of {{apple cider vinegar}}, and a squeeze of {{lime juice}}. Combine with the lentils and top with {2.5g {hemp seeds}}. Blend for a smooth veggie hummus or serve as a hearty bowl.

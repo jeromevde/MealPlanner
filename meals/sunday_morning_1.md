@@ -1,12 +1,3 @@
-Green giant
+# Green Giant
 
-600ml of water, 
-2 Tbsp of chlorella powder, 
-7.6 g of Amino Complex (lemon flavor), 
-13.5 mg of spermidine, 
-20 g of collagen peptides, 
-500 mg of cocoa flavanols, 
-1 tsp of Ceylon cinnamon,
-1 Tbsp of extra virgin olive oil
-
-Blend together untill smooth
+Blend together {600g {water}}, 2 tablespoons of {{chlorella powder}}, {7.6g {Amino Complex, lemon flavor}}, {13.5mg {spermidine}}, {20g {collagen peptides}}, {0.5g {cocoa flavanols}}, 1 teaspoon of {{Ceylon cinnamon}}, and 1 tablespoon of {{extra virgin olive oil}} until smooth.

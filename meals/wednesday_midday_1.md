@@ -1,8 +1,7 @@
-Mediterranean Quinoa Salad 
-Cook 1 cup of quinoa and let it cool slightly, then mix it with a cup of diced cucumbers, 
-halved cherry tomatoes, a handful of chopped parsley, and 1/4 cup of crumbled feta cheese. 
-Drizzle with a dressing made from olive oil, lemon juice, salt, and pepper to taste. 
-For added protein, toss in a can of drained and rinsed chickpeas. 
+# Quinoa Salad
+
+Cook {50g {quinoa, raw}} according to package instructions and let cool. In a bowl, combine the quinoa, {50g {cherry tomatoes, halved}}, {25g {cucumber, diced}}, {10g {red onion, chopped}}, {10g {fresh parsley, chopped}}, {15g {feta cheese, crumbled}}, and 1 tablespoon of {7g {olive oil}}. Toss to combine, season with salt and pepper, and serve chilled or at room temperature.
+
 This vibrant salad is not only nutritious, packed with fiber and healthy fats, 
 but it also provides a refreshing burst of flavor that will keep you energized for the rest 
 of the day. Enjoy it chilled or at room temperature for the ultimate convenience!

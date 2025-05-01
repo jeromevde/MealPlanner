@@ -11,7 +11,10 @@ itables.show(fooddata_df, column_filters="header", maxBytes="1MB")
 data_types = ["branded_food", "sr_legacy_food", "foundation_food"]
 fooddata_df = fooddata_df[fooddata_df["data_type"].isin(data_types)]
 
-fooddata_df = fooddata_df[fooddata_df["foodName"].str.len() < 12]
+fooddata_df = fooddata_df[
+    (fooddata_df["foodName"].str.len() < 12) |
+    (fooddata_df["data_type"] == "foundation_food")
+]
 
 categories = ["American Indian/Alaska Native Foods",
     "Bacon, Sausages & Ribs",
@@ -122,6 +125,7 @@ categories = ["American Indian/Alaska Native Foods",
     "Vegetables and Vegetable Products",
     "Wholesome Snacks",
     "Yogurt"]
+
 fooddata_df = fooddata_df[
     (fooddata_df["food_category"].isin(categories)) |
     (fooddata_df["data_type"] == "foundation_food")
@@ -135,5 +139,5 @@ nutrient_df.to_csv("nutrients.csv", index=False)
 # %%
 arr = fooddata_df["foodName"]
 for i in range(0, len(arr), 10):
-    print('; '.join(str(x) for x in arr[i:i+10]))
+    print(f"{'; '.join(str(x) for x in arr[i:i+10])};")
 # %%
