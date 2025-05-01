@@ -26,7 +26,6 @@
     <!-- Overlay and Popups -->
     <div id="overlay" class="overlay"></div>
     <div id="popup" class="popup">
-        <span class="popup-close">×</span>
         <div id="popup-content"></div>
     </div>
     <div id="nutrient-popup" class="popup" style="display: none;">
@@ -110,6 +109,7 @@
                                     await window.api.ensureDataLoaded();
                                     const mealData = api.data[day][meal][version];
                                     const mealKey = `${day}-${meal}-${version}`;
+                                    // Always get the latest quantity when opening the popup
                                     const quantity = api.mealQuantities.get(mealKey) || 0;
                                     let people = Math.max(1, quantity);
                                     const titleText = cleanTitle(mealData.title);
@@ -136,40 +136,52 @@
                                     document.getElementById('popup').style.display = 'block';
                                     document.getElementById('overlay').style.display = 'block';
 
-                                    const popupContent = document.getElementById('popup-content');
-                                    const decrementButton = popupContent.querySelector('.decrement');
-                                    const incrementButton = popupContent.querySelector('.increment');
-                                    const peopleInput = popupContent.querySelector('#popup-people-input');
+                                    function attachPopupEventListeners() {
+                                        const popupContent = document.getElementById('popup-content');
+                                        const decrementButton = popupContent.querySelector('.decrement');
+                                        const incrementButton = popupContent.querySelector('.increment');
+                                        const peopleInput = popupContent.querySelector('#popup-people-input');
 
-                                    decrementButton.addEventListener('click', async () => {
-                                        if (people > 1) {
-                                            people -= 1;
+                                        decrementButton.addEventListener('click', async () => {
+                                            if (people > 1) {
+                                                people -= 1;
+                                                peopleInput.value = people;
+                                                api.mealQuantities.set(mealKey, people);
+                                                await updatePopupContent();
+                                                attachPopupEventListeners();
+                                                window.updateAggregations();
+                                            }
+                                        });
+
+                                        incrementButton.addEventListener('click', async () => {
+                                            people += 1;
                                             peopleInput.value = people;
                                             api.mealQuantities.set(mealKey, people);
                                             await updatePopupContent();
-                                            window.calculateAggregations();
-                                        }
-                                    });
+                                            attachPopupEventListeners();
+                                            window.updateAggregations();
+                                            // Refresh the meal-element in the planner
+                                            const mealElem = document.querySelector(`meal-element[day='${day}'][meal='${meal}'][version='${version}']`);
+                                            if (mealElem && typeof mealElem.refresh === 'function') mealElem.refresh();
+                                        });
 
-                                    incrementButton.addEventListener('click', async () => {
-                                        people += 1;
-                                        peopleInput.value = people;
-                                        api.mealQuantities.set(mealKey, people);
-                                        await updatePopupContent();
-                                        window.calculateAggregations();
-                                    });
-
-                                    peopleInput.addEventListener('change', async () => {
-                                        const newPeople = parseInt(peopleInput.value, 10);
-                                        if (newPeople >= 1 && !isNaN(newPeople)) {
-                                            people = newPeople;
-                                            api.mealQuantities.set(mealKey, people);
-                                            await updatePopupContent();
-                                            window.calculateAggregations();
-                                        } else {
-                                            peopleInput.value = people;
-                                        }
-                                    });
+                                        peopleInput.addEventListener('change', async () => {
+                                            const newPeople = parseInt(peopleInput.value, 10);
+                                            if (newPeople >= 1 && !isNaN(newPeople)) {
+                                                people = newPeople;
+                                                api.mealQuantities.set(mealKey, people);
+                                                await updatePopupContent();
+                                                attachPopupEventListeners();
+                                                window.updateAggregations();
+                                                // Refresh the meal-element in the planner
+                                                const mealElem = document.querySelector(`meal-element[day='${day}'][meal='${meal}'][version='${version}']`);
+                                                if (mealElem && typeof mealElem.refresh === 'function') mealElem.refresh();
+                                            } else {
+                                                peopleInput.value = people;
+                                            }
+                                        });
+                                    }
+                                    attachPopupEventListeners();
                                 });
 
                                 mealsDiv.appendChild(mealElement);
@@ -217,6 +229,10 @@
                         link.hidePopup();
                     }
                 });
+                // Close all meal-element dropdowns
+                document.querySelectorAll('meal-element').forEach(el => {
+                    if (typeof el.closePopups === 'function') el.closePopups();
+                });
                 overlay.style.display = 'none';
             });
         }
@@ -229,7 +245,7 @@
                 api.mealQuantities.set(mealKey, 0);
                 meal.refresh(); // Update display
             });
-            window.calculateAggregations();
+            window.updateAggregations();
         }
 
         api.fetchData().then(() => {
@@ -243,7 +259,7 @@
                 document.querySelectorAll('meal-element').forEach(meal => {
                     meal.refresh();
                 });
-                window.calculateAggregations();
+                window.updateAggregations();
             }).catch(error => {
                 console.error("Error rendering meal plan:", error);
             });
@@ -259,31 +275,8 @@
             return matches;
         }
 
-        async function calculateAggregations() {
-            const aggregatedFoodDisplay = document.getElementById('aggregated-food-display');
-            const aggregatedNutrientsDisplay = document.getElementById('aggregated-nutrients-display');
-            const allFoodItems = [];
+        
 
-            for (const [mealKey, quantity] of api.mealQuantities) {
-                if (quantity > 0) {
-                    const [day, mealTime, version] = mealKey.split('-');
-                    const content = api.data[day][mealTime][version].content;
-                    const ingredients = parseIngredients(content);
-                    for (const [ingQuantity, ingredientName] of ingredients) {
-                        const totalQuantity = ingQuantity * quantity;
-                        allFoodItems.push({ foodName: ingredientName, quantity: totalQuantity });
-                    }
-                }
-            }
-
-            aggregatedFoodDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
-            aggregatedNutrientsDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
-
-            // Encode and save state
-            saveState(api.mealQuantities, api.days, api.meals);
-        }
-
-        window.calculateAggregations = calculateAggregations;
 
         // Tab switching
         document.querySelectorAll('.tab-button').forEach(button => {

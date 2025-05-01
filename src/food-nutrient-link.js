@@ -126,11 +126,11 @@ class FoodNutrientLink extends HTMLElement {
     const portionGramWeight = api.get_portion_gram_weight(foodKey);
     if (foodKey && portionUnitName && portionGramWeight) {
       if (!isNaN(portionGramWeight) && portionGramWeight > 0) {
-        const numPortions = quantity / portionGramWeight;
-        const roundedPortions = this.roundToNearestQuarter(numPortions);
-        const unitText = parseFloat(roundedPortions) <= 1 ? portionUnitName : portionUnitName + 's';
-        portionHTML = `<span class="portion">${roundedPortions} ${unitText}</span>`;
-      }
+      const numPortions = quantity / portionGramWeight;
+      const roundedPortions = this.roundToNearestQuarter(numPortions);
+      const unitText = parseFloat(roundedPortions) <= 1 ? portionUnitName : portionUnitName + 's';
+      portionHTML = `<span class="portion">${roundedPortions} ${unitText}</span>`;
+    }
     }
 
     return `${wordHTML} ${quantityHTML} ${portionHTML}`;

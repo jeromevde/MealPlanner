@@ -1,27 +1,49 @@
 .meal {
   cursor: pointer;
-  padding: 10px;
+  padding: 18px 16px;
   border: 2px solid #ccc;
-  margin: 5px;
+  margin: 10px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: relative;
-  border-radius: 10px;
-  color: grey;
+  border-radius: 14px;
+  color: #222;
+  background: #fafbfc;
+  font-family: 'Inter', 'Roboto', Arial, sans-serif;
+  font-size: 0.98em;
+  font-weight: 400;
+  transition: box-shadow 0.18s, border 0.18s, background 0.18s;
 }
+
+/* No left border, just light grey background */
+.meal[data-meal] {
+  background: #f6f6f6;
+}
+
+.meal:hover {
+
+  border-color: #007bff;
+  background: #f0f7ff;
+}
+
 
 .meal-title {
   flex: 1;
   margin-right: 10px;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 1em;
+  font-weight: 400;
+  letter-spacing: 0.1px;
 }
 
 .meal.selected {
-  border: 2px solid blue;
-  color: blue;
+  border: 2px solid #007bff;
+  color: #007bff;
+  background: #eaf4ff;
 }
+
 
 .quantity-circle {
   display: block;

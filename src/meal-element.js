@@ -1,4 +1,13 @@
 class MealElement extends HTMLElement {
+  closePopups() {
+    // Close the dropdown popup if open
+    if (this.customDropdown) {
+      this.customDropdown.style.display = 'none';
+    }
+    if (this.quantityCircle) {
+      this.quantityCircle.style.display = 'block';
+    }
+  }
   constructor() {
     super();
     // Attach shadow root and set up template
@@ -48,15 +57,48 @@ class MealElement extends HTMLElement {
     }
     this.refresh();
     // Set up dropdown toggle
-    this.quantityCircle.onclick = (event) => {
-      event.stopPropagation();
+    // Support both mouse and touch events
+    let pressTimer = null;
+    let longPress = false;
+    const openDropdown = () => {
+      longPress = true;
       this.customDropdown.style.display = 'block';
       this.quantityCircle.style.display = 'none';
+      // After opening dropdown, reset longPress after a short delay to avoid recipe popup
+      setTimeout(() => { longPress = false; }, 0);
     };
+    const incrementQuantity = () => {
+      const mealKey = this.getMealKey();
+      const quantity = window.api.mealQuantities.get(mealKey) || 0;
+      window.api.mealQuantities.set(mealKey, quantity + 1);
+      this.refresh();
+      window.calculateAggregations();
+    };
+    const startPress = (event) => {
+      event.stopPropagation();
+      longPress = false;
+      pressTimer = setTimeout(openDropdown, 500);
+    };
+    const endPress = (event) => {
+      clearTimeout(pressTimer);
+      if (!longPress) {
+        incrementQuantity();
+      }
+    };
+    this.quantityCircle.addEventListener('mousedown', startPress);
+    this.quantityCircle.addEventListener('touchstart', startPress);
+    this.quantityCircle.addEventListener('mouseup', endPress);
+    this.quantityCircle.addEventListener('touchend', endPress);
+    this.quantityCircle.addEventListener('mouseleave', () => clearTimeout(pressTimer));
+    this.quantityCircle.addEventListener('touchmove', () => clearTimeout(pressTimer));
+
+    // Prevent popup from opening when clicking the quantity circle
+    this.quantityCircle.addEventListener('click', (event) => event.stopPropagation());
 
     // Handle meal click to show popup
     this.mealDiv.addEventListener('click', async (event) => {
-      if (event.target.closest('.meal-control')) {
+      // Prevent popup if click originated from quantityCircle or was a long press
+      if (event.target === this.quantityCircle) {
         return;
       }
       await window.api.ensureDataLoaded();

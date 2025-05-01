@@ -88,3 +88,33 @@ class AggregatedFoodItems extends HTMLElement {
 }
 
 customElements.define('aggregated-food-items', AggregatedFoodItems);
+
+// --- Aggregation logic moved from index.html ---
+window.updateAggregations = function updateAggregations() {
+  const aggregatedFoodDisplay = document.getElementById('aggregated-food-display');
+  const aggregatedNutrientsDisplay = document.getElementById('aggregated-nutrients-display');
+  const allFoodItems = [];
+  for (const [mealKey, quantity] of foodapi.mealQuantities) {
+    if (quantity > 0) {
+      const [day, mealTime, version] = mealKey.split('-');
+      const content = foodapi.data[day][mealTime][version].content;
+      const ingredients = parseIngredients(content);
+      for (const [ingQuantity, ingredientName] of ingredients) {
+        const totalQuantity = ingQuantity * quantity;
+        allFoodItems.push({ foodName: ingredientName, quantity: totalQuantity });
+      }
+    }
+  }
+  aggregatedFoodDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
+  aggregatedNutrientsDisplay.setAttribute('food-list', JSON.stringify(allFoodItems));
+  // Encode and save state
+  if (window.saveState) window.saveState(foodapi.mealQuantities, foodapi.days, foodapi.meals);
+};
+
+function parseIngredients(content) {
+  const matches = [];
+  for (const [quantity, ingredientName, originalText] of foodapi.parseIngredients(content)) {
+    matches.push([quantity, ingredientName]);
+  }
+  return matches;
+}
