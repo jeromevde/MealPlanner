@@ -157,6 +157,7 @@
                                             people += 1;
                                             peopleInput.value = people;
                                             api.mealQuantities.set(mealKey, people);
+                                            saveState(api.mealQuantities, api.days, api.meals);
                                             await updatePopupContent();
                                             attachPopupEventListeners();
                                             window.updateAggregations();
@@ -170,6 +171,7 @@
                                             if (newPeople >= 1 && !isNaN(newPeople)) {
                                                 people = newPeople;
                                                 api.mealQuantities.set(mealKey, people);
+                                                saveState(api.mealQuantities, api.days, api.meals);
                                                 await updatePopupContent();
                                                 attachPopupEventListeners();
                                                 window.updateAggregations();
@@ -245,6 +247,7 @@
                 api.mealQuantities.set(mealKey, 0);
                 meal.refresh(); // Update display
             });
+            saveState(api.mealQuantities, api.days, api.meals);
             window.updateAggregations();
         }
 

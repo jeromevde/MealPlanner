@@ -1,0 +1,5 @@
+# Pink Pasta with Feta
+
+Cook {180g {penne pasta}} according to package instructions. While the pasta is cooking, finely chop {70g {red onion}} and {5g {garlic}}. Heat {15g {olive oil}} in a pan over medium heat, add the onion and garlic, and sauté until soft. Dice {100g {cooked beetroot}} and add to the pan, cooking for a few minutes. Pour in {100g {cooking cream}} and {5g {lemon juice}}, then simmer briefly. Blend the mixture until smooth to create a vibrant pink sauce. Return the sauce to the pan, season with {{salt}} and {{black pepper}}, and toss in the drained pasta. Crumble {100g {feta cheese}} over the pasta and gently mix until the feta is slightly melted. Serve immediately, garnished with {{fresh basil}} if desired.
+
+![Pink Pasta with Feta](../../MealPlanner/meals/images/pinkpasta.jpg)

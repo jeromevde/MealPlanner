@@ -35,6 +35,9 @@ class MealElement extends HTMLElement {
         event.stopPropagation();
         const mealKey = this.getMealKey();
         window.api.mealQuantities.set(mealKey, i);
+        if (window.saveState) {
+          window.saveState(window.api.mealQuantities, window.api.days, window.api.meals);
+        }
         this.refresh();
         this.customDropdown.style.display = 'none';
         this.quantityCircle.style.display = 'block';
@@ -71,6 +74,9 @@ class MealElement extends HTMLElement {
       const mealKey = this.getMealKey();
       const quantity = window.api.mealQuantities.get(mealKey) || 0;
       window.api.mealQuantities.set(mealKey, quantity + 1);
+      if (window.saveState) {
+        window.saveState(window.api.mealQuantities, window.api.days, window.api.meals);
+      }
       this.refresh();
       window.calculateAggregations();
     };
