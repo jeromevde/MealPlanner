@@ -1,11 +1,5 @@
-Banana boat
+# Banana Boat French Toast
+  
+In a shallow bowl, whisk one {50g {Eggs, Grade A, Large, egg whole}} with a splash of {30g {Milk, 2% milkfat}}, a pinch of {1g {Cinnamon}}, and a dash of {2g {Vanilla}}. Heat a skillet over medium heat and melt a tablespoon of {15g {Butter, stick, unsalted}}. Dip a 2.5 cm thick slice of {60g {Bread, white, commercially prepared}} into the egg mixture, coating both sides, and cook in the skillet for 2–3 minutes per side until golden. Thinly slice {100g {Bananas, ripe and slightly ripe, raw}}. Top the toast with banana slices and drizzle {20g  {Chocolate, 100% cocoa}}. Serve warm for a delightful mix of tangy bread, creamy banana, and rich chocolate.
 
-To make a delicious banana boat, start by slicing a piece of sourdough bread about an inch thick. 
-In a shallow bowl, whisk together one egg with a splash of milk, a pinch of cinnamon, 
-and a dash of vanilla extract to create a flavorful custard. Heat a skillet over medium heat and melt a pat of butter to coat the pan. 
-Dip the sourdough slice into the egg mixture, ensuring both sides are well-coated, 
-then place it in the hot skillet. Cook for about 2-3 minutes on each side until golden brown and slightly crisp. 
-While it’s cooking, thinly slice a ripe banana. Once the bread is done, remove it from the pan, top it with the banana slices, 
-and drizzle melted chocolate (or sprinkle chocolate chips) over the top—let the residual heat soften the chocolate slightly. 
-Serve warm and enjoy the delightful mix of tangy sourdough, creamy banana, and rich chocolate!
-
+![Banana Boat French Toast](../../MealPlanner/meals/images/banana_boat.jpg)

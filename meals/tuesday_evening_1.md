@@ -1,3 +1,5 @@
-# Comfort Veggie Soup
+# Spaghetti Feta Squash
 
-Heat 1/2 tablespoon of {7g {olive oil}} in a pot over medium heat. Add 1/4 of a diced {25g {onion, yellow, raw}}, 1 minced clove of {5g {garlic, raw}}, and {30g {carrots, raw}}, cooking until softened. Stir in {30g {potato, raw}}, {30g {zucchini, raw}}, and {30g {bell pepper, raw}}, sautéing for 5 minutes. Add {100g {tomatoes, diced, canned}} and {250g {vegetable broth}}, 1/4 teaspoon of {{dried oregano}}, a pinch of {{dried basil}}, salt, and pepper. Bring to a boil, then simmer for 20 minutes until vegetables are tender. Optionally, add {30g {white beans, cooked}} or {30g {chickpeas, cooked}} in the last 5 minutes. Serve hot, garnished with chopped {{parsley}} or {{basil}}, and a drizzle of {{olive oil}} if desired.
+Roast {100g {spaghetti squash}} until tender, then scrape into strands. Toss with 1/2 tablespoon of {7g {olive oil}}, {30g {feta cheese, crumbled}}, and {10g {fresh basil, chopped}}. Season with salt and pepper and serve warm.
+
+![Spaghetti Feta Squash](../../MealPlanner/meals/images/spaghetti_feta_squash.jpg)
