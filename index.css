@@ -257,6 +257,33 @@ p{
     margin: 0 5px;
 }
 
+.zoom-controls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 6px;
+}
+.zoom-controls button {
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin: 0 2px;
+    padding: 2px 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 1.2em;
+}
+.zoom-controls button:hover {
+    background: #e0e0e0;
+}
+.zoom-controls #zoom-value {
+    color: #444;
+    font-weight: 500;
+    font-size: 1em;
+    margin-left: 6px;
+}
+
 .popup-body {
     margin-top: 10px;
 }

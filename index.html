@@ -26,7 +26,14 @@
     <!-- Overlay and Popups -->
     <div id="overlay" class="overlay"></div>
     <div id="popup" class="popup">
-        <div id="popup-content"></div>
+        <div id="popup-content">
+            <div class="zoom-controls">
+                <button id="zoom-in" title="Zoom in">A+</button>
+                <button id="zoom-out" title="Zoom out">A-</button>
+                <span id="zoom-value">1.0×</span>
+            </div>
+            <div class="popup-body"></div>
+        </div>
     </div>
     <div id="nutrient-popup" class="popup" style="display: none;">
         <span class="popup-close">×</span>
@@ -120,6 +127,10 @@
                                         const linkedContent = await window.api.parseAndLinkMealContent(htmlContent);
                                         const popupContent = document.getElementById('popup-content');
                                         popupContent.innerHTML = `
+                                            <div class="zoom-controls">
+                                                <button id="zoom-in" title="Zoom in">A+</button>
+                                                <button id="zoom-out" title="Zoom out">A-</button>
+                                            </div>
                                             <div class="popup-header">
                                                 <h2>${titleText} for <span id="popup-people">${people}</span> people</h2>
                                                 <div class="quantity-control">
@@ -130,6 +141,28 @@
                                             </div>
                                             <div class="popup-body">${linkedContent}</div>
                                         `;
+                                        // --- ZOOM BUTTONS LOGIC ---
+                                        let popupFontSize = typeof window.lastRecipeFontSize === 'number' ? window.lastRecipeFontSize : 1.0;
+                                        const popupBody = popupContent.querySelector('.popup-body');
+                                        const zoomInBtn = popupContent.querySelector('#zoom-in');
+                                        const zoomOutBtn = popupContent.querySelector('#zoom-out');
+                                        function applyPopupFontSize() {
+                                            if (popupBody) popupBody.style.fontSize = popupFontSize + 'em';
+                                        }
+                                        if (zoomInBtn && zoomOutBtn) {
+                                            zoomInBtn.onclick = () => {
+                                                popupFontSize = Math.min(2.0, popupFontSize + 0.1);
+                                                window.lastRecipeFontSize = popupFontSize;
+                                                applyPopupFontSize();
+                                            };
+                                            zoomOutBtn.onclick = () => {
+                                                popupFontSize = Math.max(0.7, popupFontSize - 0.1);
+                                                window.lastRecipeFontSize = popupFontSize;
+                                                applyPopupFontSize();
+                                            };
+                                        }
+                                        applyPopupFontSize();
+                                        // --- END ZOOM BUTTONS LOGIC ---
                                     };
 
                                     await updatePopupContent();
