@@ -1,3 +1,6 @@
+import { saveState } from './state.js';
+import * as api from './api.js';
+
 class MealElement extends HTMLElement {
   closePopups() {
     // Close the dropdown popup if open
@@ -34,14 +37,12 @@ class MealElement extends HTMLElement {
       circleButton.addEventListener('click', (event) => {
         event.stopPropagation();
         const mealKey = this.getMealKey();
-        window.api.mealQuantities.set(mealKey, i);
-        if (window.saveState) {
-          window.saveState(window.api.mealQuantities, window.api.days, window.api.meals);
-        }
+        api.mealQuantities.set(mealKey, i);
+        saveState(api.mealQuantities, api.days, api.meals)
         this.refresh();
         this.customDropdown.style.display = 'none';
         this.quantityCircle.style.display = 'block';
-        window.calculateAggregations();
+        window.updateAggregations();
       });
       this.customDropdown.appendChild(circleButton);
     }
@@ -65,46 +66,60 @@ class MealElement extends HTMLElement {
     let longPress = false;
     const openDropdown = () => {
       longPress = true;
+      this.suppressNextPopup = true;
       this.customDropdown.style.display = 'block';
       this.quantityCircle.style.display = 'none';
-      // After opening dropdown, reset longPress after a short delay to avoid recipe popup
-      setTimeout(() => { longPress = false; }, 0);
+      // Reset longPress after dropdown closes (with a small delay to avoid popup)
+      const closeHandler = () => {
+        setTimeout(() => { longPress = false; }, 100);
+        document.removeEventListener('click', closeHandler, true);
+      };
+      document.addEventListener('click', closeHandler, true);
     };
+    let touchHandled = false;
     const incrementQuantity = () => {
+      if (touchHandled || longPress) return; // Prevent double increment and increment on long press
       const mealKey = this.getMealKey();
-      const quantity = window.api.mealQuantities.get(mealKey) || 0;
-      window.api.mealQuantities.set(mealKey, quantity + 1);
-      if (window.saveState) {
-        window.saveState(window.api.mealQuantities, window.api.days, window.api.meals);
-      }
+      const quantity = api.mealQuantities.get(mealKey) || 0;
+      api.mealQuantities.set(mealKey, quantity + 1);
+      saveState(api.mealQuantities, api.days, api.meals);
       this.refresh();
-      window.calculateAggregations();
+      window.updateAggregations();
     };
     const startPress = (event) => {
       event.stopPropagation();
       longPress = false;
       pressTimer = setTimeout(openDropdown, 500);
+      touchHandled = false;
     };
     const endPress = (event) => {
       clearTimeout(pressTimer);
-      if (!longPress) {
-        incrementQuantity();
+      if (event.type === 'touchend') {
+        touchHandled = true;
       }
+      // Do not increment here; only handle increment in click event
+      longPress = false; // Reset longPress after press ends
     };
     this.quantityCircle.addEventListener('mousedown', startPress);
     this.quantityCircle.addEventListener('touchstart', startPress);
     this.quantityCircle.addEventListener('mouseup', endPress);
-    this.quantityCircle.addEventListener('touchend', endPress);
+    this.quantityCircle.addEventListener('touchend', endPress, { passive: false });
     this.quantityCircle.addEventListener('mouseleave', () => clearTimeout(pressTimer));
     this.quantityCircle.addEventListener('touchmove', () => clearTimeout(pressTimer));
 
-    // Prevent popup from opening when clicking the quantity circle
-    this.quantityCircle.addEventListener('click', (event) => event.stopPropagation());
+    // Single click on quantityCircle increments (unless it was a long press)
+    this.quantityCircle.addEventListener('click', (event) => {
+      event.stopPropagation();
+      if (!longPress) {
+        incrementQuantity();
+      }
+    });
 
     // Handle meal click to show popup
     this.mealDiv.addEventListener('click', async (event) => {
-      // Prevent popup if click originated from quantityCircle or was a long press
-      if (event.target === this.quantityCircle) {
+      // Prevent popup if click originated from quantityCircle, was a long press, or was just suppressed
+      if (event.target === this.quantityCircle || longPress || this.suppressNextPopup) {
+        this.suppressNextPopup = false;
         return;
       }
       await window.api.ensureDataLoaded();
@@ -138,6 +153,12 @@ class MealElement extends HTMLElement {
       this.mealDiv.classList.remove('selected');
       this.quantityCircle.classList.remove('active');
     }
+  }
+  // Static method to refresh all meal elements (call after state is loaded)
+  static refreshAll() {
+    document.querySelectorAll('meal-element').forEach(el => {
+      if (typeof el.refresh === 'function') el.refresh();
+    });
   }
 }
 

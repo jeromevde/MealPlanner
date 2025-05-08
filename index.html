@@ -147,9 +147,13 @@
                                                 people -= 1;
                                                 peopleInput.value = people;
                                                 api.mealQuantities.set(mealKey, people);
+                                                saveState(api.mealQuantities, api.days, api.meals);
                                                 await updatePopupContent();
                                                 attachPopupEventListeners();
                                                 window.updateAggregations();
+                                                // Refresh the meal-element in the planner
+                                                const mealElem = document.querySelector(`meal-element[day='${day}'][meal='${meal}'][version='${version}']`);
+                                                if (mealElem && typeof mealElem.refresh === 'function') mealElem.refresh();
                                             }
                                         });
 
@@ -259,9 +263,9 @@
                 for (const [key, value] of loadedQuantities) {
                     api.mealQuantities.set(key, value);
                 }
-                document.querySelectorAll('meal-element').forEach(meal => {
-                    meal.refresh();
-                });
+                if (window.customElements && customElements.get('meal-element')) {
+                    customElements.get('meal-element').refreshAll();
+                }
                 window.updateAggregations();
             }).catch(error => {
                 console.error("Error rendering meal plan:", error);
