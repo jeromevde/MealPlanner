@@ -18,14 +18,12 @@ live-server --mount=/MealPlanner:.
 
 Todo
 - block nutrient popup within parent popup
+- remove longclick
+- share mealplan button
+- make mealplanner full screen in pc mode
 
 
 OPTIONAL
 - add a selector of meals in the aggregation componenent
 - add a displayer of meals in the ingredients aggregation component
 - add a displayer of meals & ingredients in the nutrients list
-- add checkbox button in front of the aggregated ingredients
-- link to githubdev to adapt recipes
-- make mealplanner full screen in pc mode
-- center content (recipes for example)
-- share mealplan button
