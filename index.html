@@ -126,21 +126,40 @@
                                         const htmlContent = window.api.parseMarkdown(scaledContent);
                                         const linkedContent = await window.api.parseAndLinkMealContent(htmlContent);
                                         const popupContent = document.getElementById('popup-content');
-                                        popupContent.innerHTML = `
-                                            <div class="zoom-controls">
-                                                <button id="zoom-in" title="Zoom in">A+</button>
-                                                <button id="zoom-out" title="Zoom out">A-</button>
-                                            </div>
-                                            <div class="popup-header">
-                                                <h2>${titleText} for <span id="popup-people">${people}</span> people</h2>
-                                                <div class="quantity-control">
-                                                    <button class="decrement">-</button>
-                                                    <input type="number" min="1" step="1" value="${people}" id="popup-people-input">
-                                                    <button class="increment">+</button>
-                                                </div>
-                                            </div>
-                                            <div class="popup-body">${linkedContent}</div>
-                                        `;
+                                        const githubEditUrl = `https://github.dev/jeromevde/MealPlanner/blob/6f72b8e40c15e4a1f64a858c88ff2c376e6a2b21/meals/${day}_${meal}_${version}.md`;
+popupContent.innerHTML = `
+    <div class="zoom-controls">
+        <button id="zoom-in" title="Zoom in">A+</button>
+        <button id="zoom-out" title="Zoom out">A-</button>
+    </div>
+    <div class="popup-header" style="display: flex; align-items: center; gap: 10px;">
+        <a href="${githubEditUrl}" target="_blank" title="Edit this recipe on GitHub"
+            style="
+                display: inline-flex;
+                align-items: center;
+                background: #fff;
+                border-radius: 50%;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+                border: 1px solid #eee;
+                padding: 4px 7px;
+                text-decoration: none;
+                color: #333;
+                font-size: 18px;
+                margin-right: 4px;
+                transition: background 0.2s;
+            ">
+            ✏️
+        </a>
+        <h2 style="margin: 0;">${titleText} for <span id="popup-people">${people}</span> people</h2>
+        <div class="quantity-control" style="margin-left: auto;">
+            <button class="decrement">-</button>
+            <input type="number" min="1" step="1" value="${people}" id="popup-people-input">
+            <button class="increment">+</button>
+        </div>
+    </div>
+    <div class="popup-body">${linkedContent}</div>
+`;
+
                                         // --- ZOOM BUTTONS LOGIC ---
                                         let popupFontSize = typeof window.lastRecipeFontSize === 'number' ? window.lastRecipeFontSize : 1.0;
                                         const popupBody = popupContent.querySelector('.popup-body');

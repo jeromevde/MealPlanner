@@ -21,7 +21,6 @@ Todo
 
 
 OPTIONAL
-- fix broken link logic & cookies (& move it to a separate .js file for clarity)
 - add a selector of meals in the aggregation componenent
 - add a displayer of meals in the ingredients aggregation component
 - add a displayer of meals & ingredients in the nutrients list

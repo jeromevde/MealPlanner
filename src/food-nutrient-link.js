@@ -40,37 +40,6 @@ class FoodNutrientLink extends HTMLElement {
       }
     });
 
-    let isDragging = false;
-    let offsetX, offsetY;
-    let container;
-
-    popup.addEventListener('mousedown', (event) => {
-      if (event.target === popup) {
-        event.preventDefault();
-        isDragging = true;
-        const popupRect = popup.getBoundingClientRect();
-        container = this.getContainer();
-        const containerRect = container.getBoundingClientRect();
-        offsetX = event.clientX - popupRect.left;
-        offsetY = event.clientY - popupRect.top;
-        this.bringToFront();
-      }
-    });
-
-    document.addEventListener('mousemove', (event) => {
-      if (isDragging) {
-        const containerRect = container.getBoundingClientRect();
-        let newLeft = event.clientX - containerRect.left - offsetX;
-        let newTop = event.clientY - containerRect.top - offsetY;
-        popup.style.left = `${newLeft}px`;
-        popup.style.top = `${newTop}px`;
-      }
-    });
-
-    document.addEventListener('mouseup', () => {
-      isDragging = false;
-    });
-
     this.updateFoodListAndText();
   }
 
@@ -156,36 +125,19 @@ class FoodNutrientLink extends HTMLElement {
     const popup = this.shadowRoot.querySelector('#popup');
 
     const container = this.getContainer();
-    const hostRect = container.getBoundingClientRect();
+
+    const distanceLeft = link.left - container.left;
+
 
     popup.style.position = 'absolute';
-    popup.style.left = '-9999px';
-    popup.style.top = '-9999px';
-    popup.style.display = 'block';
+    popup.style.left = `${-distanceLeft}px`;
+    popup.style.top = (link.offsetTop + link.offsetHeight) + 'px'; // Just below the link
 
-    const popupWidth = popup.offsetWidth;
-    const popupHeight = popup.offsetHeight;
-
-    popup.style.display = 'none';
-
-    let popupLeft = link.offsetLeft;
-    let popupTop = link.offsetTop + link.offsetHeight;
-
-    const popupRight = hostRect.left + popupLeft + popupWidth;
-
-    if (popupRight > hostRect.right) {
-      popupLeft = hostRect.right - hostRect.left - popupWidth;
-    }
-
-    if (popupLeft < 0) {
-      popupLeft = 0;
-    }
-
-    popup.style.left = `${popupLeft}px`;
-    popup.style.top = `${popupTop}px`;
     this.constructor.maxZIndex += 1;
     popup.style.zIndex = this.constructor.maxZIndex;
     popup.style.display = 'block';
+
+
   }
 
   hidePopup() {
@@ -202,7 +154,8 @@ class FoodNutrientLink extends HTMLElement {
   getContainer() {
     let current = this.parentElement;
     while (current) {
-      if (current.id && current.id.includes('popup')) {
+      // Only match the meal popup container, not the nutrient popup itself
+      if (current.id && (current.id === 'popup-content' || current.id === 'popup')) {
         return current;
       }
       current = current.parentElement;

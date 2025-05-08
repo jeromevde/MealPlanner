@@ -65,6 +65,9 @@ export function loadState(days, meals) {
         encoded = fragment;
     } else {
         encoded = getCookie('mealSelections');
+        if (encoded) {
+            window.location.hash = encoded; // update hash from cookie
+        }
     }
     return decodeSelections(encoded, days, meals);
 }
@@ -73,4 +76,6 @@ export function loadState(days, meals) {
 export function saveState(mealQuantities, days, meals) {
     const encoded = encodeSelections(mealQuantities, days, meals);
     setCookie('mealSelections', encoded, 7);
+    // Also save to URL fragment for sharing
+    window.location.hash = encoded;
 }
