@@ -121,32 +121,15 @@ class FoodNutrientLink extends HTMLElement {
   showPopup() {
     const nutrientDisplay = this.shadowRoot.querySelector('#nutrient-display');
     nutrientDisplay.setAttribute('food-list', JSON.stringify(this.foodList));
-    const link = this.shadowRoot.querySelector('#link');
     const popup = this.shadowRoot.querySelector('#popup');
-    const container = this.getContainer();
-    const firstWord = link.querySelector('.food-word');
-
-    const distanceLeft = firstWord.getBoundingClientRect().left - container.getBoundingClientRect().left;
-    const distanceRight = container.getBoundingClientRect().right - firstWord.getBoundingClientRect().right;
-
-    console.log(distanceLeft,distanceRight);
-
-    popup.style.position = 'absolute';
-    popup.style.top = (link.offsetTop + link.offsetHeight) + 'px'; // Just below the link
-
-    if(distanceRight < distanceLeft){
-      //popup.style.left = `0px`;
-    }else{
-      //popup.style.right = `0px`;
-    }
     
     this.constructor.maxZIndex += 1;
     popup.style.zIndex = this.constructor.maxZIndex;
 
-    popup.style.display = 'none';
     popup.style.display = 'block';
 
   }
+
   hidePopup() {
     const popup = this.shadowRoot.querySelector('#popup');
     popup.style.display = 'none';

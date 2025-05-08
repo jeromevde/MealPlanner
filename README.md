@@ -17,11 +17,9 @@ live-server --mount=/MealPlanner:.
 ```
 
 Todo
-- block nutrient popup within parent popup
-- remove longclick
-- share mealplan button
+- block nutrient popup within parent popup -> by moving it to the meal-element and calling function from there
+- copy link mealplan button (it's enough, no need for share)
 - make mealplanner full screen in pc mode
-
 
 OPTIONAL
 - add a selector of meals in the aggregation componenent
