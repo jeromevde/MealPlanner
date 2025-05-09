@@ -7,6 +7,18 @@ class NutrientHtml extends HTMLElement {
 
   constructor() {
     super();
+    // Only initialize state variables here, do NOT touch the DOM
+    this.foodList = [];
+    this.originalTotalCalories = 0;
+    this.targetCalories = 2500; // Default to 2500 calories
+    this.scalingFactor = 1;
+    this._initialized = false;
+  }
+
+  connectedCallback() {
+    console.debug('[NutrientHtml] connectedCallback called');
+    if (this._initialized) return;
+    this._initialized = true;
     // Set the basic HTML structure without embedded styles
     this.innerHTML = `
       <div id="normalization-controls">
@@ -28,12 +40,6 @@ class NutrientHtml extends HTMLElement {
     const cssUrl = new URL('./nutrient-html.css', import.meta.url).href;
     linkElem.setAttribute('href', cssUrl);
     this.appendChild(linkElem);
-    
-    // Initialize state variables
-    this.foodList = [];
-    this.originalTotalCalories = 0;
-    this.targetCalories = 2500; // Default to 2500 calories
-    this.scalingFactor = 1;
     // Set normalization default based on attribute
     // If attribute 'normalization-default' is set to 'false', default is OFF, otherwise ON
     const normalizationAttr = this.getAttribute('normalization-default');
@@ -66,42 +72,75 @@ class NutrientHtml extends HTMLElement {
       this.targetCalories = val;
       if (this.normalizationEnabled) this.renderNutrients();
     });
+
+    // Check if food-list attribute is already present
+    const foodListAttr = this.getAttribute('food-list');
+    console.debug('[NutrientHtml] connectedCallback food-list attribute:', foodListAttr);
+    if (foodListAttr) {
+      try {
+        this.foodList = JSON.parse(foodListAttr);
+        console.debug('[NutrientHtml] Parsed foodList:', this.foodList);
+      } catch (e) {
+        this.foodList = [];
+        console.error('[NutrientHtml] Error parsing food-list attribute:', e);
+      }
+    }
+    this.renderNutrients();
   }
 
   async attributeChangedCallback(name, oldValue, newValue) {
-    if (name === 'food-list' && newValue !== oldValue) {
-      this.foodList = JSON.parse(newValue);
-      if (this.foodList.length > 0) {
-        await this.renderNutrients();
-      } else {
-        this.querySelector('#nutrient-content').innerHTML = '<p>No food data</p>';
+    console.debug('[NutrientHtml] attributeChangedCallback:', name, oldValue, newValue);
+    if (!this.nutrientContentDiv) {
+      console.warn('[NutrientHtml] attributeChangedCallback: nutrientContentDiv not ready');
+      return; // Only update if DOM is ready
+    }
+    if (name === 'food-list' && oldValue !== newValue) {
+      try {
+        this.foodList = JSON.parse(newValue);
+        console.debug('[NutrientHtml] attributeChangedCallback parsed foodList:', this.foodList);
+      } catch (e) {
+        this.foodList = [];
+        console.error('[NutrientHtml] attributeChangedCallback error parsing food-list:', e);
       }
+      this.renderNutrients();
     }
   }
 
   async renderNutrients() {
-    const contentDiv = this.querySelector('#nutrient-content');
+    console.debug('[NutrientHtml] renderNutrients called');
+    if (!this.nutrientContentDiv) {
+      console.warn('[NutrientHtml] renderNutrients: nutrientContentDiv not ready');
+      return; // Only update if DOM is ready
+    }
+    const contentDiv = this.nutrientContentDiv;
     contentDiv.innerHTML = '';
 
     await foodapi.ensureDataLoaded();
+    console.debug('[NutrientHtml] foodList for rendering:', this.foodList);
 
     // Aggregate nutrients from all food items
     const aggregatedNutrients = {};
     for (const { foodName, quantity } of this.foodList) {
       if (foodName) {
-        const nutrients =  foodapi.get_nutrients(foodName);
+        const nutrients = foodapi.get_nutrients(foodName);
+        console.debug('[NutrientHtml] get_nutrients for', foodName, ':', nutrients);
         const scaleFactor = parseFloat(quantity) / 100;
-        if (nutrients){
-         Object.entries(nutrients).forEach(([name, details]) => {
+        if (nutrients) {
+          Object.entries(nutrients).forEach(([name, details]) => {
             const scaledAmount = parseFloat(details.amount) * scaleFactor;
             if (!aggregatedNutrients[name]) {
               aggregatedNutrients[name] = { ...details, totalAmount: 0 };
             }
             aggregatedNutrients[name].totalAmount += scaledAmount;
           });
+        } else {
+          console.warn('[NutrientHtml] No nutrients found for', foodName);
         }
+      } else {
+        console.warn('[NutrientHtml] foodList entry missing foodName:', { foodName, quantity });
       }
     }
+    console.debug('[NutrientHtml] aggregatedNutrients:', aggregatedNutrients);
 
     // Calculate original total calories
     this.originalTotalCalories = aggregatedNutrients["Energy"]?.totalAmount || 0;
@@ -141,30 +180,32 @@ class NutrientHtml extends HTMLElement {
 
     // Generate nutrient HTML
     const nutrientHtml = Object.entries(nutrientsByCategory)
-      .map(([category, catNutrients]) => `
-        <div class="category-section">
-          <div class="category-title">${category}</div>
-          ${catNutrients
-            .map((n) => {
-              const displayAmount = parseFloat(n.displayAmount);
-              const drvValue = parseFloat(n.drv);
-              const percentage =
-                !isNaN(displayAmount) && !isNaN(drvValue) && drvValue > 0
-                  ? Math.min((displayAmount / drvValue) * 100, 100)
-                  : 100;
-              return `
-                <div class="nutrient-item">
-                  <span class="nutrient-name">${n.name}</span>
-                  <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: ${percentage}%;"></div>
+      .map(([category, catNutrients]) => {
+        return `
+          <div class="category-section">
+            <div class="category-title">${category}</div>
+            ${catNutrients
+              .map((n) => {
+                const displayAmount = parseFloat(n.displayAmount);
+                const drvValue = parseFloat(n.drv);
+                const percentage =
+                  !isNaN(displayAmount) && !isNaN(drvValue) && drvValue > 0
+                    ? Math.min((displayAmount / drvValue) * 100, 100)
+                    : 100;
+                return `
+                  <div class="nutrient-item">
+                    <span class="nutrient-name">${n.name}</span>
+                    <div class="progress-bar-container">
+                      <div class="progress-bar" style="width: ${percentage}%;"></div>
+                    </div>
+                    <span class="nutrient-value">${n.displayAmount} / ${n.drv || 'N/A'} ${n.unit_name}</span>
                   </div>
-                  <span class="nutrient-value">${n.displayAmount} / ${n.drv || 'N/A'} ${n.unit_name}</span>
-                </div>
-              `;
-            })
-            .join('')}
-        </div>
-      `)
+                `;
+              })
+              .join('')}
+          </div>
+        `;
+      })
       .join('');
 
     // Calculate displayed calories
@@ -180,7 +221,6 @@ class NutrientHtml extends HTMLElement {
     
     // Render the content
     contentDiv.innerHTML = `${headerHtml}<div class="nutrient-list">${nutrientHtml}</div>`;
-
   }
 }
 

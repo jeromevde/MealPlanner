@@ -15,31 +15,16 @@ class FoodNutrientLink extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <link rel="stylesheet" href="${styleUrl}">
       <a href="#" id="link"></a>
-      <div id="popup">
-        <button id="close">×</button>
-        <nutrient-html id="nutrient-display" normalization-default="false"></nutrient-html>
-      </div>
+
     `;
   }
 
   connectedCallback() {
     const link = this.shadowRoot.querySelector('#link');
-    const popup = this.shadowRoot.querySelector('#popup');
-    const closeButton = this.shadowRoot.querySelector('#close');
-
     link.addEventListener('click', (event) => {
       event.preventDefault();
       this.showPopup();
     });
-
-    closeButton.addEventListener('click', () => this.hidePopup());
-
-    popup.addEventListener('click', (event) => {
-      if (event.target === popup) {
-        this.bringToFront();
-      }
-    });
-
     this.updateFoodListAndText();
   }
 
@@ -119,38 +104,52 @@ class FoodNutrientLink extends HTMLElement {
   }
 
   showPopup() {
-    const nutrientDisplay = this.shadowRoot.querySelector('#nutrient-display');
-    nutrientDisplay.setAttribute('food-list', JSON.stringify(this.foodList));
-    const popup = this.shadowRoot.querySelector('#popup');
-    
-    this.constructor.maxZIndex += 1;
-    popup.style.zIndex = this.constructor.maxZIndex;
+    // Remove any existing nutrient popups in the container
+    const container = this.getContainer();
+    const prev = container.querySelector('.nutrient-popup-dynamic');
+    if (prev) prev.remove();
 
+    // Create popup
+    const popup = document.createElement('div');
+    popup.className = 'nutrient-popup-dynamic';
+    popup.style.position = 'absolute';
+    popup.style.left = '200px';
+    popup.style.top = '100px';
+    popup.style.zIndex = (this.constructor.maxZIndex = (this.constructor.maxZIndex || 1000) + 1);
+    popup.style.background = '#fff';
+    popup.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+    popup.style.borderRadius = '8px';
+    popup.style.padding = '20px';
+    popup.style.width = '50%';
+    popup.style.maxHeight = '90vh';
+    popup.style.overflowY = 'auto';
     popup.style.display = 'block';
+    popup.style.marginTop = '0';
 
-  }
+    // Close button
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '×';
+    closeBtn.style.float = 'right';
+    closeBtn.style.fontSize = '1.5em';
+    closeBtn.style.background = 'none';
+    closeBtn.style.border = 'none';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.onclick = () => popup.remove();
+    popup.appendChild(closeBtn);
 
-  hidePopup() {
-    const popup = this.shadowRoot.querySelector('#popup');
-    popup.style.display = 'none';
-  }
+    // Nutrient display
+    const nutrientDisplay = container.ownerDocument.createElement('nutrient-html');
+    nutrientDisplay.setAttribute('food-list', JSON.stringify(this.foodList));
+    nutrientDisplay.setAttribute('normalization-default', 'false');
+    popup.appendChild(nutrientDisplay);
 
-  bringToFront() {
-    const popup = this.shadowRoot.querySelector('#popup');
-    this.constructor.maxZIndex += 1;
-    popup.style.zIndex = this.constructor.maxZIndex;
+    // Add to container
+    container.appendChild(popup);
   }
 
   getContainer() {
-    let current = this.parentElement;
-    while (current) {
-      // Only match the meal popup container, not the nutrient popup itself
-      if (current.id && (current.id === 'popup-content' || current.id === 'popup')) {
-        return current;
-      }
-      current = current.parentElement;
-    }
-    return this;
+    // Always use the main popup content container in the main DOM
+    return document.getElementById('popup-content');
   }
 }
 

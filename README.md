@@ -11,13 +11,12 @@ npm install -g live-server
 ```
 
 ## Run local dev server (automatic rebuild when files change)
-### Mount it at the same path as your github pages setup
+### Mount it at the same path as ygf our github pages setup
 ```
 live-server --mount=/MealPlanner:.
 ```
 
 Todo
-- block nutrient popup within parent popup -> by moving it to the meal-element and calling function from there
 - copy link mealplan button (it's enough, no need for share)
 - make mealplanner full screen in pc mode
 

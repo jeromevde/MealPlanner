@@ -56,8 +56,8 @@ class MealElement extends HTMLElement {
 
     // Handle meal click to show popup
     this.mealDiv.addEventListener('click', async (event) => {
-      // Prevent popup if click originated from quantityCircle, was a long press, or was just suppressed
-      if (event.target === this.quantityCircle || longPress || this.suppressNextPopup) {
+      // Prevent popup if click originated from quantityCircle or was just suppressed
+      if (event.target === this.quantityCircle || this.suppressNextPopup) {
         this.suppressNextPopup = false;
         return;
       }
