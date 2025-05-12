@@ -113,15 +113,18 @@ class FoodNutrientLink extends HTMLElement {
     const popup = document.createElement('div');
     popup.className = 'nutrient-popup-dynamic';
     popup.style.position = 'absolute';
-    popup.style.left = '200px';
-    popup.style.top = '100px';
+    popup.style.left = '10%';  // 20% margin split between left and right
+    popup.style.right = '10%'; // 20% margin split between left and right
+    popup.style.top = '10vh';  // Keep some space from the top
     popup.style.zIndex = (this.constructor.maxZIndex = (this.constructor.maxZIndex || 1000) + 1);
     popup.style.background = '#fff';
-    popup.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+    popup.style.boxShadow = '0 0 15px rgba(0,0,0,0.3)';
+    popup.style.border = '1px solid #ccc';
     popup.style.borderRadius = '8px';
     popup.style.padding = '20px';
-    popup.style.width = '50%';
-    popup.style.maxHeight = '90vh';
+    popup.style.width = 'auto';  // Width will be determined by left/right margins
+    popup.style.height = '90vh';  // Set height to 80% of viewport height
+    popup.style.maxHeight = '90vh';  // Ensure it doesn't exceed 80% of viewport height
     popup.style.overflowY = 'auto';
     popup.style.display = 'block';
     popup.style.marginTop = '0';
@@ -145,6 +148,25 @@ class FoodNutrientLink extends HTMLElement {
 
     // Add to container
     container.appendChild(popup);
+
+    // Add click handler to container to close popup when clicking outside
+    const handleContainerClick = (event) => {
+      // Check if the click was outside the popup
+      if (!popup.contains(event.target)) {
+        popup.remove();
+        container.removeEventListener('click', handleContainerClick);
+      }
+    };
+
+    // Use setTimeout to prevent immediate trigger of the click event
+    setTimeout(() => {
+      container.addEventListener('click', handleContainerClick);
+    }, 0);
+
+    // Prevent clicks inside popup from triggering the container click
+    popup.addEventListener('click', (event) => {
+      event.stopPropagation();
+    });
   }
 
   getContainer() {
