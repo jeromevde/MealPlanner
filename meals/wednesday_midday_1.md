@@ -5,3 +5,5 @@ Cook {50g {quinoa, raw}} according to package instructions and let cool. In a bo
 This vibrant salad is not only nutritious, packed with fiber and healthy fats, 
 but it also provides a refreshing burst of flavor that will keep you energized for the rest 
 of the day. Enjoy it chilled or at room temperature for the ultimate convenience!
+
+![Quinoa Salad](../../MealPlanner/meals/images/quinoasalad.jpg)

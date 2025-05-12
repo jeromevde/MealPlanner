@@ -1,4 +1,4 @@
-Nutty Pudding
+# Nutty Pudding
 
 Blend 
 100g macadamia nuts, 
@@ -12,3 +12,5 @@ Blend
 500mg cocoa flavanols or 1 Tbsp cocoa powder, 
 and 1 cup of mixed berries or cherries until smooth
 
+
+![nuttypudding](../../MealPlanner/meals/images/nuttypudding.jpg)

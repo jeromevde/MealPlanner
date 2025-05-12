@@ -1,4 +1,4 @@
-Stuffed Sweet Potato
+# Stuffed Sweet Potato
 Begin with 300 grams of cooked sweet potato. 
 Roast or microwave until soft, then slice in half. 
 Cook 45 grams of chickpeas and prepare 12 grape tomatoes, half an avocado, 4 radishes, 
@@ -9,3 +9,5 @@ and 1 teaspoon of chili powder. Once the sweet potato is cooked,
  then spread this mixture inside the sweet potato. 
  Add the chickpeas, sliced tomatoes, radishes, jalapeno, and cilantro on top. 
  Squeeze additional lime and lemon over the potato for extra flavor.
+
+ ![stuffedsweetpotato](../../MealPlanner/meals/images/stuffedsweetpotato.jpg)
