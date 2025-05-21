@@ -126,7 +126,8 @@
                                         const htmlContent = window.api.parseMarkdown(scaledContent);
                                         const linkedContent = await window.api.parseAndLinkMealContent(htmlContent);
                                         const popupContent = document.getElementById('popup-content');
-                                        const githubEditUrl = `https://github.dev/jeromevde/MealPlanner/blob/6f72b8e40c15e4a1f64a858c88ff2c376e6a2b21/meals/${day}_${meal}_${version}.md`;
+                                        const githubEditUrl = `https://github.dev/jeromevde/MealPlanner/blob/main/meals/${day}_${meal}_${version}.md`;
+
 popupContent.innerHTML = `
     <div class="popup-header" style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
     <div style="flex: 1; display: flex; justify-content: flex-start;">
