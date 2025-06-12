@@ -1,5 +1,5 @@
-# Vegetable Soup
+# Ham & Cheese Sandwich
 
-Heat 1/2 tablespoon of {7g {olive oil}} in a pot over medium heat. Sauté 1/4 of a diced {25g {onion, yellow, raw}}, 1 minced clove of {5g {garlic, raw}}, {30g {carrots, raw}}, and {30g {celery, raw}} for 5 minutes. Add {30g {zucchini, raw}}, {30g {potatoes, raw}} (or sweet potatoes), and {30g {green beans, raw}}, then stir in 1/2 {{bay leaf}}, a pinch of {{dried thyme}}, and a pinch of {{red chili flakes}}. Pour in {250g {vegetable broth}}, bring to a boil, then simmer. Optionally add {30g {cooked chicken, shredded}}. After 15 minutes, stir in {30g {tomatoes, diced, raw}} and {15g {peas, frozen}} or {15g {corn, frozen}}, cook 5 more minutes. Adjust salt and pepper, remove bay leaf, and serve hot, garnished with chopped {{parsley}}, a drizzle of {{olive oil}}, and a sprinkle of {{Parmesan cheese}}.
+Lightly toast 2 slices of {150g {sourdough bread}}, then spread with mustard, mayonnaise, or aioli. Layer with {30g {Lettuce, leaf, green, raw}}, {60g {Ham, sliced, restaurant}}, and 2 slices of {50g {Cheese, swiss}}. Add optional {50g {Tomato, roma}}, pickles, or caramelized {50g {Onions, yellow, raw}}. For a warm sandwich, grill in a panini press or skillet with 1 knob of {10g {Butter, stick, unsalted}} until golden and melty. Serve sliced, optionally with a side salad, chips, or soup.
 
-![Banana Boat French Toast](../../MealPlanner/meals/images/vegetable_soup.jpg)
+![Ham & Cheese Sandwich](../../MealPlanner/meals/images/hamcheesesandwich.jpg)

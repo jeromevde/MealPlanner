@@ -1,5 +1,0 @@
-# Marry Me Chicken
-
-Season and dredge {450g {Chicken, breast, boneless, skinless, raw}} (about 3 large breasts or 6 cutlets) in {50g {Flour, wheat, all-purpose, enriched, unbleached}}. Brown them in a skillet with {15g {Oil, olive, extra virgin}} and {15g {Butter, stick, unsalted}} then set aside. In the same skillet, sauté a clove of {5g  {Garlic, raw}} (minced) and {50g {Tomatoes, whole, canned, solids and liquids, with salt added}} (sun-dried), then deglaze with {200g {chicken broth}}. Stir in {200g {Cream, heavy}}, {50g {Cheese, parmesan, grated}} and a {{dried oregano}}, {{thyme}}, and {{red pepper flakes}} for a creamy sauce. Return the chicken to the pan, simmer until cooked through and the sauce thickens, then garnish with fresh basil. Serve over {200g {pasta}} or with a side that pairs well with the rich flavors. 
-
-![marrymechicken](../../MealPlanner/meals/images/marrymechicken.jpg)

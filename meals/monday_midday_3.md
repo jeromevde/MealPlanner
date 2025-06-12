@@ -1,5 +1,0 @@
-# Spaghetti Vongole
-
-Clean {250g {Crustaceans, clam, mixed species, raw}} under cold water, discarding any that don’t close when tapped. Bring a pot of salted water to a boil and cook {100g {Spaghetti}} until just shy of al dente. In a large pan, heat {15g {Oil, olive, extra virgin}} over medium heat, add 1 clove of {5g {Garlic, raw}} (finely sliced) and a small chopped fresh chili if desired, cooking until golden, then add the clams, pour in {25g {dry white wine}}, cover, and steam for 3–5 minutes until the clams open, discarding any that don’t. Drain the spaghetti, reserving some pasta water, then toss it with the clams in the pan, adding a splash of pasta water if needed for the sauce. Stir in most of a large handful of chopped fresh parsley, adjust salt, and serve with extra parsley and lemon wedges on the side.
-
-![Spaghetti Vongole](../../MealPlanner/meals/images/spaghettivongole.jpg)
