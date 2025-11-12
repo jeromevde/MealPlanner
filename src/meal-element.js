@@ -54,6 +54,7 @@ class MealElement extends HTMLElement {
       window.updateAggregations();
     });
 
+
     // Handle meal click to show popup
     this.mealDiv.addEventListener('click', async (event) => {
       // Prevent popup if click originated from quantityCircle or was just suppressed

@@ -9,17 +9,34 @@ p{
     line-height: 1.5;
 }
 
-.meal-plan {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
+.meal-sections {
+    display: flex;
+    flex-direction: column;
     gap: 20px;
 }
 
-.day {
+.meal-section {
     border: 2px solid #ccc;
     padding: 10px;
     border-radius: 5px;
 }
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.section-reset {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.section-reset:hover { background: #f0f0f0; }
 
 .schedule {
     margin-bottom: 20px;
@@ -28,6 +45,8 @@ p{
 .meals {
     display: flex;
     gap: 10px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
 }
 
 .meal {
@@ -197,23 +216,8 @@ p{
     display: block;
 }
 
-.refresh-button {
-    background-color: white; /* Light grey background */
-    border: 1px solid #ccc;    /* Subtle border */
-    border-radius: 4px;        /* Makes it circular */
-    width: 20px;               /* Consistent size */
-    height: 20px;              /* Consistent size */
-    display: flex;             /* Center the icon */
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;           /* Hand cursor on hover */
-    font-size: 18px;           /* Size of the refresh symbol */
-    color: #ccc;            /* Blue to match your theme */
-    transition: background-color 0.3s ease; /* Smooth hover transition */
-}
-
-.refresh-button:hover {
-    background-color: #e0e0e0; /* Slightly darker grey on hover */
+.popup-body {
+    margin-top: 10px;
 }
 
 .popup-header {
@@ -274,14 +278,14 @@ p{
 
 /* Mobile-Friendly Adjustments */
 @media (max-width: 768px) {
-    .meal-plan {
-        grid-template-columns: repeat(7, 1fr);
+    .meal-sections {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
-    .day {
+    .meal-section {
         min-width: 90vw;
-        min-height: 90vh;
+        /* allow sections to wrap to their content height on mobile */
+        min-height: auto;
     }
     .popup {
         width: 90%;

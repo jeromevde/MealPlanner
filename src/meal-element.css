@@ -95,3 +95,6 @@
 .circle-button:hover {
   background-color: #ccc;
 }
+
+/* Reset button style inside meal element shadow */
+/* reset button removed from meal-element shadow; section-level reset buttons are used instead */

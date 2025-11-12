@@ -7,8 +7,8 @@
     <link rel="stylesheet" type="text/css" href="index.css">
 </head>
 <body>
-    <!-- Meal Plan Container -->
-    <div class="meal-plan" id="meal-plan"></div>
+    <!-- Meal Sections Container -->
+    <div class="meal-sections" id="meal-sections"></div>
     <!-- Aggregation Section with Tabs -->
     <div id="aggregation-section">
         <div class="tabs">
@@ -60,73 +60,73 @@
         }
 
         async function renderMealPlan() {
-            const mealPlanContainer = document.getElementById('meal-plan');
+            const mealSectionsContainer = document.getElementById('meal-sections');
             const overlay = document.getElementById('overlay');
             const fragment = document.createDocumentFragment();
 
-            for (const day of api.days) {
-                if (api.data[day]) {
-                    const dayDiv = document.createElement('div');
-                    dayDiv.classList.add('day');
+            const mealDisplayNames = { morning: 'Breakfasts', midday: 'Middays', evening: 'Dinners' };
 
-                    // Create day header with flexbox for alignment
-                    const dayHeader = document.createElement('div');
-                    dayHeader.style.display = 'flex';
-                    dayHeader.style.alignItems = 'center';
+            for (const meal of api.meals) {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.classList.add('meal-section');
 
-                    // Day title
-                    const dayTitle = document.createElement('h2');
-                    dayTitle.textContent = day.charAt(0).toUpperCase() + day.slice(1);
-                    dayHeader.appendChild(dayTitle);
+                const sectionTitle = document.createElement('h2');
+                sectionTitle.textContent = mealDisplayNames[meal];
+                // Section header with a single reset button for this meal type
+                const headerDiv = document.createElement('div');
+                headerDiv.classList.add('section-header');
+                headerDiv.appendChild(sectionTitle);
+                const resetBtn = document.createElement('button');
+                resetBtn.className = 'section-reset';
+                resetBtn.title = `Reset ${mealDisplayNames[meal]}`;
+                resetBtn.textContent = 'Reset';
+                headerDiv.appendChild(resetBtn);
+                sectionDiv.appendChild(headerDiv);
 
-                    // Refresh button
-                    const refreshButton = document.createElement('button');
-                    refreshButton.className = 'refresh-button';
-                    refreshButton.textContent = '↻'; // Unicode refresh symbol
-                    refreshButton.title = 'Reset selections for this day'; // Tooltip
-                    refreshButton.style.marginLeft = '10px';
-                    refreshButton.style.cursor = 'pointer';
-                    refreshButton.addEventListener('click', () => {
-                        resetDaySelections(day);
-                    });
-                    dayHeader.appendChild(refreshButton);
+                const mealsDiv = document.createElement('div');
+                mealsDiv.classList.add('meals');
 
-                    dayDiv.appendChild(dayHeader);
-
-                    for (const meal of api.meals) {
-                        if (api.data[day][meal]) {
-                            const mealDiv = document.createElement('div');
-                            mealDiv.classList.add('schedule');
-                            const mealTitle = document.createElement('h3');
-                            mealTitle.textContent = meal.charAt(0).toUpperCase() + meal.slice(1);
-                            mealDiv.appendChild(mealTitle);
-
-                            const mealsDiv = document.createElement('div');
-                            mealsDiv.classList.add('meals');
-
+                // Wire up the section reset button to clear quantities for this meal type
+                resetBtn.addEventListener('click', () => {
+                    for (const day of api.days) {
+                        if (api.data[day] && api.data[day][meal]) {
                             for (const version of Object.keys(api.data[day][meal])) {
-                                const mealElement = document.createElement('meal-element');
-                                mealElement.setAttribute('day', day);
-                                mealElement.setAttribute('meal', meal);
-                                mealElement.setAttribute('version', version);
-                                mealElement.setAttribute('title', cleanTitle(api.data[day][meal][version].title));
+                                const key = `${day}-${meal}-${version}`;
+                                api.mealQuantities.set(key, 0);
+                            }
+                        }
+                    }
+                    saveState(api.mealQuantities, api.days, api.meals);
+                    // Refresh any displayed meal elements for this meal type
+                    document.querySelectorAll(`meal-element[meal='${meal}']`).forEach(el => { if (typeof el.refresh === 'function') el.refresh(); });
+                    if (typeof window.updateAggregations === 'function') window.updateAggregations();
+                });
 
-                                mealElement.addEventListener('click', async (event) => {
-                                    if (event.target.closest('.meal-control')) return;
-                                    await window.api.ensureDataLoaded();
-                                    const mealData = api.data[day][meal][version];
-                                    const mealKey = `${day}-${meal}-${version}`;
-                                    // Always get the latest quantity when opening the popup
-                                    const quantity = api.mealQuantities.get(mealKey) || 0;
-                                    let people = Math.max(1, quantity);
-                                    const titleText = cleanTitle(mealData.title);
+                for (const day of api.days) {
+                    if (api.data[day] && api.data[day][meal]) {
+                        for (const version of Object.keys(api.data[day][meal])) {
+                            const mealElement = document.createElement('meal-element');
+                            mealElement.setAttribute('day', day);
+                            mealElement.setAttribute('meal', meal);
+                            mealElement.setAttribute('version', version);
+                            mealElement.setAttribute('title', cleanTitle(api.data[day][meal][version].title));
 
-                                    const updatePopupContent = async () => {
-                                        const scaledContent = scaleMarkdownContent(mealData.content, people);
-                                        const htmlContent = window.api.parseMarkdown(scaledContent);
-                                        const linkedContent = await window.api.parseAndLinkMealContent(htmlContent);
-                                        const popupContent = document.getElementById('popup-content');
-                                        const githubEditUrl = `https://github.dev/jeromevde/MealPlanner/blob/main/meals/${day}_${meal}_${version}.md`;
+                            mealElement.addEventListener('click', async (event) => {
+                                if (event.target.closest('.meal-control')) return;
+                                await window.api.ensureDataLoaded();
+                                const mealData = api.data[day][meal][version];
+                                const mealKey = `${day}-${meal}-${version}`;
+                                // Always get the latest quantity when opening the popup
+                                const quantity = api.mealQuantities.get(mealKey) || 0;
+                                let people = Math.max(1, quantity);
+                                const titleText = cleanTitle(mealData.title);
+
+                                const updatePopupContent = async () => {
+                                    const scaledContent = scaleMarkdownContent(mealData.content, people);
+                                    const htmlContent = window.api.parseMarkdown(scaledContent);
+                                    const linkedContent = await window.api.parseAndLinkMealContent(htmlContent);
+                                    const popupContent = document.getElementById('popup-content');
+                                    const githubEditUrl = `https://github.dev/jeromevde/MealPlanner/blob/main/meals/${day}_${meal}_${version}.md`;
 
 popupContent.innerHTML = `
     <div class="popup-header" style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
@@ -223,11 +223,11 @@ popupContent.innerHTML = `
                                             api.mealQuantities.set(mealKey, people);
                                             saveState(api.mealQuantities, api.days, api.meals);
                                             await updatePopupContent();
-                                            attachPopupEventListeners();
-                                            window.updateAggregations();
-                                            // Refresh the meal-element in the planner
-                                            const mealElem = document.querySelector(`meal-element[day='${day}'][meal='${meal}'][version='${version}']`);
-                                            if (mealElem && typeof mealElem.refresh === 'function') mealElem.refresh();
+                                                attachPopupEventListeners();
+                                                window.updateAggregations();
+                                                // Refresh the meal-element in the planner
+                                                const mealElem = document.querySelector(`meal-element[day='${day}'][meal='${meal}'][version='${version}']`);
+                                                if (mealElem && typeof mealElem.refresh === 'function') mealElem.refresh();
                                         });
 
                                         peopleInput.addEventListener('change', async () => {
@@ -252,68 +252,55 @@ popupContent.innerHTML = `
 
                                 mealsDiv.appendChild(mealElement);
                             }
-                            mealDiv.appendChild(mealsDiv);
-                            dayDiv.appendChild(mealDiv);
                         }
                     }
-                    fragment.appendChild(dayDiv);
-                }
+
+                sectionDiv.appendChild(mealsDiv);
+                fragment.appendChild(sectionDiv);
             }
 
-            mealPlanContainer.appendChild(fragment);
+            mealSectionsContainer.appendChild(fragment);
+        }
 
-            // Popup close functionality
-            document.querySelectorAll('.popup-close').forEach(closeButton => {
-                closeButton.addEventListener('click', () => {
-                    const popup = closeButton.closest('.popup');
-                    if (popup) {
-                        popup.style.display = 'none';
-                        overlay.style.display = 'none';
-                    }
-                });
-            });
-
-            document.querySelectorAll('.popup').forEach(popup => {
-                popup.addEventListener('click', (event) => {
-                    if (event.target.tagName.toLowerCase() !== "food-nutrient-link") {
-                        const nutrientLinks = popup.querySelectorAll('food-nutrient-link');
-                        nutrientLinks.forEach(link => {
-                            if (link.hidePopup) {
-                                link.hidePopup();
-                            }
-                        });
-                    }
-                });
-            });
-
-            overlay.addEventListener('click', () => {
-                document.querySelectorAll('.popup').forEach(popup => {
+        // Popup close functionality
+        document.querySelectorAll('.popup-close').forEach(closeButton => {
+            closeButton.addEventListener('click', () => {
+                const popup = closeButton.closest('.popup');
+                if (popup) {
                     popup.style.display = 'none';
-                });
-                document.querySelectorAll('food-nutrient-link').forEach(link => {
-                    if (link.hidePopup) {
-                        link.hidePopup();
-                    }
-                });
-                // Close all meal-element dropdowns
-                document.querySelectorAll('meal-element').forEach(el => {
-                    if (typeof el.closePopups === 'function') el.closePopups();
-                });
-                overlay.style.display = 'none';
+                    document.getElementById('overlay').style.display = 'none';
+                }
             });
-        }
+        });
 
-        // Reset selections for a specific day
-        function resetDaySelections(day) {
-            const meals = document.querySelectorAll(`meal-element[day="${day}"]`);
-            meals.forEach(meal => {
-                const mealKey = `${meal.getAttribute('day')}-${meal.getAttribute('meal')}-${meal.getAttribute('version')}`;
-                api.mealQuantities.set(mealKey, 0);
-                meal.refresh(); // Update display
+        document.querySelectorAll('.popup').forEach(popup => {
+            popup.addEventListener('click', (event) => {
+                if (event.target.tagName.toLowerCase() !== "food-nutrient-link") {
+                    const nutrientLinks = popup.querySelectorAll('food-nutrient-link');
+                    nutrientLinks.forEach(link => {
+                        if (link.hidePopup) {
+                            link.hidePopup();
+                        }
+                    });
+                }
             });
-            saveState(api.mealQuantities, api.days, api.meals);
-            window.updateAggregations();
-        }
+        });
+
+        document.getElementById('overlay').addEventListener('click', () => {
+            document.querySelectorAll('.popup').forEach(popup => {
+                popup.style.display = 'none';
+            });
+            document.querySelectorAll('food-nutrient-link').forEach(link => {
+                if (link.hidePopup) {
+                    link.hidePopup();
+                }
+            });
+            // Close all meal-element dropdowns
+            document.querySelectorAll('meal-element').forEach(el => {
+                if (typeof el.closePopups === 'function') el.closePopups();
+            });
+            document.getElementById('overlay').style.display = 'none';
+        });
 
         api.fetchData().then(() => {
             renderMealPlan().then(() => {
