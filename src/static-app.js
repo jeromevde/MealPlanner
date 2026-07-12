@@ -4,6 +4,7 @@
   const DATA = window.__DATA__;
   const mealQuantities = new Map();
   const MEAL_SLOT_LABELS = { morning: 'breakfast', midday: 'lunch', evening: 'dinner' };
+  let popupReturnFn = null;
 
   function mealKey(day, meal, version) {
     return `${day}-${meal}-${version}`;
@@ -187,6 +188,7 @@
   }
 
   function openNutrientContributorsPopup(nutrientName, sources) {
+    popupReturnFn = null;
     const popup = document.getElementById('popup');
     const overlay = document.getElementById('overlay');
     const content = document.getElementById('popup-content');
@@ -199,6 +201,29 @@
 
     popup.style.display = 'block';
     overlay.style.display = 'block';
+  }
+
+  function openIngredientNutrientsPopup(foodName, quantity, title, onBack) {
+    const content = document.getElementById('popup-content');
+    content.innerHTML = `
+      <button type="button" class="popup-close" aria-label="Close">×</button>
+      <button type="button" class="nutrient-back">← Back to recipe</button>
+      <div class="popup-ingredient-nutrients"></div>`;
+    content.querySelector('.popup-close').addEventListener('click', closePopups);
+    content.querySelector('.nutrient-back').addEventListener('click', () => {
+      popupReturnFn = null;
+      onBack();
+    });
+    renderNutrientPanel(
+      content.querySelector('.popup-ingredient-nutrients'),
+      [{ foodName, quantity }],
+      title,
+      { embedded: true },
+    );
+    popupReturnFn = () => {
+      popupReturnFn = null;
+      onBack();
+    };
   }
 
   function renderNutrientPanel(container, foodList, title, options) {
@@ -257,8 +282,10 @@
     const content = document.getElementById('popup-content');
 
     function render() {
+      popupReturnFn = null;
       const scaled = scaleContent(item.contentHtml, people);
       content.innerHTML = `
+        <button type="button" class="popup-close" aria-label="Close">×</button>
         <div class="popup-header">
           <h2>${item.title} for <span id="popup-people">${people}</span> people</h2>
           <div class="quantity-control">
@@ -268,8 +295,9 @@
           </div>
         </div>
         <div class="popup-body">${scaled}</div>
-        <div class="popup-nutrients" id="popup-nutrients"></div>
-        <div id="nutrient-panel"></div>`;
+        <div class="popup-nutrients" id="popup-nutrients"></div>`;
+
+      content.querySelector('.popup-close').addEventListener('click', closePopups);
 
       const foodList = item.ingredients.map((ing) => ({
         foodName: ing.foodName,
@@ -296,14 +324,11 @@
       content.querySelectorAll('.ingredient-link').forEach((el) => {
         el.onclick = (ev) => {
           ev.stopPropagation();
+          ev.preventDefault();
           const food = el.dataset.food;
           const qty = parseFloat(el.dataset.qty);
           const display = getFood(food)?.display_name || food;
-          const panel = content.querySelector('#nutrient-panel');
-          renderNutrientPanel(panel, [{ foodName: food, quantity: qty }],
-            `${qty}g of ${display}`, { embedded: true });
-          panel.style.display = 'block';
-          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          openIngredientNutrientsPopup(food, qty, `${qty}g of ${display}`, render);
         };
       });
     }
@@ -314,8 +339,17 @@
   }
 
   function closePopups() {
+    popupReturnFn = null;
     document.getElementById('popup').style.display = 'none';
     document.getElementById('overlay').style.display = 'none';
+  }
+
+  function handleOverlayClick() {
+    if (popupReturnFn) {
+      popupReturnFn();
+      return;
+    }
+    closePopups();
   }
 
   function refreshCards() {
@@ -381,11 +415,17 @@
           const qty = parseFloat(el.dataset.qty);
           const popup = document.getElementById('popup');
           const content = document.getElementById('popup-content');
-          content.innerHTML = '<div id="nutrient-panel"></div>';
-          renderNutrientPanel(content.querySelector('#nutrient-panel'),
+          popupReturnFn = null;
+          content.innerHTML = `
+            <button type="button" class="popup-close" aria-label="Close">×</button>
+            <div class="popup-ingredient-nutrients"></div>`;
+          content.querySelector('.popup-close').addEventListener('click', closePopups);
+          renderNutrientPanel(
+            content.querySelector('.popup-ingredient-nutrients'),
             [{ foodName: food, quantity: qty }],
             `${qty}g of ${getFood(food)?.display_name || food}`,
-            { embedded: true });
+            { embedded: true },
+          );
           popup.style.display = 'block';
           document.getElementById('overlay').style.display = 'block';
         };
@@ -445,7 +485,7 @@
       });
     });
 
-    document.getElementById('overlay').addEventListener('click', closePopups);
+    document.getElementById('overlay').addEventListener('click', handleOverlayClick);
 
     document.querySelectorAll('.tab-button').forEach((btn) => {
       btn.addEventListener('click', () => {

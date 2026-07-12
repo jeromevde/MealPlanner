@@ -369,19 +369,9 @@ def read_css() -> str:
 .ingredient-link:hover { background: #eef3ff; }
 .ingredient-link .qty { font-size: 0.85em; color: #667085; }
 .empty-hint { color: #667085; font-style: italic; }
-#nutrient-panel {
-  display: none;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
+.popup-ingredient-nutrients {
   text-align: left;
-}
-#nutrient-panel .close-btn {
-  float: right;
-  border: none;
-  background: none;
-  font-size: 1.5em;
-  cursor: pointer;
+  padding-top: 8px;
 }
 """
     return "\n".join(f.read_text() for f in files) + extra
