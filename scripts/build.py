@@ -196,7 +196,7 @@ def markdown_to_html(text: str, stamp: str = "") -> str:
                 )
             continue
         text_parts.append(f"<p>{link_ingredients(p)}</p>")
-    return "\n".join(image_parts + text_parts)
+    return "\n".join(text_parts + image_parts)
 
 
 def load_meals(stamp: str = "") -> tuple[dict, set[str]]:
