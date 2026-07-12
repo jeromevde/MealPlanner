@@ -1,6 +1,6 @@
-# Clam Spinach Pasta
-<!-- quick:18 -->
+# Beef Tartare Arugula
+<!-- quick:12 -->
 
-![Clam Spinach Pasta](images/saturday_morning_1.jpg)
+![Beef Tartare Arugula](images/saturday_morning_1.jpg)
 
-Cook {180g {pasta}}. Sauté {5g {garlic}} in {15g {olive_oil}}, add {150g {clam}} and {120g {spinach}}. Toss with pasta and {5g {parsley}}.
+Lay {100g {arugula}} on the plate. Mix {140g {beef}} (finely diced), {12g {shallot}} (minced), {5g {caper}}, {5g {mustard}}, {10g {olive_oil}}, and {8g {lemon}} juice. Season with {1g {salt}} and {1g {black_pepper}}. Spoon tartare over the arugula. Top with shaved {25g {parmesan_cheese}}, toasted {12g {pine_nut}}, and {15g {egg_yolk}}.

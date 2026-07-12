@@ -153,7 +153,10 @@
       (byCategory[cat] = byCategory[cat] || []).push({ name, total, ...meta });
     }
 
-    let html = `<button class="close-btn" onclick="this.parentElement.style.display='none'">×</button>`;
+    let html = '';
+    if (!opts.embedded) {
+      html += `<button class="close-btn" onclick="this.parentElement.style.display='none'">×</button>`;
+    }
     html += `<h3>${title}</h3>`;
     if (opts.interactive) {
       html += '<p class="nutrient-hint">Click a nutrient to see which foods and meals contribute most.</p>';
@@ -175,7 +178,7 @@
     }
     html += '</div>';
     container.innerHTML = html;
-    container.style.display = 'block';
+    if (!opts.embedded) container.style.display = 'block';
 
     if (opts.interactive && opts.sources) {
       container.querySelectorAll('.nutrient-name.clickable').forEach((el) => {
@@ -209,7 +212,19 @@
             <button class="increment">+</button>
           </div>
         </div>
-        <div class="popup-body">${scaled}</div>`;
+        <div class="popup-body">${scaled}</div>
+        <div class="popup-nutrients" id="popup-nutrients"></div>`;
+
+      const foodList = item.ingredients.map((ing) => ({
+        foodName: ing.foodName,
+        quantity: ing.quantity,
+      }));
+      renderNutrientPanel(
+        content.querySelector('#popup-nutrients'),
+        foodList,
+        'Nutrition per person',
+        { embedded: true },
+      );
 
       content.querySelector('.decrement').onclick = () => {
         if (people > 1) { people--; mealQuantities.set(key, people); saveState(); refreshCards(); updateAggregations(); render(); }

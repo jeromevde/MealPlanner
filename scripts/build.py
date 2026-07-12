@@ -320,6 +320,21 @@ def read_css() -> str:
   border-radius: 10px;
   margin-bottom: 14px;
 }
+.popup-nutrients {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+}
+.popup-nutrients h3 {
+  margin: 0 0 12px;
+  font-size: 1.05em;
+  font-weight: 600;
+}
+.popup-nutrients .nutrient-list {
+  margin-top: 0;
+  max-height: none;
+}
 .ingredient-link {
   display: inline;
   color: #4a7cff;

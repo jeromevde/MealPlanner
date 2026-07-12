@@ -1,6 +1,6 @@
-# Bone Marrow & Mushroom
-<!-- quick:18 -->
+# Lentil Brussels Tray
+<!-- quick:22 -->
 
-![Bone Marrow & Mushroom](images/sunday_evening_3.jpg)
+![Lentil Brussels Tray](images/sunday_evening_3.jpg)
 
-Roast {100g {bone_marrow}} at 220°C for 12 minutes. Sauté {150g {mushroom}} in {10g {butter}} with {3g {garlic}}. Serve marrow scooped onto mushrooms with {60g {bread}} and {5g {parsley}}.
+Roast {140g {brussels_sprout}} (halved) and {150g {sweet_potato}} with {8g {olive_oil}} at 200°C for 22 minutes. Warm {130g {lentil}} with {4g {garlic}}. Toss together and finish with {40g {yogurt}} and {40g {sauerkraut}}.

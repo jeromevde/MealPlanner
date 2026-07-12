@@ -1,6 +1,6 @@
-# Herring Kale Bowl
-<!-- quick:8 -->
+# Herring Kale Beet Bowl
+<!-- quick:10 -->
 
-![Herring Kale Bowl](images/wednesday_morning_1.jpg)
+![Herring Kale Beet Bowl](images/wednesday_morning_1.jpg)
 
-Toss {80g {kale}} (massaged with {5g {lemon}} juice) with {10g {olive_oil}}. Top with {120g {herring}} (drained), {60g {brown_rice}}, and a pinch of {1g {black_pepper}}.
+Toss {80g {kale}} with {80g {beet}} (grated), {10g {olive_oil}}, and {5g {lemon}} juice. Top with {120g {herring}} (drained), {60g {brown_rice}}, and a pinch of {1g {black_pepper}}.

@@ -1,6 +1,6 @@
-# Oyster Spinach Stir-fry
-<!-- quick:12 -->
+# Sweet Potato Kimchi Bowl
+<!-- quick:15 -->
 
-![Oyster Spinach Stir-fry](images/wednesday_midday_1.jpg)
+![Sweet Potato Kimchi Bowl](images/wednesday_midday_1.jpg)
 
-Sauté {5g {garlic}} in {10g {butter}}. Add {150g {oyster}} and cook 2 minutes. Toss in {150g {spinach}} until wilted. Serve over {150g {brown_rice}} with {5g {light_soy_sauce}}.
+Roast {180g {sweet_potato}} (cubed) at 200°C for 18 minutes. Serve over {100g {brown_rice}} with {70g {kimchi}}, {100g {broccoli}} (steamed), and {80g {yogurt}}. Finish with {150g {kombucha}} on the side.
