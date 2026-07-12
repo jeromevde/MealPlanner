@@ -27,6 +27,72 @@
   width: 180px;
   font-weight: bold;
 }
+.nutrient-name.clickable {
+  cursor: pointer;
+  color: var(--accent, #4a7cff);
+}
+.nutrient-name.clickable:hover {
+  text-decoration: underline;
+}
+.nutrient-hint {
+  font-size: 0.85em;
+  color: #667085;
+  margin: 0 0 12px;
+}
+.nutrient-back {
+  background: none;
+  border: none;
+  color: var(--accent, #4a7cff);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9em;
+  padding: 0;
+  margin-bottom: 12px;
+}
+.nutrient-back:hover {
+  text-decoration: underline;
+}
+.contributor-list {
+  margin-top: 8px;
+}
+.contributor-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid var(--border, #e2e6ea);
+  border-radius: 8px;
+}
+.contributor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.contributor-food {
+  font-weight: 600;
+}
+.contributor-meal {
+  font-size: 0.85em;
+  color: #667085;
+}
+.contributor-bar-container {
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.contributor-bar {
+  height: 100%;
+  background: #4a7cff;
+}
+.contributor-amount {
+  font-size: 0.85em;
+  color: #555;
+  white-space: nowrap;
+}
 .progress-bar-container {
   width: 200px;
   background: #eee;

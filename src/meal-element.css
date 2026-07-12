@@ -15,7 +15,7 @@
   min-width: 200px;
   max-width: 260px;
   flex: 0 0 auto;
-  transition: box-shadow 0.18s, border 0.18s, background 0.18s, transform 0.15s;
+  transition: border 0.18s, background 0.18s, transform 0.15s;
 }
 
 .meal[data-meal="morning"] { border-left: 4px solid #f4a261; }
@@ -25,7 +25,6 @@
 .meal:hover {
   border-color: #4a7cff;
   background: #f5f8ff;
-  box-shadow: 0 4px 14px rgba(74, 124, 255, 0.12);
   transform: translateY(-1px);
 }
 
@@ -70,7 +69,6 @@
 .meal.selected {
   border-color: #4a7cff;
   background: #eef3ff;
-  box-shadow: 0 2px 10px rgba(74, 124, 255, 0.18);
 }
 
 .quantity-circle {
@@ -107,7 +105,6 @@
   z-index: 10000;
   flex-wrap: wrap;
   right: 0;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .circle-button {

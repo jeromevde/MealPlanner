@@ -343,7 +343,6 @@ def read_css() -> str:
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 16px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
   z-index: 1001;
   text-align: left;
 }
@@ -362,7 +361,7 @@ def write_pwa_assets(images_dst: Path) -> list[str]:
     """Write manifest, service worker, and icons. Returns precache URL list."""
     pwa_src = SRC_DIR / "pwa"
     manifest = {
-        "name": "Nutrient-Dense Meal Planner",
+        "name": "MealPlanner",
         "short_name": "MealPlanner",
         "description": "Quick nutrient-dense recipes with shopping list and nutrient tracking",
         "start_url": "./",
@@ -427,7 +426,7 @@ def build() -> Path:
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <title>Nutrient-Dense Meal Planner</title>
+  <title>MealPlanner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">

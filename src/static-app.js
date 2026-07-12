@@ -3,6 +3,7 @@
 
   const DATA = window.__DATA__;
   const mealQuantities = new Map();
+  const MEAL_SLOT_LABELS = { morning: 'breakfast', midday: 'lunch', evening: 'dinner' };
 
   function mealKey(day, meal, version) {
     return `${day}-${meal}-${version}`;
@@ -83,7 +84,66 @@
     return agg;
   }
 
-  function renderNutrientPanel(container, foodList, title) {
+  function nutrientAmount(foodName, quantity, nutrientName) {
+    const food = getFood(foodName);
+    if (!food || !quantity) return 0;
+    const per100 = food.nutrients[nutrientName];
+    if (per100 == null) return 0;
+    return per100 * quantity / 100;
+  }
+
+  function formatMealSource(source) {
+    const day = source.day.charAt(0).toUpperCase() + source.day.slice(1);
+    const slot = MEAL_SLOT_LABELS[source.meal] || source.meal;
+    const servings = source.servings > 1 ? `, ${source.servings}×` : '';
+    return `${source.mealTitle} · ${day} ${slot}${servings}`;
+  }
+
+  function renderNutrientContributors(container, nutrientName, sources, onBack) {
+    const meta = DATA.drv[nutrientName];
+    if (!meta) return;
+
+    const contributors = sources
+      .map((source) => ({
+        ...source,
+        amount: nutrientAmount(source.foodName, source.quantity, nutrientName),
+        displayName: getFood(source.foodName)?.display_name || source.foodName,
+      }))
+      .filter((entry) => entry.amount > 0)
+      .sort((a, b) => b.amount - a.amount);
+
+    const total = contributors.reduce((sum, entry) => sum + entry.amount, 0);
+    let html = `<button type="button" class="nutrient-back">← All nutrients</button>`;
+    html += `<h3>${nutrientName}</h3>`;
+    html += `<p class="nutrient-hint">Top food sources across your selected meals</p>`;
+
+    if (contributors.length === 0) {
+      html += '<p class="empty-hint">No tracked sources for this nutrient.</p>';
+    } else {
+      html += '<div class="contributor-list">';
+      for (const entry of contributors) {
+        const pct = total > 0 ? (entry.amount / total) * 100 : 0;
+        html += `<div class="contributor-item">
+          <div class="contributor-header">
+            <span class="contributor-food">${entry.displayName}</span>
+            <span class="contributor-amount">${entry.amount.toFixed(1)} ${meta.unit} (${pct.toFixed(0)}%)</span>
+          </div>
+          <div class="contributor-meal">${formatMealSource(entry)} · ${entry.quantity.toFixed(0)}g</div>
+          <div class="contributor-bar-container">
+            <div class="contributor-bar" style="width:${pct}%"></div>
+          </div>
+        </div>`;
+      }
+      html += '</div>';
+    }
+
+    container.innerHTML = html;
+    container.style.display = 'block';
+    container.querySelector('.nutrient-back')?.addEventListener('click', onBack);
+  }
+
+  function renderNutrientPanel(container, foodList, title, options) {
+    const opts = options || {};
     const agg = aggregateNutrients(foodList);
     const byCategory = {};
     for (const [name, total] of Object.entries(agg)) {
@@ -94,13 +154,19 @@
     }
 
     let html = `<button class="close-btn" onclick="this.parentElement.style.display='none'">×</button>`;
-    html += `<h3>${title}</h3><div class="nutrient-list">`;
+    html += `<h3>${title}</h3>`;
+    if (opts.interactive) {
+      html += '<p class="nutrient-hint">Click a nutrient to see which foods and meals contribute most.</p>';
+    }
+    html += '<div class="nutrient-list">';
     for (const [cat, items] of Object.entries(byCategory)) {
+      items.sort((a, b) => (a.order || 0) - (b.order || 0));
       html += `<div class="category-section"><div class="category-title">${cat}</div>`;
       for (const n of items) {
         const pct = n.drv > 0 ? Math.min((n.total / n.drv) * 100, 100) : 100;
+        const nameClass = opts.interactive ? 'nutrient-name clickable' : 'nutrient-name';
         html += `<div class="nutrient-item">
-          <span class="nutrient-name">${n.name}</span>
+          <span class="${nameClass}" data-nutrient="${n.name}">${n.name}</span>
           <div class="progress-bar-container"><div class="progress-bar" style="width:${pct}%"></div></div>
           <span class="nutrient-value">${n.total.toFixed(1)} / ${n.drv} ${n.unit}</span>
         </div>`;
@@ -110,6 +176,16 @@
     html += '</div>';
     container.innerHTML = html;
     container.style.display = 'block';
+
+    if (opts.interactive && opts.sources) {
+      container.querySelectorAll('.nutrient-name.clickable').forEach((el) => {
+        el.addEventListener('click', () => {
+          renderNutrientContributors(container, el.dataset.nutrient, opts.sources, () => {
+            renderNutrientPanel(container, foodList, title, opts);
+          });
+        });
+      });
+    }
   }
 
   function openRecipe(day, meal, version) {
@@ -182,13 +258,24 @@
 
   function updateAggregations() {
     const allFoods = [];
+    const sources = [];
     for (const [key, qty] of mealQuantities) {
       if (qty <= 0) continue;
       const [day, meal, version] = key.split('-');
       const item = DATA.mealData[day]?.[meal]?.[version];
       if (!item) continue;
       for (const ing of item.ingredients) {
-        allFoods.push({ foodName: ing.foodName, quantity: ing.quantity * qty });
+        const quantity = ing.quantity * qty;
+        allFoods.push({ foodName: ing.foodName, quantity });
+        sources.push({
+          foodName: ing.foodName,
+          quantity,
+          day,
+          meal,
+          version,
+          mealTitle: item.title,
+          servings: qty,
+        });
       }
     }
 
@@ -233,7 +320,10 @@
     if (allFoods.length === 0) {
       nutEl.innerHTML = '<p class="empty-hint">Select meals to see aggregated nutrients.</p>';
     } else {
-      renderNutrientPanel(nutEl, allFoods, 'Nutrients for selected plan');
+      renderNutrientPanel(nutEl, allFoods, 'Nutrients for selected plan', {
+        interactive: true,
+        sources,
+      });
       nutEl.style.display = 'block';
       nutEl.querySelector('.close-btn')?.remove();
     }

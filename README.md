@@ -1,4 +1,4 @@
-# Nutrient-Dense Meal Planner
+# MealPlanner
 
 Quick, micronutrient-rich recipes. Built as a **single static HTML file** — no server, no fetches, works offline.
 

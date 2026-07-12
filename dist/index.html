@@ -11,7 +11,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <title>Nutrient-Dense Meal Planner</title>
+  <title>MealPlanner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -52,7 +52,6 @@ p { line-height: 1.6; }
   border: 1px solid var(--border);
   padding: 16px 18px;
   border-radius: 14px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 
 .section-header {
@@ -110,7 +109,6 @@ p { line-height: 1.6; }
   background-color: var(--surface);
   border: 1px solid var(--border);
   padding: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
   border-radius: 16px;
   z-index: 1000;
   overflow: auto;
@@ -133,7 +131,6 @@ p { line-height: 1.6; }
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   overflow: hidden;
 }
 
@@ -238,7 +235,7 @@ p { line-height: 1.6; }
   min-width: 200px;
   max-width: 260px;
   flex: 0 0 auto;
-  transition: box-shadow 0.18s, border 0.18s, background 0.18s, transform 0.15s;
+  transition: border 0.18s, background 0.18s, transform 0.15s;
 }
 
 .meal[data-meal="morning"] { border-left: 4px solid #f4a261; }
@@ -248,7 +245,6 @@ p { line-height: 1.6; }
 .meal:hover {
   border-color: #4a7cff;
   background: #f5f8ff;
-  box-shadow: 0 4px 14px rgba(74, 124, 255, 0.12);
   transform: translateY(-1px);
 }
 
@@ -293,7 +289,6 @@ p { line-height: 1.6; }
 .meal.selected {
   border-color: #4a7cff;
   background: #eef3ff;
-  box-shadow: 0 2px 10px rgba(74, 124, 255, 0.18);
 }
 
 .quantity-circle {
@@ -330,7 +325,6 @@ p { line-height: 1.6; }
   z-index: 10000;
   flex-wrap: wrap;
   right: 0;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .circle-button {
@@ -379,6 +373,72 @@ p { line-height: 1.6; }
 .nutrient-name {
   width: 180px;
   font-weight: bold;
+}
+.nutrient-name.clickable {
+  cursor: pointer;
+  color: var(--accent, #4a7cff);
+}
+.nutrient-name.clickable:hover {
+  text-decoration: underline;
+}
+.nutrient-hint {
+  font-size: 0.85em;
+  color: #667085;
+  margin: 0 0 12px;
+}
+.nutrient-back {
+  background: none;
+  border: none;
+  color: var(--accent, #4a7cff);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9em;
+  padding: 0;
+  margin-bottom: 12px;
+}
+.nutrient-back:hover {
+  text-decoration: underline;
+}
+.contributor-list {
+  margin-top: 8px;
+}
+.contributor-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid var(--border, #e2e6ea);
+  border-radius: 8px;
+}
+.contributor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.contributor-food {
+  font-weight: 600;
+}
+.contributor-meal {
+  font-size: 0.85em;
+  color: #667085;
+}
+.contributor-bar-container {
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.contributor-bar {
+  height: 100%;
+  background: #4a7cff;
+}
+.contributor-amount {
+  font-size: 0.85em;
+  color: #555;
+  white-space: nowrap;
 }
 .progress-bar-container {
   width: 200px;
@@ -502,7 +562,6 @@ p { line-height: 1.6; }
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 16px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
   z-index: 1001;
   text-align: left;
 }
@@ -755,6 +814,7 @@ p { line-height: 1.6; }
 
   const DATA = window.__DATA__;
   const mealQuantities = new Map();
+  const MEAL_SLOT_LABELS = { morning: 'breakfast', midday: 'lunch', evening: 'dinner' };
 
   function mealKey(day, meal, version) {
     return `${day}-${meal}-${version}`;
@@ -835,7 +895,66 @@ p { line-height: 1.6; }
     return agg;
   }
 
-  function renderNutrientPanel(container, foodList, title) {
+  function nutrientAmount(foodName, quantity, nutrientName) {
+    const food = getFood(foodName);
+    if (!food || !quantity) return 0;
+    const per100 = food.nutrients[nutrientName];
+    if (per100 == null) return 0;
+    return per100 * quantity / 100;
+  }
+
+  function formatMealSource(source) {
+    const day = source.day.charAt(0).toUpperCase() + source.day.slice(1);
+    const slot = MEAL_SLOT_LABELS[source.meal] || source.meal;
+    const servings = source.servings > 1 ? `, ${source.servings}×` : '';
+    return `${source.mealTitle} · ${day} ${slot}${servings}`;
+  }
+
+  function renderNutrientContributors(container, nutrientName, sources, onBack) {
+    const meta = DATA.drv[nutrientName];
+    if (!meta) return;
+
+    const contributors = sources
+      .map((source) => ({
+        ...source,
+        amount: nutrientAmount(source.foodName, source.quantity, nutrientName),
+        displayName: getFood(source.foodName)?.display_name || source.foodName,
+      }))
+      .filter((entry) => entry.amount > 0)
+      .sort((a, b) => b.amount - a.amount);
+
+    const total = contributors.reduce((sum, entry) => sum + entry.amount, 0);
+    let html = `<button type="button" class="nutrient-back">← All nutrients</button>`;
+    html += `<h3>${nutrientName}</h3>`;
+    html += `<p class="nutrient-hint">Top food sources across your selected meals</p>`;
+
+    if (contributors.length === 0) {
+      html += '<p class="empty-hint">No tracked sources for this nutrient.</p>';
+    } else {
+      html += '<div class="contributor-list">';
+      for (const entry of contributors) {
+        const pct = total > 0 ? (entry.amount / total) * 100 : 0;
+        html += `<div class="contributor-item">
+          <div class="contributor-header">
+            <span class="contributor-food">${entry.displayName}</span>
+            <span class="contributor-amount">${entry.amount.toFixed(1)} ${meta.unit} (${pct.toFixed(0)}%)</span>
+          </div>
+          <div class="contributor-meal">${formatMealSource(entry)} · ${entry.quantity.toFixed(0)}g</div>
+          <div class="contributor-bar-container">
+            <div class="contributor-bar" style="width:${pct}%"></div>
+          </div>
+        </div>`;
+      }
+      html += '</div>';
+    }
+
+    container.innerHTML = html;
+    container.style.display = 'block';
+    container.querySelector('.nutrient-back')?.addEventListener('click', onBack);
+  }
+
+  function renderNutrientPanel(container, foodList, title, options) {
+    const opts = options || {};
     const agg = aggregateNutrients(foodList);
     const byCategory = {};
     for (const [name, total] of Object.entries(agg)) {
@@ -846,13 +965,19 @@ p { line-height: 1.6; }
     }
 
     let html = `<button class="close-btn" onclick="this.parentElement.style.display='none'">×</button>`;
-    html += `<h3>${title}</h3><div class="nutrient-list">`;
+    html += `<h3>${title}</h3>`;
+    if (opts.interactive) {
+      html += '<p class="nutrient-hint">Click a nutrient to see which foods and meals contribute most.</p>';
+    }
+    html += '<div class="nutrient-list">';
     for (const [cat, items] of Object.entries(byCategory)) {
+      items.sort((a, b) => (a.order || 0) - (b.order || 0));
       html += `<div class="category-section"><div class="category-title">${cat}</div>`;
       for (const n of items) {
         const pct = n.drv > 0 ? Math.min((n.total / n.drv) * 100, 100) : 100;
+        const nameClass = opts.interactive ? 'nutrient-name clickable' : 'nutrient-name';
         html += `<div class="nutrient-item">
-          <span class="nutrient-name">${n.name}</span>
+          <span class="${nameClass}" data-nutrient="${n.name}">${n.name}</span>
           <div class="progress-bar-container"><div class="progress-bar" style="width:${pct}%"></div></div>
           <span class="nutrient-value">${n.total.toFixed(1)} / ${n.drv} ${n.unit}</span>
         </div>`;
@@ -862,6 +987,16 @@ p { line-height: 1.6; }
     html += '</div>';
     container.innerHTML = html;
     container.style.display = 'block';
+
+    if (opts.interactive && opts.sources) {
+      container.querySelectorAll('.nutrient-name.clickable').forEach((el) => {
+        el.addEventListener('click', () => {
+          renderNutrientContributors(container, el.dataset.nutrient, opts.sources, () => {
+            renderNutrientPanel(container, foodList, title, opts);
+          });
+        });
+      });
+    }
   }
 
   function openRecipe(day, meal, version) {
@@ -934,13 +1069,24 @@ p { line-height: 1.6; }
 
   function updateAggregations() {
     const allFoods = [];
+    const sources = [];
     for (const [key, qty] of mealQuantities) {
       if (qty <= 0) continue;
       const [day, meal, version] = key.split('-');
       const item = DATA.mealData[day]?.[meal]?.[version];
       if (!item) continue;
       for (const ing of item.ingredients) {
-        allFoods.push({ foodName: ing.foodName, quantity: ing.quantity * qty });
+        const quantity = ing.quantity * qty;
+        allFoods.push({ foodName: ing.foodName, quantity });
+        sources.push({
+          foodName: ing.foodName,
+          quantity,
+          day,
+          meal,
+          version,
+          mealTitle: item.title,
+          servings: qty,
+        });
       }
     }
 
@@ -985,7 +1131,10 @@ p { line-height: 1.6; }
     if (allFoods.length === 0) {
       nutEl.innerHTML = '<p class="empty-hint">Select meals to see aggregated nutrients.</p>';
     } else {
-      renderNutrientPanel(nutEl, allFoods, 'Nutrients for selected plan');
+      renderNutrientPanel(nutEl, allFoods, 'Nutrients for selected plan', {
+        interactive: true,
+        sources,
+      });
       nutEl.style.display = 'block';
       nutEl.querySelector('.close-btn')?.remove();
     }
