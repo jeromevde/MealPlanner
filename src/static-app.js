@@ -151,7 +151,10 @@
       .sort((a, b) => b.amount - a.amount);
 
     const total = contributors.reduce((sum, entry) => sum + entry.amount, 0);
-    let html = `<button type="button" class="nutrient-back">← All nutrients</button>`;
+    let html = '';
+    if (onBack) {
+      html += `<button type="button" class="nutrient-back">← All nutrients</button>`;
+    }
     html += `<h3>${nutrientName}</h3>`;
     html += `<p class="nutrient-hint">Top food sources across your selected meals</p>`;
 
@@ -176,8 +179,24 @@
     }
 
     container.innerHTML = html;
-    container.style.display = 'block';
-    container.querySelector('.nutrient-back')?.addEventListener('click', onBack);
+    if (onBack) {
+      container.querySelector('.nutrient-back')?.addEventListener('click', onBack);
+    }
+  }
+
+  function openNutrientContributorsPopup(nutrientName, sources) {
+    const popup = document.getElementById('popup');
+    const overlay = document.getElementById('overlay');
+    const content = document.getElementById('popup-content');
+
+    content.innerHTML = `
+      <button type="button" class="popup-close" aria-label="Close">×</button>
+      <div class="popup-contributors"></div>`;
+    content.querySelector('.popup-close').addEventListener('click', closePopups);
+    renderNutrientContributors(content.querySelector('.popup-contributors'), nutrientName, sources);
+
+    popup.style.display = 'block';
+    overlay.style.display = 'block';
   }
 
   function renderNutrientPanel(container, foodList, title, options) {
@@ -221,9 +240,7 @@
     if (opts.interactive && opts.sources) {
       container.querySelectorAll('.nutrient-name.clickable').forEach((el) => {
         el.addEventListener('click', () => {
-          renderNutrientContributors(container, el.dataset.nutrient, opts.sources, () => {
-            renderNutrientPanel(container, foodList, title, opts);
-          });
+          openNutrientContributorsPopup(el.dataset.nutrient, opts.sources);
         });
       });
     }

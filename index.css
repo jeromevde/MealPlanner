@@ -107,6 +107,17 @@ p { line-height: 1.6; }
   cursor: pointer;
   padding: 10px;
   color: var(--muted);
+  background: none;
+  border: none;
+}
+
+.popup-contributors {
+  text-align: left;
+  padding-top: 8px;
+}
+
+.popup-contributors h3 {
+  margin: 0 0 8px;
 }
 
 #aggregation-section {
