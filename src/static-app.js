@@ -96,11 +96,8 @@
     }
 
     const pct = (total / drv) * 100;
-    const barMaxPct = 150;
-    const metWidth = (Math.min(pct, 100) / barMaxPct) * 100;
-    const excessWidth = pct > 100
-      ? (Math.min(pct - 100, barMaxPct - 100) / barMaxPct) * 100
-      : 0;
+    const metWidth = Math.min(pct, 100);
+    const excessWidth = pct > 100 ? Math.min(pct - 100, 100) : 0;
     const roundedPct = Math.round(pct);
 
     return {
@@ -114,11 +111,16 @@
   }
 
   function nutrientBarHtml(metWidth, excessWidth) {
-    return `<div class="progress-bar-container">
-      <div class="progress-bar-track">
+    const excessHtml = excessWidth > 0
+      ? `<div class="progress-bar-excess-segment" style="width:calc(var(--bar-base) * ${excessWidth} / 100)">
+          <div class="progress-bar progress-bar--excess"></div>
+        </div>`
+      : '';
+    return `<div class="progress-bar-wrapper${excessWidth > 0 ? ' progress-bar-wrapper--excess' : ''}">
+      <div class="progress-bar-container">
         <div class="progress-bar progress-bar--met" style="width:${metWidth}%"></div>
-        <div class="progress-bar progress-bar--excess" style="width:${excessWidth}%"></div>
       </div>
+      ${excessHtml}
     </div>`;
   }
 
@@ -216,7 +218,7 @@
     }
     html += `<h3>${title}</h3>`;
     if (opts.interactive) {
-      html += '<p class="nutrient-hint">Click a nutrient to see top contributors. Green = up to 100% DRV; amber = above DRV. Bar fills at 150% DRV.</p>';
+      html += '<p class="nutrient-hint">Click a nutrient to see top contributors. Green fills to 100% DRV; amber extends past it for excess. Bar caps at 200% DRV.</p>';
     }
     html += '<div class="nutrient-list">';
     for (const [cat, items] of Object.entries(byCategory)) {
