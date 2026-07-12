@@ -15,19 +15,42 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+function isVersionCheck(url) {
+  return url.pathname.endsWith('/version.json');
+}
+
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  // Network-first: fetch fresh content when online, fall back to cache offline.
+  const url = new URL(event.request.url);
+
+  // Always fetch version.json from network so update checks stay accurate.
+  if (isVersionCheck(url)) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const copy = response.clone();
+            caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Cache-first: serve cached assets immediately for fast loads.
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(event.request).then((response) => {
         if (response && response.status === 200 && response.type !== 'opaque') {
           const copy = response.clone();
           caches.open(CACHE).then((cache) => cache.put(event.request, copy));
         }
         return response;
-      })
-      .catch(() => caches.match(event.request))
+      });
+    })
   );
 });

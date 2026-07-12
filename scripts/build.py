@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import re
 import shutil
+import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -24,6 +25,19 @@ META_RE = re.compile(r"<!--\s*([\s\S]*?)\s*-->")
 MEAL_LABELS = {"morning": "Breakfast", "midday": "Lunch", "evening": "Dinner"}
 DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 MEALS = ["morning", "midday", "evening"]
+
+
+def get_build_version() -> str:
+    """Git commit short hash when available, else a timestamp fallback."""
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=ROOT,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return datetime.now().strftime("%Y%m%d%H%M")
 
 MICRONUTRIENTS = [
     "Protein", "Iron", "Vitamin A, RAE", "Vitamin B-12", "Vitamin C",
@@ -373,8 +387,8 @@ def read_css() -> str:
     return "\n".join(f.read_text() for f in files) + extra
 
 
-def write_pwa_assets(images_dst: Path) -> list[str]:
-    """Write manifest, service worker, and icons. Returns precache URL list."""
+def write_pwa_assets(images_dst: Path, version: str) -> list[str]:
+    """Write manifest, service worker, version file, and icons. Returns precache URL list."""
     pwa_src = SRC_DIR / "pwa"
     manifest = {
         "name": "MealPlanner",
@@ -393,6 +407,7 @@ def write_pwa_assets(images_dst: Path) -> list[str]:
         ],
     }
     (DIST_DIR / "manifest.webmanifest").write_text(json.dumps(manifest, indent=2))
+    (DIST_DIR / "version.json").write_text(json.dumps({"version": version}, indent=2))
 
     for icon in ("icon-192.png", "icon-512.png", "apple-touch-icon.png"):
         shutil.copy2(pwa_src / icon, DIST_DIR / icon)
@@ -404,8 +419,7 @@ def write_pwa_assets(images_dst: Path) -> list[str]:
             precache.append(f"./images/{img.name}")
 
     sw_template = (pwa_src / "sw.js").read_text()
-    cache_version = datetime.now().strftime("%Y%m%d%H%M")
-    sw_template = sw_template.replace("__CACHE_VERSION__", f"mealplanner-{cache_version}")
+    sw_template = sw_template.replace("__CACHE_VERSION__", f"mealplanner-{version}")
     precache_js = json.dumps(precache, separators=(",", ":"))
     sw_out = f"const PRECACHE_URLS = {precache_js};\n\n" + sw_template
     (DIST_DIR / "sw.js").write_text(sw_out)
@@ -416,8 +430,8 @@ def build() -> Path:
     global FOOD_DB, DRV_DB
     FOOD_DB, DRV_DB = load_food_db()
 
-    build_stamp = datetime.now().strftime("%Y%m%d%H%M")
-    meal_data, used = load_meals(build_stamp)
+    build_version = get_build_version()
+    meal_data, used = load_meals(build_version)
     foods = load_foods(used)
     drv = load_drv()
     meal_sections = render_meal_sections(meal_data, drv)
@@ -472,6 +486,7 @@ def build() -> Path:
     <div id="popup-content"></div>
   </div>
 
+  <script>window.__APP_VERSION__ = {json.dumps(build_version)};</script>
   <script>window.__DATA__ = {json.dumps(payload, separators=(",", ":"))};</script>
   <script>{app_js}</script>
 </body>
@@ -490,8 +505,8 @@ def build() -> Path:
         count = len(list(images_dst.glob("*.jpg")))
         print(f"Copied {count} images to {images_dst}")
 
-    precache = write_pwa_assets(images_dst)
-    print(f"PWA ready: manifest + service worker ({len(precache)} precache entries)")
+    precache = write_pwa_assets(images_dst, build_version)
+    print(f"PWA ready: v{build_version}, service worker ({len(precache)} precache entries)")
 
     print(f"Built {out} ({out.stat().st_size // 1024} KB)")
     return out

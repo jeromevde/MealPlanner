@@ -469,12 +469,31 @@
       window.location.reload();
     });
 
-    const register = () => {
-      navigator.serviceWorker.register('./sw.js').then((reg) => {
-        reg.update();
-      }).catch((err) => {
+    async function checkForAppUpdate(reg) {
+      const current = window.__APP_VERSION__;
+      if (!current) return;
+      try {
+        const res = await fetch('./version.json', { cache: 'no-store' });
+        if (!res.ok) return;
+        const { version } = await res.json();
+        if (version && version !== current) {
+          await reg.update();
+        }
+      } catch {
+        // Offline or unreachable — keep serving cached app.
+      }
+    }
+
+    const register = async () => {
+      try {
+        const reg = await navigator.serviceWorker.register('./sw.js');
+        await checkForAppUpdate(reg);
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') checkForAppUpdate(reg);
+        });
+      } catch (err) {
         console.warn('Service worker registration failed:', err);
-      });
+      }
     };
 
     if (document.readyState === 'complete') register();
