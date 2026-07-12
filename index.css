@@ -200,3 +200,13 @@ p { line-height: 1.6; }
   .meal-sections { padding: 0 10px; }
   .popup { width: 94%; height: auto; max-height: 85%; }
 }
+
+.meal,
+.meal:hover,
+.meal.selected,
+.meal-section,
+.popup,
+#aggregation-section {
+  box-shadow: none !important;
+  transform: none;
+}
