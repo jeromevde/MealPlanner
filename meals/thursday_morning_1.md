@@ -1,6 +1,6 @@
-# Bone Marrow Toast
-<!-- quick:12 -->
+# Greek Yogurt Berry Bowl
+<!-- quick:5 -->
 
-![Bone Marrow Toast](images/thursday_morning_1.jpg)
+![Greek Yogurt Berry Bowl](images/thursday_morning_1.jpg)
 
-Roast {120g {bone_marrow}} (bone cut lengthwise) at 220°C for 12 minutes until bubbling. Spread onto {60g {bread}} (toasted). Top with chopped {5g {parsley}} and {1g {salt}}.
+Spoon {200g {yogurt}} into a bowl. Top with {80g {blueberry}}, {60g {strawberry}}, {30g {walnut}}, and {10g {honey}}. Add {40g {oat}} for crunch.

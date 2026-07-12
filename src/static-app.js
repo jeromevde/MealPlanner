@@ -84,6 +84,44 @@
     return agg;
   }
 
+  function nutrientDrvDisplay(total, drv, unit) {
+    if (!drv || drv <= 0) {
+      return {
+        metWidth: 0,
+        excessWidth: 0,
+        valueHtml: `${total.toFixed(1)} ${unit}`,
+        itemClass: 'nutrient-item',
+        valueClass: 'nutrient-value',
+      };
+    }
+
+    const pct = (total / drv) * 100;
+    const barMaxPct = 150;
+    const metWidth = (Math.min(pct, 100) / barMaxPct) * 100;
+    const excessWidth = pct > 100
+      ? (Math.min(pct - 100, barMaxPct - 100) / barMaxPct) * 100
+      : 0;
+    const roundedPct = Math.round(pct);
+
+    return {
+      pct,
+      metWidth,
+      excessWidth,
+      valueHtml: `${total.toFixed(1)} ${unit} · <strong>${roundedPct}%</strong> DRV`,
+      itemClass: pct > 100 ? 'nutrient-item nutrient-item--excess' : 'nutrient-item',
+      valueClass: pct > 100 ? 'nutrient-value nutrient-value--excess' : 'nutrient-value',
+    };
+  }
+
+  function nutrientBarHtml(metWidth, excessWidth) {
+    return `<div class="progress-bar-container">
+      <div class="progress-bar-track">
+        <div class="progress-bar progress-bar--met" style="width:${metWidth}%"></div>
+        <div class="progress-bar progress-bar--excess" style="width:${excessWidth}%"></div>
+      </div>
+    </div>`;
+  }
+
   function nutrientAmount(foodName, quantity, nutrientName) {
     const food = getFood(foodName);
     if (!food || !quantity) return 0;
@@ -159,19 +197,19 @@
     }
     html += `<h3>${title}</h3>`;
     if (opts.interactive) {
-      html += '<p class="nutrient-hint">Click a nutrient to see which foods and meals contribute most.</p>';
+      html += '<p class="nutrient-hint">Click a nutrient to see top contributors. Green = up to 100% DRV; amber = above DRV. Bar fills at 150% DRV.</p>';
     }
     html += '<div class="nutrient-list">';
     for (const [cat, items] of Object.entries(byCategory)) {
       items.sort((a, b) => (a.order || 0) - (b.order || 0));
       html += `<div class="category-section"><div class="category-title">${cat}</div>`;
       for (const n of items) {
-        const pct = n.drv > 0 ? Math.min((n.total / n.drv) * 100, 100) : 100;
+        const drv = nutrientDrvDisplay(n.total, n.drv, n.unit);
         const nameClass = opts.interactive ? 'nutrient-name clickable' : 'nutrient-name';
-        html += `<div class="nutrient-item">
+        html += `<div class="${drv.itemClass}">
           <span class="${nameClass}" data-nutrient="${n.name}">${n.name}</span>
-          <div class="progress-bar-container"><div class="progress-bar" style="width:${pct}%"></div></div>
-          <span class="nutrient-value">${n.total.toFixed(1)} / ${n.drv} ${n.unit}</span>
+          ${nutrientBarHtml(drv.metWidth, drv.excessWidth)}
+          <span class="${drv.valueClass}">${drv.valueHtml}</span>
         </div>`;
       }
       html += '</div>';
@@ -198,8 +236,6 @@
     const popup = document.getElementById('popup');
     const overlay = document.getElementById('overlay');
     const content = document.getElementById('popup-content');
-    const nutrientPanel = document.getElementById('nutrient-panel');
-    nutrientPanel.style.display = 'none';
 
     function render() {
       const scaled = scaleContent(item.contentHtml, people);
@@ -213,7 +249,8 @@
           </div>
         </div>
         <div class="popup-body">${scaled}</div>
-        <div class="popup-nutrients" id="popup-nutrients"></div>`;
+        <div class="popup-nutrients" id="popup-nutrients"></div>
+        <div id="nutrient-panel"></div>`;
 
       const foodList = item.ingredients.map((ing) => ({
         foodName: ing.foodName,
@@ -243,8 +280,11 @@
           const food = el.dataset.food;
           const qty = parseFloat(el.dataset.qty);
           const display = getFood(food)?.display_name || food;
-          renderNutrientPanel(nutrientPanel, [{ foodName: food, quantity: qty }],
-            `${qty}g of ${display}`);
+          const panel = content.querySelector('#nutrient-panel');
+          renderNutrientPanel(panel, [{ foodName: food, quantity: qty }],
+            `${qty}g of ${display}`, { embedded: true });
+          panel.style.display = 'block';
+          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         };
       });
     }
@@ -257,7 +297,6 @@
   function closePopups() {
     document.getElementById('popup').style.display = 'none';
     document.getElementById('overlay').style.display = 'none';
-    document.getElementById('nutrient-panel').style.display = 'none';
   }
 
   function refreshCards() {
@@ -321,12 +360,15 @@
         el.onclick = () => {
           const food = el.dataset.food;
           const qty = parseFloat(el.dataset.qty);
-          const panel = document.getElementById('nutrient-panel');
-          panel.style.display = 'block';
-          document.getElementById('popup').style.display = 'block';
+          const popup = document.getElementById('popup');
+          const content = document.getElementById('popup-content');
+          content.innerHTML = '<div id="nutrient-panel"></div>';
+          renderNutrientPanel(content.querySelector('#nutrient-panel'),
+            [{ foodName: food, quantity: qty }],
+            `${qty}g of ${getFood(food)?.display_name || food}`,
+            { embedded: true });
+          popup.style.display = 'block';
           document.getElementById('overlay').style.display = 'block';
-          renderNutrientPanel(panel, [{ foodName: food, quantity: qty }],
-            `${qty}g of ${getFood(food)?.display_name || food}`);
         };
       });
     }
@@ -400,11 +442,22 @@
 
   function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
+
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+
     const register = () => {
-      navigator.serviceWorker.register('./sw.js').catch((err) => {
+      navigator.serviceWorker.register('./sw.js').then((reg) => {
+        reg.update();
+      }).catch((err) => {
         console.warn('Service worker registration failed:', err);
       });
     };
+
     if (document.readyState === 'complete') register();
     else window.addEventListener('load', register);
   }

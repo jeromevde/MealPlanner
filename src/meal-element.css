@@ -15,7 +15,7 @@
   min-width: 200px;
   max-width: 260px;
   flex: 0 0 auto;
-  transition: border 0.18s, background 0.18s, transform 0.15s;
+  transition: border 0.18s, background 0.18s;
 }
 
 .meal[data-meal="morning"] { border-left: 4px solid #f4a261; }
@@ -25,7 +25,6 @@
 .meal:hover {
   border-color: #4a7cff;
   background: #f5f8ff;
-  transform: translateY(-1px);
 }
 
 .meal-info {

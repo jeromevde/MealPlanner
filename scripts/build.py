@@ -7,6 +7,7 @@ import json
 import re
 import shutil
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -177,7 +178,11 @@ def link_ingredients(html: str) -> str:
     return INGREDIENT_RE.sub(repl, html)
 
 
-def markdown_to_html(text: str) -> str:
+def stamped_image(path: str, stamp: str) -> str:
+    return f"{path}?v={stamp}" if stamp else path
+
+
+def markdown_to_html(text: str, stamp: str = "") -> str:
     text = META_RE.sub("", text).strip()
     paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
     text_parts = []
@@ -187,14 +192,14 @@ def markdown_to_html(text: str) -> str:
             m = re.match(r"!\[([^\]]*)\]\(([^)]+)\)", p)
             if m:
                 image_parts.append(
-                    f'<img src="{m.group(2)}" alt="{m.group(1)}" style="max-width:100%;border-radius:8px">'
+                    f'<img src="{stamped_image(m.group(2), stamp)}" alt="{m.group(1)}" style="max-width:100%;border-radius:8px">'
                 )
             continue
         text_parts.append(f"<p>{link_ingredients(p)}</p>")
-    return "\n".join(text_parts + image_parts)
+    return "\n".join(image_parts + text_parts)
 
 
-def load_meals() -> tuple[dict, set[str]]:
+def load_meals(stamp: str = "") -> tuple[dict, set[str]]:
     data: dict = {}
     used_ingredients: set[str] = set()
 
@@ -211,9 +216,9 @@ def load_meals() -> tuple[dict, set[str]]:
         data.setdefault(day, {}).setdefault(meal, {})[version] = {
             "title": title,
             "meta": meta,
-            "image": f"images/{path.stem}.jpg",
+            "image": stamped_image(f"images/{path.stem}.jpg", stamp),
             "ingredients": [{"foodName": ing, "quantity": qty} for qty, ing in ingredients],
-            "contentHtml": markdown_to_html(body),
+            "contentHtml": markdown_to_html(body, stamp),
         }
 
     return data, used_ingredients
@@ -263,9 +268,10 @@ def render_meal_sections(meal_data: dict, drv: dict) -> str:
                 stats = score_meal(ings, {k: v["drv"] for k, v in drv.items()})
                 item["stats"] = stats
                 image = item.get("image", "")
+                image_file = Path(image.split("?")[0]).name
                 img_html = (
                     f'<img class="meal-thumb" src="{image}" alt="{item["title"]}" loading="lazy">'
-                    if image and (MEALS_DIR / "images" / Path(image).name).exists()
+                    if image and (MEALS_DIR / "images" / image_file).exists()
                     else ""
                 )
                 cards.append(f"""
@@ -347,18 +353,15 @@ def read_css() -> str:
 .ingredient-link:hover { background: #eef3ff; }
 .ingredient-link .qty { font-size: 0.85em; color: #667085; }
 .empty-hint { color: #667085; font-style: italic; }
+.meal, .meal-section, .popup, #aggregation-section, #nutrient-panel,
+.category-section, .contributor-item {
+  box-shadow: none;
+}
 #nutrient-panel {
   display: none;
-  position: absolute;
-  left: 10%; right: 10%;
-  top: 10vh;
-  max-height: 80vh;
-  overflow-y: auto;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 16px;
-  z-index: 1001;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
   text-align: left;
 }
 #nutrient-panel .close-btn {
@@ -403,6 +406,8 @@ def write_pwa_assets(images_dst: Path) -> list[str]:
             precache.append(f"./images/{img.name}")
 
     sw_template = (pwa_src / "sw.js").read_text()
+    cache_version = datetime.now().strftime("%Y%m%d%H%M")
+    sw_template = sw_template.replace("__CACHE_VERSION__", f"mealplanner-{cache_version}")
     precache_js = json.dumps(precache, separators=(",", ":"))
     sw_out = f"const PRECACHE_URLS = {precache_js};\n\n" + sw_template
     (DIST_DIR / "sw.js").write_text(sw_out)
@@ -413,7 +418,8 @@ def build() -> Path:
     global FOOD_DB, DRV_DB
     FOOD_DB, DRV_DB = load_food_db()
 
-    meal_data, used = load_meals()
+    build_stamp = datetime.now().strftime("%Y%m%d%H%M")
+    meal_data, used = load_meals(build_stamp)
     foods = load_foods(used)
     drv = load_drv()
     meal_sections = render_meal_sections(meal_data, drv)
@@ -466,7 +472,6 @@ def build() -> Path:
   <div id="overlay" class="overlay"></div>
   <div id="popup" class="popup">
     <div id="popup-content"></div>
-    <div id="nutrient-panel"></div>
   </div>
 
   <script>window.__DATA__ = {json.dumps(payload, separators=(",", ":"))};</script>

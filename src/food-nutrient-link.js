@@ -118,7 +118,6 @@ class FoodNutrientLink extends HTMLElement {
     popup.style.top = '10vh';  // Keep some space from the top
     popup.style.zIndex = (this.constructor.maxZIndex = (this.constructor.maxZIndex || 1000) + 1);
     popup.style.background = '#fff';
-    popup.style.boxShadow = '0 0 15px rgba(0,0,0,0.3)';
     popup.style.border = '1px solid #ccc';
     popup.style.borderRadius = '8px';
     popup.style.padding = '20px';

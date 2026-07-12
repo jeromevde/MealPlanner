@@ -1,6 +1,6 @@
-# Liver Spinach Scramble
-<!-- quick:10 -->
+# Spinach Mushroom Scramble
+<!-- quick:8 -->
 
-![Liver Spinach Scramble](images/tuesday_morning_1.jpg)
+![Spinach Mushroom Scramble](images/tuesday_morning_1.jpg)
 
-Sauté {50g {liver}} (thinly sliced) in {5g {olive_oil}} for 2 minutes. Add {150g {spinach}} until wilted. Push aside and scramble {60g {egg}} in the same pan. Fold together and season with {1g {black_pepper}} and {1g {salt}}.
+Sauté {80g {mushroom}} (sliced) and {3g {garlic}} in {8g {olive_oil}} until golden. Add {150g {spinach}} until wilted. Pour in {80g {egg}} and scramble gently. Finish with {1g {black_pepper}} and {1g {salt}}.
