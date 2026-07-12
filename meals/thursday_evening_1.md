@@ -1,5 +1,6 @@
-# Braised Red Cabbage with Halloumi and Lentils
+# Cod Liver & Potato
+<!-- quick:20 -->
 
-Finely shred {100g {red cabbage}} and slice {25g {onion, yellow, raw}}. Heat 1/2 tablespoon of {7g {olive oil}} in a pot over medium heat, sauté the onion for 5 minutes, then add the cabbage and {25g {apple, tart, raw}} (diced), cooking until the cabbage wilts. Stir in 1 tablespoon of {{apple cider vinegar}}, 1 tablespoon of {{brown sugar}}, 1/2 cup of {125g {vegetable broth}}, a pinch of {{ground cinnamon}}, and {{ground cloves}}, plus salt and pepper. Simmer covered for 30–40 minutes until tender. Meanwhile, cook {50g {lentils, raw}} as per instructions. In a pan, slice and grill {50g {halloumi cheese}} until golden. Fold the cooked lentils into the cabbage and serve topped with crispy halloumi. Optionally, add a few raisins or currants for sweetness.
+![Cod Liver & Potato](images/thursday_evening_1.jpg)
 
-![cabbagehalloumi](../../MealPlanner/meals/images/cabbagehalloumi.jpg)
+Boil {250g {potato}} until tender. Pan-fry {100g {cod_liver}} in {10g {butter}} for 2 minutes per side. Mash potatoes with {5g {butter}} and {5g {parsley}}. Plate together with {1g {black_pepper}}.

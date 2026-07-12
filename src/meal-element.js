@@ -1,63 +1,57 @@
 import { saveState } from './state.js';
 import * as api from './api.js';
+import { computeMealStats, densityLabel } from './nutrient-density.js';
 
 class MealElement extends HTMLElement {
   closePopups() {
-    // Close the dropdown popup if open
-    if (this.customDropdown) {
-      this.customDropdown.style.display = 'none';
-    }
-    if (this.quantityCircle) {
-      this.quantityCircle.style.display = 'block';
-    }
+    if (this.customDropdown) this.customDropdown.style.display = 'none';
+    if (this.quantityCircle) this.quantityCircle.style.display = 'block';
   }
+
   constructor() {
     super();
-    // Attach shadow root and set up template
     this.attachShadow({ mode: 'open' });
     const styleUrl = new URL('./meal-element.css', import.meta.url).href;
     this.shadowRoot.innerHTML = `
       <link rel="stylesheet" href="${styleUrl}">
       <div class="meal">
-        <span class="meal-title"></span>
+        <div class="meal-info">
+          <span class="meal-title"></span>
+          <span class="meal-badges"></span>
+        </div>
         <span class="quantity-circle"></span>
       </div>
     `;
-    // Store references for later use
     this.mealDiv = this.shadowRoot.querySelector('.meal');
     this.titleSpan = this.shadowRoot.querySelector('.meal-title');
+    this.badgesSpan = this.shadowRoot.querySelector('.meal-badges');
     this.quantityCircle = this.shadowRoot.querySelector('.quantity-circle');
-
-    // Create quantity buttons ONCE
-   
   }
 
   connectedCallback() {
-    // Set meal title and attributes
     this.titleSpan.textContent = this.getAttribute('title');
     this.mealDiv.dataset.day = this.getAttribute('day');
     this.mealDiv.dataset.meal = this.getAttribute('meal');
     this.mealDiv.dataset.version = this.getAttribute('version');
-    // Initialize meal quantity if not set
+
     const mealKey = this.getMealKey();
     if (!window.api.mealQuantities.has(mealKey)) {
       window.api.mealQuantities.set(mealKey, 0);
     }
     this.refresh();
+    this.loadBadges();
+
     this.quantityCircle.addEventListener('click', (event) => {
       event.stopPropagation();
-      const mealKey = this.getMealKey();
-      const quantity = api.mealQuantities.get(mealKey) || 0;
-      api.mealQuantities.set(mealKey, quantity + 1);
+      const key = this.getMealKey();
+      const quantity = api.mealQuantities.get(key) || 0;
+      api.mealQuantities.set(key, quantity + 1);
       saveState(api.mealQuantities, api.days, api.meals);
       this.refresh();
       window.updateAggregations();
     });
 
-
-    // Handle meal click to show popup
     this.mealDiv.addEventListener('click', async (event) => {
-      // Prevent popup if click originated from quantityCircle or was just suppressed
       if (event.target === this.quantityCircle || this.suppressNextPopup) {
         this.suppressNextPopup = false;
         return;
@@ -77,12 +71,37 @@ class MealElement extends HTMLElement {
     });
   }
 
+  async loadBadges() {
+    const day = this.getAttribute('day');
+    const meal = this.getAttribute('meal');
+    const version = this.getAttribute('version');
+    const mealData = api.data[day]?.[meal]?.[version];
+    if (!mealData) return;
+
+    const stats = await computeMealStats(mealData.content, api.parseIngredients, api);
+    const badges = [];
+
+    const mins = stats.meta.quick;
+    if (mins) badges.push(`<span class="badge badge-time">${mins} min</span>`);
+
+    const label = densityLabel(stats.score);
+    if (label) badges.push(`<span class="badge badge-${label}">${label.replace('-', ' ')}</span>`);
+
+    if (stats.ingredientCount > 0) {
+      badges.push(`<span class="badge badge-ing">${stats.ingredientCount} ingr.</span>`);
+    }
+    if (stats.calories > 0) {
+      badges.push(`<span class="badge badge-kcal">${stats.calories} kcal</span>`);
+    }
+
+    this.badgesSpan.innerHTML = badges.join('');
+  }
+
   getMealKey() {
     return `${this.getAttribute('day')}-${this.getAttribute('meal')}-${this.getAttribute('version')}`;
   }
 
   refresh() {
-    // Example refresh logic: update displayed quantity
     const mealKey = this.getMealKey();
     const quantity = window.api.mealQuantities.get(mealKey) || 0;
     this.quantityCircle.textContent = quantity > 0 ? quantity : '';
@@ -94,7 +113,7 @@ class MealElement extends HTMLElement {
       this.quantityCircle.classList.remove('active');
     }
   }
-  // Static method to refresh all meal elements (call after state is loaded)
+
   static refreshAll() {
     document.querySelectorAll('meal-element').forEach(el => {
       if (typeof el.refresh === 'function') el.refresh();

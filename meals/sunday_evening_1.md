@@ -1,5 +1,6 @@
-# Asparagus Almond Beet Salad
+# Liver Pâté Toast
+<!-- quick:12 -->
 
-Trim and clean {125g {beets}}, then boil until tender and peel while warm. Blanch {75g {asparagus}} in boiling water for 4 minutes, then cool in ice water. Chop beets and asparagus into bite-sized pieces. Prepare a dressing with 1 small {{shallot}}, 3 teaspoons of {{balsamic vinegar}}, 3 teaspoons of {{Dijon mustard}}, and 1 teaspoon of {{mustard seeds}}. Toss the vegetables with the dressing and {25g {arugula}}, then top with {5g {almonds, slivered}}.
+![Liver Pâté Toast](images/sunday_evening_1.jpg)
 
-![aspargusbeet](../../MealPlanner/meals/images/aspargusbeet.jpg)
+Pan-fry {120g {liver}} with {5g {butter}} and {3g {garlic}} until cooked through. Blend or mash smooth with {5g {butter}} and {1g {salt}}. Spread on {60g {bread}} with {5g {parsley}}.

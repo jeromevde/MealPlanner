@@ -1,70 +1,101 @@
 .meal {
   cursor: pointer;
-  padding: 18px 16px;
-  border: 2px solid #ccc;
-  margin: 10px 0;
+  padding: 14px 14px 14px 16px;
+  border: 1.5px solid #e2e6ea;
+  margin: 8px 0;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
-  border-radius: 14px;
-  color: #222;
+  border-radius: 12px;
+  color: #1a1a2e;
   background: #fafbfc;
-  font-family: 'Inter', 'Roboto', Arial, sans-serif;
-  font-size: 0.98em;
-  font-weight: 400;
-  transition: box-shadow 0.18s, border 0.18s, background 0.18s;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.92em;
+  min-width: 200px;
+  max-width: 260px;
+  flex: 0 0 auto;
+  transition: box-shadow 0.18s, border 0.18s, background 0.18s, transform 0.15s;
 }
 
-/* No left border, just light grey background */
-.meal[data-meal] {
-  background: #f6f6f6;
-}
+.meal[data-meal="morning"] { border-left: 4px solid #f4a261; }
+.meal[data-meal="midday"]  { border-left: 4px solid #2a9d8f; }
+.meal[data-meal="evening"] { border-left: 4px solid #6a4c93; }
 
 .meal:hover {
-
-  border-color: #007bff;
-  background: #f0f7ff;
+  border-color: #4a7cff;
+  background: #f5f8ff;
+  box-shadow: 0 4px 14px rgba(74, 124, 255, 0.12);
+  transform: translateY(-1px);
 }
 
+.meal-info {
+  flex: 1;
+  margin-right: 8px;
+  min-width: 0;
+}
 
 .meal-title {
-  flex: 1;
-  margin-right: 10px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 1em;
-  font-weight: 400;
-  letter-spacing: 0.1px;
+  display: block;
+  font-size: 0.95em;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
 }
+
+.meal-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.badge {
+  font-size: 0.68em;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge-time { background: #e8f4fd; color: #1a6fa8; }
+.badge-dense { background: #e6f7ed; color: #1a7a42; }
+.badge-ultra-dense { background: #d4f5e0; color: #0d5c2e; }
+.badge-good { background: #f0f4e8; color: #5a6b2e; }
+.badge-ing { background: #f3f0fa; color: #5b4a8a; }
+.badge-kcal { background: #fef3e8; color: #9a5b1a; }
 
 .meal.selected {
-  border: 2px solid #007bff;
-  color: #007bff;
-  background: #eaf4ff;
+  border-color: #4a7cff;
+  background: #eef3ff;
+  box-shadow: 0 2px 10px rgba(74, 124, 255, 0.18);
 }
 
-
 .quantity-circle {
-  display: block;
-  width: 15px;
-  height: 15px;
-  border-radius: 5px 0px 5px 0px;
-  background-color: white;
-  border: 2px solid #ccc;
-  color: grey;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background-color: #fff;
+  border: 2px solid #d0d5dd;
+  color: #667085;
   text-align: center;
-  font-size: 12px;
-  font-weight: bold;
+  font-size: 11px;
+  font-weight: 700;
   position: absolute;
-  bottom: -2px;
-  right: -2px;
+  bottom: -4px;
+  right: -4px;
+  flex-shrink: 0;
 }
 
 .quantity-circle.active {
-  background-color: white;
-  border: 2px solid blue;
-  color: blue;
+  border-color: #4a7cff;
+  color: #4a7cff;
+  background: #fff;
 }
 
 .custom-dropdown {
@@ -82,7 +113,7 @@
 .circle-button {
   width: 25px;
   height: 25px;
-  border-radius: 5px 0px 5px 0px;
+  border-radius: 5px;
   background-color: white;
   color: grey;
   text-align: center;
@@ -93,8 +124,6 @@
 }
 
 .circle-button:hover {
-  background-color: #ccc;
+  background-color: #4a7cff;
+  color: white;
 }
-
-/* Reset button style inside meal element shadow */
-/* reset button removed from meal-element shadow; section-level reset buttons are used instead */

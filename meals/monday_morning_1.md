@@ -1,5 +1,6 @@
-# Banana Pancakes
+# Natto Avocado Bowl
+<!-- quick:5 -->
 
-Mash {120g {Bananas, ripe and slightly ripe, raw}} in a bowl, then mix in {50g {Flour, wheat, all-purpose, enriched, unbleached}} and 1 egg of {50g {Eggs, Grade A, Large, egg whole}} until just combined. Heat a pan with 1 knob of {10g {Butter, stick, unsalted}} or {10g {Oil, olive, extra virgin}}, spoon the batter in small portions, and cook over medium heat, flipping when golden, about 2–3 minutes per side. Serve warm.
+![Natto Avocado Bowl](images/monday_morning_1.jpg)
 
-![Banana Pancakes](../../MealPlanner/meals/images/bananapancakes.jpg)
+Warm {150g {brown_rice}} and top with {80g {natto}}, sliced {100g {avocado}}, and a drizzle of {10g {light_soy_sauce}}. Finish with crumbled {3g {nori}}. Eat immediately while the rice is warm and the natto is still silky.

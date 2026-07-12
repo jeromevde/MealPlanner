@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="description" content="Quick nutrient-dense meal planner with offline support">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MealPlanner">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <title>Nutrient-Dense Meal Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>/* App layout */
+:root {
+  --accent: #4a7cff;
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --text: #1a1a2e;
+  --muted: #667085;
+  --border: #e2e6ea;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  color: var(--text);
+  background: var(--bg);
+  margin: 0;
+  line-height: 1.5;
+}
+
+p { line-height: 1.6; }
+
+.meal-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 16px;
+}
+
+.meal-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 16px 18px;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.section-reset {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.82em;
+  color: var(--muted);
+  font-family: inherit;
+}
+.section-reset:hover { background: #f0f2f5; color: var(--text); }
+
+.meals {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.45);
+  z-index: 999;
+}
+
+.popup {
+  display: none;
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 80%;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  border-radius: 16px;
+  z-index: 1000;
+  overflow: auto;
+  text-align: center;
+}
+
+.popup-close {
+  position: absolute;
+  top: 10px; right: 10px;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 10px;
+  color: var(--muted);
+}
+
+#aggregation-section {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+  padding: 0 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  overflow: hidden;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: #fafbfc;
+}
+
+.tab-button {
+  padding: 12px 22px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.92em;
+  font-weight: 500;
+  color: var(--muted);
+  transition: color 0.15s;
+}
+
+.tab-button:hover { color: var(--text); }
+
+.tab-button.active {
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
+  background: var(--surface);
+}
+
+.tab-content {
+  display: none;
+  padding: 20px;
+}
+
+.tab-content.active { display: block; }
+
+.popup-body { margin-top: 10px; text-align: left; }
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+}
+
+.quantity-control button {
+  width: 28px; height: 28px;
+  font-size: 16px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fafbfc;
+}
+
+.quantity-control input {
+  width: 50px;
+  text-align: center;
+  margin: 0 5px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.zoom-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.zoom-controls button {
+  background: #f0f2f5;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 10px;
+  cursor: pointer;
+  font-size: 1.1em;
+}
+
+@media (max-width: 768px) {
+  .meal-sections { padding: 0 10px; }
+  .popup { width: 94%; height: auto; max-height: 85%; }
+}
+
+.meal {
+  cursor: pointer;
+  padding: 14px 14px 14px 16px;
+  border: 1.5px solid #e2e6ea;
+  margin: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  border-radius: 12px;
+  color: #1a1a2e;
+  background: #fafbfc;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.92em;
+  min-width: 200px;
+  max-width: 260px;
+  flex: 0 0 auto;
+  transition: box-shadow 0.18s, border 0.18s, background 0.18s, transform 0.15s;
+}
+
+.meal[data-meal="morning"] { border-left: 4px solid #f4a261; }
+.meal[data-meal="midday"]  { border-left: 4px solid #2a9d8f; }
+.meal[data-meal="evening"] { border-left: 4px solid #6a4c93; }
+
+.meal:hover {
+  border-color: #4a7cff;
+  background: #f5f8ff;
+  box-shadow: 0 4px 14px rgba(74, 124, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.meal-info {
+  flex: 1;
+  margin-right: 8px;
+  min-width: 0;
+}
+
+.meal-title {
+  display: block;
+  font-size: 0.95em;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.meal-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.badge {
+  font-size: 0.68em;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge-time { background: #e8f4fd; color: #1a6fa8; }
+.badge-dense { background: #e6f7ed; color: #1a7a42; }
+.badge-ultra-dense { background: #d4f5e0; color: #0d5c2e; }
+.badge-good { background: #f0f4e8; color: #5a6b2e; }
+.badge-ing { background: #f3f0fa; color: #5b4a8a; }
+.badge-kcal { background: #fef3e8; color: #9a5b1a; }
+
+.meal.selected {
+  border-color: #4a7cff;
+  background: #eef3ff;
+  box-shadow: 0 2px 10px rgba(74, 124, 255, 0.18);
+}
+
+.quantity-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background-color: #fff;
+  border: 2px solid #d0d5dd;
+  color: #667085;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  flex-shrink: 0;
+}
+
+.quantity-circle.active {
+  border-color: #4a7cff;
+  color: #4a7cff;
+  background: #fff;
+}
+
+.custom-dropdown {
+  display: none;
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  z-index: 10000;
+  flex-wrap: wrap;
+  right: 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.circle-button {
+  width: 25px;
+  height: 25px;
+  border-radius: 5px;
+  background-color: white;
+  color: grey;
+  text-align: center;
+  border: 2px solid #ccc;
+  font-size: 12px;
+  margin: 2px;
+  cursor: pointer;
+}
+
+.circle-button:hover {
+  background-color: #4a7cff;
+  color: white;
+}
+
+.nutrient-list {
+  overflow-y: auto;
+  text-align: left;
+  margin-top: 15px;
+}
+.category-section {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+.category-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+.nutrient-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.nutrient-name {
+  width: 180px;
+  font-weight: bold;
+}
+.progress-bar-container {
+  width: 200px;
+  background: #eee;
+  border-radius: 5px;
+  height: 14px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: lightgreen;
+  transition: width 0.5s ease-in-out;
+}
+.nutrient-value {
+  width: 150px;
+  text-align: right;
+  font-size: 12px;
+  color: #555;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+#calorie-button {
+  padding: 5px 10px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.food-list {
+  /*max-height: 400px;*/
+  overflow-y: auto;
+  text-align: left;
+  margin-top: 15px;
+}
+.category-section {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+.category-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+.food-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.food-name {
+  width: 200px;
+}
+.food-quantity {
+  width: 100px;
+  text-align: right;
+}
+.categories-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.category-section {
+  flex: 1;
+  min-width: 200px; /* Ensures categories don’t get too narrow */
+  display: flex;
+  flex-direction: column;
+}
+.food-items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Adds space between food items */
+}
+.meal-thumb {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
+  margin: -14px -14px 8px -16px;
+  width: calc(100% + 30px);
+}
+.meal:has(.meal-thumb) {
+  flex-direction: column;
+  align-items: stretch;
+  padding-top: 14px;
+}
+.popup-body img {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-bottom: 14px;
+}
+.ingredient-link {
+  display: inline;
+  color: #4a7cff;
+  border: 1px solid #d0d5dd;
+  border-radius: 3px;
+  padding: 0 4px;
+  margin: 0 2px;
+  cursor: pointer;
+}
+.ingredient-link:hover { background: #eef3ff; }
+.ingredient-link .qty { font-size: 0.85em; color: #667085; }
+.empty-hint { color: #667085; font-style: italic; }
+#nutrient-panel {
+  display: none;
+  position: absolute;
+  left: 10%; right: 10%;
+  top: 10vh;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  z-index: 1001;
+  text-align: left;
+}
+#nutrient-panel .close-btn {
+  float: right;
+  border: none;
+  background: none;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+  <div class="meal-sections" id="meal-sections">
+        <section class="meal-section" data-meal-type="morning">
+          <div class="section-header">
+            <h2>Breakfast</h2>
+            <button class="section-reset" data-meal="morning">Reset</button>
+          </div>
+          <div class="meals">
+                <div class="meal" data-day="monday" data-meal="morning" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/monday_morning_1.jpg" alt="Natto Avocado Bowl" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Natto Avocado Bowl</span>
+                    <span class="meal-badges"><span class="badge badge-time">5 min</span><span class="badge badge-good">good</span><span class="badge badge-ing">5 ingr.</span><span class="badge badge-kcal">889 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="tuesday" data-meal="morning" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/tuesday_morning_1.jpg" alt="Liver Spinach Scramble" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Liver Spinach Scramble</span>
+                    <span class="meal-badges"><span class="badge badge-time">10 min</span><span class="badge badge-ultra-dense">ultra dense</span><span class="badge badge-ing">6 ingr.</span><span class="badge badge-kcal">423 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="wednesday" data-meal="morning" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/wednesday_morning_1.jpg" alt="Herring Kale Bowl" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Herring Kale Bowl</span>
+                    <span class="meal-badges"><span class="badge badge-time">8 min</span><span class="badge badge-ultra-dense">ultra dense</span><span class="badge badge-ing">6 ingr.</span><span class="badge badge-kcal">638 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="thursday" data-meal="morning" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/thursday_morning_1.jpg" alt="Bone Marrow Toast" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Bone Marrow Toast</span>
+                    <span class="meal-badges"><span class="badge badge-time">12 min</span><span class="badge badge-ing">4 ingr.</span><span class="badge badge-kcal">1098 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="friday" data-meal="morning" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/friday_morning_1.jpg" alt="Salmon Roe Rice Bowl" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Salmon Roe Rice Bowl</span>
+                    <span class="meal-badges"><span class="badge badge-time">5 min</span><span class="badge badge-dense">dense</span><span class="badge badge-ing">5 ingr.</span><span class="badge badge-kcal">752 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="saturday" data-meal="morning" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/saturday_morning_1.jpg" alt="Clam Spinach Pasta" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Clam Spinach Pasta</span>
+                    <span class="meal-badges"><span class="badge badge-time">18 min</span><span class="badge badge-ultra-dense">ultra dense</span><span class="badge badge-ing">6 ingr.</span><span class="badge badge-kcal">569 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="sunday" data-meal="morning" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/sunday_morning_1.jpg" alt="Egg Drop Bone Broth" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Egg Drop Bone Broth</span>
+                    <span class="meal-badges"><span class="badge badge-time">8 min</span><span class="badge badge-ultra-dense">ultra dense</span><span class="badge badge-ing">5 ingr.</span><span class="badge badge-kcal">199 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="sunday" data-meal="morning" data-version="2"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/sunday_morning_2.jpg" alt="Duck Egg & Kale" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Duck Egg & Kale</span>
+                    <span class="meal-badges"><span class="badge badge-time">10 min</span><span class="badge badge-ultra-dense">ultra dense</span><span class="badge badge-ing">6 ingr.</span><span class="badge badge-kcal">466 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div></div>
+        </section>
+
+        <section class="meal-section" data-meal-type="midday">
+          <div class="section-header">
+            <h2>Lunch</h2>
+            <button class="section-reset" data-meal="midday">Reset</button>
+          </div>
+          <div class="meals">
+                <div class="meal" data-day="monday" data-meal="midday" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/monday_midday_1.jpg" alt="Sardine Avocado Plate" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Sardine Avocado Plate</span>
+                    <span class="meal-badges"><span class="badge badge-time">8 min</span><span class="badge badge-ultra-dense">ultra dense</span><span class="badge badge-ing">7 ingr.</span><span class="badge badge-kcal">767 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="tuesday" data-meal="midday" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/tuesday_midday_1.jpg" alt="Anchovy Tomato Pasta" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Anchovy Tomato Pasta</span>
+                    <span class="meal-badges"><span class="badge badge-time">15 min</span><span class="badge badge-dense">dense</span><span class="badge badge-ing">7 ingr.</span><span class="badge badge-kcal">486 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="wednesday" data-meal="midday" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/wednesday_midday_1.jpg" alt="Oyster Spinach Stir-fry" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Oyster Spinach Stir-fry</span>
+                    <span class="meal-badges"><span class="badge badge-time">12 min</span><span class="badge badge-dense">dense</span><span class="badge badge-ing">6 ingr.</span><span class="badge badge-kcal">703 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="thursday" data-meal="midday" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/thursday_midday_1.jpg" alt="Miso Tofu Soup Bowl" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Miso Tofu Soup Bowl</span>
+                    <span class="meal-badges"><span class="badge badge-time">10 min</span><span class="badge badge-good">good</span><span class="badge badge-ing">6 ingr.</span><span class="badge badge-kcal">613 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="friday" data-meal="midday" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/friday_midday_1.jpg" alt="Natto Kimchi Rice" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Natto Kimchi Rice</span>
+                    <span class="meal-badges"><span class="badge badge-time">5 min</span><span class="badge badge-good">good</span><span class="badge badge-ing">5 ingr.</span><span class="badge badge-kcal">764 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="sunday" data-meal="midday" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/sunday_midday_1.jpg" alt="Beef Egg Kimchi Bowl" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Beef Egg Kimchi Bowl</span>
+                    <span class="meal-badges"><span class="badge badge-time">15 min</span><span class="badge badge-dense">dense</span><span class="badge badge-ing">5 ingr.</span><span class="badge badge-kcal">772 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div></div>
+        </section>
+
+        <section class="meal-section" data-meal-type="evening">
+          <div class="section-header">
+            <h2>Dinner</h2>
+            <button class="section-reset" data-meal="evening">Reset</button>
+          </div>
+          <div class="meals">
+                <div class="meal" data-day="monday" data-meal="evening" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/monday_evening_1.jpg" alt="Liver Bolognese" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Liver Bolognese</span>
+                    <span class="meal-badges"><span class="badge badge-time">20 min</span><span class="badge badge-ultra-dense">ultra dense</span><span class="badge badge-ing">8 ingr.</span><span class="badge badge-kcal">1133 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="tuesday" data-meal="evening" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/tuesday_evening_1.jpg" alt="Mackerel Tray Bake" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Mackerel Tray Bake</span>
+                    <span class="meal-badges"><span class="badge badge-time">25 min</span><span class="badge badge-ultra-dense">ultra dense</span><span class="badge badge-ing">6 ingr.</span><span class="badge badge-kcal">776 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="wednesday" data-meal="evening" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/wednesday_evening_1.jpg" alt="Kidney Bean Chili" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Kidney Bean Chili</span>
+                    <span class="meal-badges"><span class="badge badge-time">20 min</span><span class="badge badge-ultra-dense">ultra dense</span><span class="badge badge-ing">8 ingr.</span><span class="badge badge-kcal">874 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="thursday" data-meal="evening" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/thursday_evening_1.jpg" alt="Cod Liver & Potato" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Cod Liver & Potato</span>
+                    <span class="meal-badges"><span class="badge badge-time">20 min</span><span class="badge badge-ultra-dense">ultra dense</span><span class="badge badge-ing">6 ingr.</span><span class="badge badge-kcal">1203 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="sunday" data-meal="evening" data-version="1"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/sunday_evening_1.jpg" alt="Liver Pâté Toast" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Liver Pâté Toast</span>
+                    <span class="meal-badges"><span class="badge badge-time">12 min</span><span class="badge badge-ultra-dense">ultra dense</span><span class="badge badge-ing">7 ingr.</span><span class="badge badge-kcal">438 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="sunday" data-meal="evening" data-version="2"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/sunday_evening_2.jpg" alt="Sardine Anchovy Salad" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Sardine Anchovy Salad</span>
+                    <span class="meal-badges"><span class="badge badge-time">8 min</span><span class="badge badge-ultra-dense">ultra dense</span><span class="badge badge-ing">7 ingr.</span><span class="badge badge-kcal">516 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div>
+                <div class="meal" data-day="sunday" data-meal="evening" data-version="3"
+                     role="button" tabindex="0">
+                  <img class="meal-thumb" src="images/sunday_evening_3.jpg" alt="Bone Marrow & Mushroom" loading="lazy">
+                  <div class="meal-info">
+                    <span class="meal-title">Bone Marrow & Mushroom</span>
+                    <span class="meal-badges"><span class="badge badge-time">18 min</span><span class="badge badge-ing">6 ingr.</span><span class="badge badge-kcal">1065 kcal</span></span>
+                  </div>
+                  <span class="quantity-circle"></span>
+                </div></div>
+        </section></div>
+
+  <div id="aggregation-section">
+    <div class="tabs">
+      <button class="tab-button active" data-tab="ingredients">Shopping List</button>
+      <button class="tab-button" data-tab="nutrients">Nutrients</button>
+    </div>
+    <div class="tab-content active" id="ingredients-tab">
+      <div id="shopping-list"><p class="empty-hint">Select meals above to build your shopping list.</p></div>
+    </div>
+    <div class="tab-content" id="nutrients-tab">
+      <div id="nutrient-aggregate"></div>
+    </div>
+  </div>
+
+  <div id="overlay" class="overlay"></div>
+  <div id="popup" class="popup">
+    <div id="popup-content"></div>
+    <div id="nutrient-panel"></div>
+  </div>
+
+  <script>window.__DATA__ = {"days":["monday","tuesday","wednesday","thursday","friday","saturday","sunday"],"meals":["morning","midday","evening"],"mealData":{"friday":{"midday":{"1":{"title":"Natto Kimchi Rice","meta":{"quick":"5"},"image":"images/friday_midday_1.jpg","ingredients":[{"foodName":"natto","quantity":80.0},{"foodName":"kimchi","quantity":60.0},{"foodName":"brown_rice","quantity":150.0},{"foodName":"sesame_oil","quantity":5.0},{"foodName":"scallion","quantity":2.0}],"contentHtml":"<p>Mix <span class=\"ingredient-link\" data-food=\"natto\" data-qty=\"80\"><strong>Natto</strong> <span class=\"qty\">80g</span></span> with <span class=\"ingredient-link\" data-food=\"kimchi\" data-qty=\"60\"><strong>Kimchi</strong> <span class=\"qty\">60g</span></span> and serve over <span class=\"ingredient-link\" data-food=\"brown_rice\" data-qty=\"150\"><strong>Brown Rice</strong> <span class=\"qty\">150g</span></span>. Drizzle <span class=\"ingredient-link\" data-food=\"sesame_oil\" data-qty=\"5\"><strong>Sesame Oil</strong> <span class=\"qty\">5g</span></span> and sprinkle <span class=\"ingredient-link\" data-food=\"scallion\" data-qty=\"2\"><strong>Scallion</strong> <span class=\"qty\">2g</span></span>.</p>\n<img src=\"images/friday_midday_1.jpg\" alt=\"Natto Kimchi Rice\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":4.6,"calories":764,"ingredientCount":5,"label":"good"}}},"morning":{"1":{"title":"Salmon Roe Rice Bowl","meta":{"quick":"5"},"image":"images/friday_morning_1.jpg","ingredients":[{"foodName":"brown_rice","quantity":150.0},{"foodName":"salmon_roe","quantity":50.0},{"foodName":"avocado","quantity":80.0},{"foodName":"light_soy_sauce","quantity":5.0},{"foodName":"nori","quantity":2.0}],"contentHtml":"<p>Top warm <span class=\"ingredient-link\" data-food=\"brown_rice\" data-qty=\"150\"><strong>Brown Rice</strong> <span class=\"qty\">150g</span></span> with <span class=\"ingredient-link\" data-food=\"salmon_roe\" data-qty=\"50\"><strong>Salmon Roe</strong> <span class=\"qty\">50g</span></span>, sliced <span class=\"ingredient-link\" data-food=\"avocado\" data-qty=\"80\"><strong>Avocado</strong> <span class=\"qty\">80g</span></span>, and <span class=\"ingredient-link\" data-food=\"light_soy_sauce\" data-qty=\"5\"><strong>Light Soy Sauce</strong> <span class=\"qty\">5g</span></span>. Garnish with <span class=\"ingredient-link\" data-food=\"nori\" data-qty=\"2\"><strong>Nori</strong> <span class=\"qty\">2g</span></span>.</p>\n<img src=\"images/friday_morning_1.jpg\" alt=\"Salmon Roe Rice Bowl\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":7.2,"calories":752,"ingredientCount":5,"label":"dense"}}}},"monday":{"evening":{"1":{"title":"Liver Bolognese","meta":{"quick":"20"},"image":"images/monday_evening_1.jpg","ingredients":[{"foodName":"onion","quantity":80.0},{"foodName":"garlic","quantity":5.0},{"foodName":"olive_oil","quantity":15.0},{"foodName":"liver","quantity":150.0},{"foodName":"beef","quantity":100.0},{"foodName":"tomato","quantity":200.0},{"foodName":"pasta","quantity":180.0},{"foodName":"parmesan_cheese","quantity":10.0}],"contentHtml":"<p>Finely chop <span class=\"ingredient-link\" data-food=\"onion\" data-qty=\"80\"><strong>Onion</strong> <span class=\"qty\">80g</span></span> and <span class=\"ingredient-link\" data-food=\"garlic\" data-qty=\"5\"><strong>Garlic</strong> <span class=\"qty\">5g</span></span>. Saut\u00e9 in <span class=\"ingredient-link\" data-food=\"olive_oil\" data-qty=\"15\"><strong>Olive Oil</strong> <span class=\"qty\">15g</span></span> until soft. Add <span class=\"ingredient-link\" data-food=\"liver\" data-qty=\"150\"><strong>Liver</strong> <span class=\"qty\">150g</span></span> (chopped) and <span class=\"ingredient-link\" data-food=\"beef\" data-qty=\"100\"><strong>Beef</strong> <span class=\"qty\">100g</span></span>, cook 5 minutes. Stir in <span class=\"ingredient-link\" data-food=\"tomato\" data-qty=\"200\"><strong>Tomato</strong> <span class=\"qty\">200g</span></span> (crushed) and simmer 10 minutes. Toss with <span class=\"ingredient-link\" data-food=\"pasta\" data-qty=\"180\"><strong>Pasta</strong> <span class=\"qty\">180g</span></span> and serve with <span class=\"ingredient-link\" data-food=\"parmesan_cheese\" data-qty=\"10\"><strong>Parmesan Cheese</strong> <span class=\"qty\">10g</span></span>.</p>\n<img src=\"images/monday_evening_1.jpg\" alt=\"Liver Bolognese\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":65.9,"calories":1133,"ingredientCount":8,"label":"ultra-dense"}}},"midday":{"1":{"title":"Sardine Avocado Plate","meta":{"quick":"8"},"image":"images/monday_midday_1.jpg","ingredients":[{"foodName":"avocado","quantity":100.0},{"foodName":"lemon","quantity":5.0},{"foodName":"black_pepper","quantity":1.0},{"foodName":"sardine","quantity":120.0},{"foodName":"spinach","quantity":80.0},{"foodName":"olive_oil","quantity":10.0},{"foodName":"brown_rice","quantity":60.0}],"contentHtml":"<p>Mash <span class=\"ingredient-link\" data-food=\"avocado\" data-qty=\"100\"><strong>Avocado</strong> <span class=\"qty\">100g</span></span> with <span class=\"ingredient-link\" data-food=\"lemon\" data-qty=\"5\"><strong>Lemon</strong> <span class=\"qty\">5g</span></span> juice and a pinch of <span class=\"ingredient-link\" data-food=\"black_pepper\" data-qty=\"1\"><strong>Black Pepper</strong> <span class=\"qty\">1g</span></span>. Pile onto a plate with <span class=\"ingredient-link\" data-food=\"sardine\" data-qty=\"120\"><strong>Sardine</strong> <span class=\"qty\">120g</span></span> (drained) and <span class=\"ingredient-link\" data-food=\"spinach\" data-qty=\"80\"><strong>Spinach</strong> <span class=\"qty\">80g</span></span>. Drizzle <span class=\"ingredient-link\" data-food=\"olive_oil\" data-qty=\"10\"><strong>Olive Oil</strong> <span class=\"qty\">10g</span></span> and eat with <span class=\"ingredient-link\" data-food=\"brown_rice\" data-qty=\"60\"><strong>Brown Rice</strong> <span class=\"qty\">60g</span></span> on the side.</p>\n<img src=\"images/monday_midday_1.jpg\" alt=\"Sardine Avocado Plate\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":9.5,"calories":767,"ingredientCount":7,"label":"ultra-dense"}}},"morning":{"1":{"title":"Natto Avocado Bowl","meta":{"quick":"5"},"image":"images/monday_morning_1.jpg","ingredients":[{"foodName":"brown_rice","quantity":150.0},{"foodName":"natto","quantity":80.0},{"foodName":"avocado","quantity":100.0},{"foodName":"light_soy_sauce","quantity":10.0},{"foodName":"nori","quantity":3.0}],"contentHtml":"<p>Warm <span class=\"ingredient-link\" data-food=\"brown_rice\" data-qty=\"150\"><strong>Brown Rice</strong> <span class=\"qty\">150g</span></span> and top with <span class=\"ingredient-link\" data-food=\"natto\" data-qty=\"80\"><strong>Natto</strong> <span class=\"qty\">80g</span></span>, sliced <span class=\"ingredient-link\" data-food=\"avocado\" data-qty=\"100\"><strong>Avocado</strong> <span class=\"qty\">100g</span></span>, and a drizzle of <span class=\"ingredient-link\" data-food=\"light_soy_sauce\" data-qty=\"10\"><strong>Light Soy Sauce</strong> <span class=\"qty\">10g</span></span>. Finish with crumbled <span class=\"ingredient-link\" data-food=\"nori\" data-qty=\"3\"><strong>Nori</strong> <span class=\"qty\">3g</span></span>. Eat immediately while the rice is warm and the natto is still silky.</p>\n<img src=\"images/monday_morning_1.jpg\" alt=\"Natto Avocado Bowl\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":4.5,"calories":889,"ingredientCount":5,"label":"good"}}}},"saturday":{"morning":{"1":{"title":"Clam Spinach Pasta","meta":{"quick":"18"},"image":"images/saturday_morning_1.jpg","ingredients":[{"foodName":"pasta","quantity":180.0},{"foodName":"garlic","quantity":5.0},{"foodName":"olive_oil","quantity":15.0},{"foodName":"clam","quantity":150.0},{"foodName":"spinach","quantity":120.0},{"foodName":"parsley","quantity":5.0}],"contentHtml":"<p>Cook <span class=\"ingredient-link\" data-food=\"pasta\" data-qty=\"180\"><strong>Pasta</strong> <span class=\"qty\">180g</span></span>. Saut\u00e9 <span class=\"ingredient-link\" data-food=\"garlic\" data-qty=\"5\"><strong>Garlic</strong> <span class=\"qty\">5g</span></span> in <span class=\"ingredient-link\" data-food=\"olive_oil\" data-qty=\"15\"><strong>Olive Oil</strong> <span class=\"qty\">15g</span></span>, add <span class=\"ingredient-link\" data-food=\"clam\" data-qty=\"150\"><strong>Clam</strong> <span class=\"qty\">150g</span></span> and <span class=\"ingredient-link\" data-food=\"spinach\" data-qty=\"120\"><strong>Spinach</strong> <span class=\"qty\">120g</span></span>. Toss with pasta and <span class=\"ingredient-link\" data-food=\"parsley\" data-qty=\"5\"><strong>Parsley</strong> <span class=\"qty\">5g</span></span>.</p>\n<img src=\"images/saturday_morning_1.jpg\" alt=\"Clam Spinach Pasta\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":21.6,"calories":569,"ingredientCount":6,"label":"ultra-dense"}}}},"sunday":{"evening":{"1":{"title":"Liver P\u00e2t\u00e9 Toast","meta":{"quick":"12"},"image":"images/sunday_evening_1.jpg","ingredients":[{"foodName":"liver","quantity":120.0},{"foodName":"butter","quantity":5.0},{"foodName":"garlic","quantity":3.0},{"foodName":"butter","quantity":5.0},{"foodName":"salt","quantity":1.0},{"foodName":"bread","quantity":60.0},{"foodName":"parsley","quantity":5.0}],"contentHtml":"<p>Pan-fry <span class=\"ingredient-link\" data-food=\"liver\" data-qty=\"120\"><strong>Liver</strong> <span class=\"qty\">120g</span></span> with <span class=\"ingredient-link\" data-food=\"butter\" data-qty=\"5\"><strong>Butter</strong> <span class=\"qty\">5g</span></span> and <span class=\"ingredient-link\" data-food=\"garlic\" data-qty=\"3\"><strong>Garlic</strong> <span class=\"qty\">3g</span></span> until cooked through. Blend or mash smooth with <span class=\"ingredient-link\" data-food=\"butter\" data-qty=\"5\"><strong>Butter</strong> <span class=\"qty\">5g</span></span> and <span class=\"ingredient-link\" data-food=\"salt\" data-qty=\"1\"><strong>Salt</strong> <span class=\"qty\">1g</span></span>. Spread on <span class=\"ingredient-link\" data-food=\"bread\" data-qty=\"60\"><strong>Bread</strong> <span class=\"qty\">60g</span></span> with <span class=\"ingredient-link\" data-food=\"parsley\" data-qty=\"5\"><strong>Parsley</strong> <span class=\"qty\">5g</span></span>.</p>\n<img src=\"images/sunday_evening_1.jpg\" alt=\"Liver P\u00e2t\u00e9 Toast\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":128.9,"calories":438,"ingredientCount":7,"label":"ultra-dense"}},"2":{"title":"Sardine Anchovy Salad","meta":{"quick":"8"},"image":"images/sunday_evening_2.jpg","ingredients":[{"foodName":"sardine","quantity":80.0},{"foodName":"anchovy","quantity":10.0},{"foodName":"cucumber","quantity":100.0},{"foodName":"tomato","quantity":80.0},{"foodName":"olive_oil","quantity":15.0},{"foodName":"lemon","quantity":5.0},{"foodName":"bread","quantity":60.0}],"contentHtml":"<p>Combine <span class=\"ingredient-link\" data-food=\"sardine\" data-qty=\"80\"><strong>Sardine</strong> <span class=\"qty\">80g</span></span> and <span class=\"ingredient-link\" data-food=\"anchovy\" data-qty=\"10\"><strong>Anchovy</strong> <span class=\"qty\">10g</span></span> with <span class=\"ingredient-link\" data-food=\"cucumber\" data-qty=\"100\"><strong>Cucumber</strong> <span class=\"qty\">100g</span></span> (sliced) and <span class=\"ingredient-link\" data-food=\"tomato\" data-qty=\"80\"><strong>Tomato</strong> <span class=\"qty\">80g</span></span>. Dress with <span class=\"ingredient-link\" data-food=\"olive_oil\" data-qty=\"15\"><strong>Olive Oil</strong> <span class=\"qty\">15g</span></span> and <span class=\"ingredient-link\" data-food=\"lemon\" data-qty=\"5\"><strong>Lemon</strong> <span class=\"qty\">5g</span></span> juice. Serve with <span class=\"ingredient-link\" data-food=\"bread\" data-qty=\"60\"><strong>Bread</strong> <span class=\"qty\">60g</span></span>.</p>\n<img src=\"images/sunday_evening_2.jpg\" alt=\"Sardine Anchovy Salad\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":9.2,"calories":516,"ingredientCount":7,"label":"ultra-dense"}},"3":{"title":"Bone Marrow & Mushroom","meta":{"quick":"18"},"image":"images/sunday_evening_3.jpg","ingredients":[{"foodName":"bone_marrow","quantity":100.0},{"foodName":"mushroom","quantity":150.0},{"foodName":"butter","quantity":10.0},{"foodName":"garlic","quantity":3.0},{"foodName":"bread","quantity":60.0},{"foodName":"parsley","quantity":5.0}],"contentHtml":"<p>Roast <span class=\"ingredient-link\" data-food=\"bone_marrow\" data-qty=\"100\"><strong>Bone Marrow</strong> <span class=\"qty\">100g</span></span> at 220\u00b0C for 12 minutes. Saut\u00e9 <span class=\"ingredient-link\" data-food=\"mushroom\" data-qty=\"150\"><strong>Mushroom</strong> <span class=\"qty\">150g</span></span> in <span class=\"ingredient-link\" data-food=\"butter\" data-qty=\"10\"><strong>Butter</strong> <span class=\"qty\">10g</span></span> with <span class=\"ingredient-link\" data-food=\"garlic\" data-qty=\"3\"><strong>Garlic</strong> <span class=\"qty\">3g</span></span>. Serve marrow scooped onto mushrooms with <span class=\"ingredient-link\" data-food=\"bread\" data-qty=\"60\"><strong>Bread</strong> <span class=\"qty\">60g</span></span> and <span class=\"ingredient-link\" data-food=\"parsley\" data-qty=\"5\"><strong>Parsley</strong> <span class=\"qty\">5g</span></span>.</p>\n<img src=\"images/sunday_evening_3.jpg\" alt=\"Bone Marrow & Mushroom\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":1.8,"calories":1065,"ingredientCount":6,"label":""}}},"midday":{"1":{"title":"Beef Egg Kimchi Bowl","meta":{"quick":"15"},"image":"images/sunday_midday_1.jpg","ingredients":[{"foodName":"beef","quantity":120.0},{"foodName":"sesame_oil","quantity":10.0},{"foodName":"kimchi","quantity":60.0},{"foodName":"brown_rice","quantity":100.0},{"foodName":"egg","quantity":60.0}],"contentHtml":"<p>Stir-fry <span class=\"ingredient-link\" data-food=\"beef\" data-qty=\"120\"><strong>Beef</strong> <span class=\"qty\">120g</span></span> (thin strips) in <span class=\"ingredient-link\" data-food=\"sesame_oil\" data-qty=\"10\"><strong>Sesame Oil</strong> <span class=\"qty\">10g</span></span>. Add <span class=\"ingredient-link\" data-food=\"kimchi\" data-qty=\"60\"><strong>Kimchi</strong> <span class=\"qty\">60g</span></span> and <span class=\"ingredient-link\" data-food=\"brown_rice\" data-qty=\"100\"><strong>Brown Rice</strong> <span class=\"qty\">100g</span></span>. Top with a fried <span class=\"ingredient-link\" data-food=\"egg\" data-qty=\"60\"><strong>Egg</strong> <span class=\"qty\">60g</span></span>.</p>\n<img src=\"images/sunday_midday_1.jpg\" alt=\"Beef Egg Kimchi Bowl\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":5.3,"calories":772,"ingredientCount":5,"label":"dense"}}},"morning":{"1":{"title":"Egg Drop Bone Broth","meta":{"quick":"8"},"image":"images/sunday_morning_1.jpg","ingredients":[{"foodName":"chicken_broth","quantity":350.0},{"foodName":"ginger","quantity":5.0},{"foodName":"egg","quantity":80.0},{"foodName":"spinach","quantity":80.0},{"foodName":"sesame_oil","quantity":5.0}],"contentHtml":"<p>Bring <span class=\"ingredient-link\" data-food=\"chicken_broth\" data-qty=\"350\"><strong>Chicken Broth</strong> <span class=\"qty\">350g</span></span> with <span class=\"ingredient-link\" data-food=\"ginger\" data-qty=\"5\"><strong>Ginger</strong> <span class=\"qty\">5g</span></span> to a boil. Slowly drizzle in beaten <span class=\"ingredient-link\" data-food=\"egg\" data-qty=\"80\"><strong>Egg</strong> <span class=\"qty\">80g</span></span> while stirring. Add <span class=\"ingredient-link\" data-food=\"spinach\" data-qty=\"80\"><strong>Spinach</strong> <span class=\"qty\">80g</span></span> and <span class=\"ingredient-link\" data-food=\"sesame_oil\" data-qty=\"5\"><strong>Sesame Oil</strong> <span class=\"qty\">5g</span></span>. Serve immediately.</p>\n<img src=\"images/sunday_morning_1.jpg\" alt=\"Egg Drop Bone Broth\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":13.0,"calories":199,"ingredientCount":5,"label":"ultra-dense"}},"2":{"title":"Duck Egg & Kale","meta":{"quick":"10"},"image":"images/sunday_morning_2.jpg","ingredients":[{"foodName":"kale","quantity":120.0},{"foodName":"olive_oil","quantity":10.0},{"foodName":"garlic","quantity":3.0},{"foodName":"duck_egg","quantity":80.0},{"foodName":"black_pepper","quantity":1.0},{"foodName":"bread","quantity":60.0}],"contentHtml":"<p>Saut\u00e9 <span class=\"ingredient-link\" data-food=\"kale\" data-qty=\"120\"><strong>Kale</strong> <span class=\"qty\">120g</span></span> in <span class=\"ingredient-link\" data-food=\"olive_oil\" data-qty=\"10\"><strong>Olive Oil</strong> <span class=\"qty\">10g</span></span> with <span class=\"ingredient-link\" data-food=\"garlic\" data-qty=\"3\"><strong>Garlic</strong> <span class=\"qty\">3g</span></span>. Fry <span class=\"ingredient-link\" data-food=\"duck_egg\" data-qty=\"80\"><strong>Duck Egg</strong> <span class=\"qty\">80g</span></span> sunny-side up. Serve egg on kale with <span class=\"ingredient-link\" data-food=\"black_pepper\" data-qty=\"1\"><strong>Black Pepper</strong> <span class=\"qty\">1g</span></span> and <span class=\"ingredient-link\" data-food=\"bread\" data-qty=\"60\"><strong>Bread</strong> <span class=\"qty\">60g</span></span>.</p>\n<img src=\"images/sunday_morning_2.jpg\" alt=\"Duck Egg & Kale\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":13.4,"calories":466,"ingredientCount":6,"label":"ultra-dense"}}}},"thursday":{"evening":{"1":{"title":"Cod Liver & Potato","meta":{"quick":"20"},"image":"images/thursday_evening_1.jpg","ingredients":[{"foodName":"potato","quantity":250.0},{"foodName":"cod_liver","quantity":100.0},{"foodName":"butter","quantity":10.0},{"foodName":"butter","quantity":5.0},{"foodName":"parsley","quantity":5.0},{"foodName":"black_pepper","quantity":1.0}],"contentHtml":"<p>Boil <span class=\"ingredient-link\" data-food=\"potato\" data-qty=\"250\"><strong>Potato</strong> <span class=\"qty\">250g</span></span> until tender. Pan-fry <span class=\"ingredient-link\" data-food=\"cod_liver\" data-qty=\"100\"><strong>Cod Liver</strong> <span class=\"qty\">100g</span></span> in <span class=\"ingredient-link\" data-food=\"butter\" data-qty=\"10\"><strong>Butter</strong> <span class=\"qty\">10g</span></span> for 2 minutes per side. Mash potatoes with <span class=\"ingredient-link\" data-food=\"butter\" data-qty=\"5\"><strong>Butter</strong> <span class=\"qty\">5g</span></span> and <span class=\"ingredient-link\" data-food=\"parsley\" data-qty=\"5\"><strong>Parsley</strong> <span class=\"qty\">5g</span></span>. Plate together with <span class=\"ingredient-link\" data-food=\"black_pepper\" data-qty=\"1\"><strong>Black Pepper</strong> <span class=\"qty\">1g</span></span>.</p>\n<img src=\"images/thursday_evening_1.jpg\" alt=\"Cod Liver & Potato\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":39.5,"calories":1203,"ingredientCount":6,"label":"ultra-dense"}}},"midday":{"1":{"title":"Miso Tofu Soup Bowl","meta":{"quick":"10"},"image":"images/thursday_midday_1.jpg","ingredients":[{"foodName":"chicken_broth","quantity":300.0},{"foodName":"miso","quantity":30.0},{"foodName":"tofu","quantity":150.0},{"foodName":"wakame","quantity":5.0},{"foodName":"scallion","quantity":10.0},{"foodName":"brown_rice","quantity":100.0}],"contentHtml":"<p>Bring <span class=\"ingredient-link\" data-food=\"chicken_broth\" data-qty=\"300\"><strong>Chicken Broth</strong> <span class=\"qty\">300g</span></span> to a simmer. Dissolve <span class=\"ingredient-link\" data-food=\"miso\" data-qty=\"30\"><strong>Miso</strong> <span class=\"qty\">30g</span></span> and add <span class=\"ingredient-link\" data-food=\"tofu\" data-qty=\"150\"><strong>Tofu</strong> <span class=\"qty\">150g</span></span> (cubed), <span class=\"ingredient-link\" data-food=\"wakame\" data-qty=\"5\"><strong>Wakame</strong> <span class=\"qty\">5g</span></span>, and <span class=\"ingredient-link\" data-food=\"scallion\" data-qty=\"10\"><strong>Scallion</strong> <span class=\"qty\">10g</span></span>. Serve with <span class=\"ingredient-link\" data-food=\"brown_rice\" data-qty=\"100\"><strong>Brown Rice</strong> <span class=\"qty\">100g</span></span> on the side.</p>\n<img src=\"images/thursday_midday_1.jpg\" alt=\"Miso Tofu Soup Bowl\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":4.3,"calories":613,"ingredientCount":6,"label":"good"}}},"morning":{"1":{"title":"Bone Marrow Toast","meta":{"quick":"12"},"image":"images/thursday_morning_1.jpg","ingredients":[{"foodName":"bone_marrow","quantity":120.0},{"foodName":"bread","quantity":60.0},{"foodName":"parsley","quantity":5.0},{"foodName":"salt","quantity":1.0}],"contentHtml":"<p>Roast <span class=\"ingredient-link\" data-food=\"bone_marrow\" data-qty=\"120\"><strong>Bone Marrow</strong> <span class=\"qty\">120g</span></span> (bone cut lengthwise) at 220\u00b0C for 12 minutes until bubbling. Spread onto <span class=\"ingredient-link\" data-food=\"bread\" data-qty=\"60\"><strong>Bread</strong> <span class=\"qty\">60g</span></span> (toasted). Top with chopped <span class=\"ingredient-link\" data-food=\"parsley\" data-qty=\"5\"><strong>Parsley</strong> <span class=\"qty\">5g</span></span> and <span class=\"ingredient-link\" data-food=\"salt\" data-qty=\"1\"><strong>Salt</strong> <span class=\"qty\">1g</span></span>.</p>\n<img src=\"images/thursday_morning_1.jpg\" alt=\"Bone Marrow Toast\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":1.2,"calories":1098,"ingredientCount":4,"label":""}}}},"tuesday":{"evening":{"1":{"title":"Mackerel Tray Bake","meta":{"quick":"25"},"image":"images/tuesday_evening_1.jpg","ingredients":[{"foodName":"sweet_potato","quantity":200.0},{"foodName":"broccoli","quantity":150.0},{"foodName":"olive_oil","quantity":15.0},{"foodName":"garlic","quantity":3.0},{"foodName":"salt","quantity":1.0},{"foodName":"mackerel","quantity":150.0}],"contentHtml":"<p>Cube <span class=\"ingredient-link\" data-food=\"sweet_potato\" data-qty=\"200\"><strong>Sweet Potato</strong> <span class=\"qty\">200g</span></span> and <span class=\"ingredient-link\" data-food=\"broccoli\" data-qty=\"150\"><strong>Broccoli</strong> <span class=\"qty\">150g</span></span>. Toss with <span class=\"ingredient-link\" data-food=\"olive_oil\" data-qty=\"15\"><strong>Olive Oil</strong> <span class=\"qty\">15g</span></span>, <span class=\"ingredient-link\" data-food=\"garlic\" data-qty=\"3\"><strong>Garlic</strong> <span class=\"qty\">3g</span></span>, and <span class=\"ingredient-link\" data-food=\"salt\" data-qty=\"1\"><strong>Salt</strong> <span class=\"qty\">1g</span></span>. Lay <span class=\"ingredient-link\" data-food=\"mackerel\" data-qty=\"150\"><strong>Mackerel</strong> <span class=\"qty\">150g</span></span> fillets on top. Bake at 200\u00b0C for 20 minutes until fish flakes and vegetables are tender.</p>\n<img src=\"images/tuesday_evening_1.jpg\" alt=\"Mackerel Tray Bake\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":20.8,"calories":776,"ingredientCount":6,"label":"ultra-dense"}}},"midday":{"1":{"title":"Anchovy Tomato Pasta","meta":{"quick":"15"},"image":"images/tuesday_midday_1.jpg","ingredients":[{"foodName":"pasta","quantity":180.0},{"foodName":"olive_oil","quantity":15.0},{"foodName":"anchovy","quantity":10.0},{"foodName":"garlic","quantity":5.0},{"foodName":"tomato","quantity":200.0},{"foodName":"parsley","quantity":5.0},{"foodName":"parmesan_cheese","quantity":5.0}],"contentHtml":"<p>Cook <span class=\"ingredient-link\" data-food=\"pasta\" data-qty=\"180\"><strong>Pasta</strong> <span class=\"qty\">180g</span></span>. Meanwhile, warm <span class=\"ingredient-link\" data-food=\"olive_oil\" data-qty=\"15\"><strong>Olive Oil</strong> <span class=\"qty\">15g</span></span> with <span class=\"ingredient-link\" data-food=\"anchovy\" data-qty=\"10\"><strong>Anchovy</strong> <span class=\"qty\">10g</span></span> (melted), <span class=\"ingredient-link\" data-food=\"garlic\" data-qty=\"5\"><strong>Garlic</strong> <span class=\"qty\">5g</span></span>, and <span class=\"ingredient-link\" data-food=\"tomato\" data-qty=\"200\"><strong>Tomato</strong> <span class=\"qty\">200g</span></span>. Toss pasta in the sauce. Top with <span class=\"ingredient-link\" data-food=\"parsley\" data-qty=\"5\"><strong>Parsley</strong> <span class=\"qty\">5g</span></span> and <span class=\"ingredient-link\" data-food=\"parmesan_cheese\" data-qty=\"5\"><strong>Parmesan Cheese</strong> <span class=\"qty\">5g</span></span>.</p>\n<img src=\"images/tuesday_midday_1.jpg\" alt=\"Anchovy Tomato Pasta\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":6.5,"calories":486,"ingredientCount":7,"label":"dense"}}},"morning":{"1":{"title":"Liver Spinach Scramble","meta":{"quick":"10"},"image":"images/tuesday_morning_1.jpg","ingredients":[{"foodName":"liver","quantity":100.0},{"foodName":"butter","quantity":10.0},{"foodName":"spinach","quantity":120.0},{"foodName":"egg","quantity":100.0},{"foodName":"black_pepper","quantity":1.0},{"foodName":"salt","quantity":1.0}],"contentHtml":"<p>Saut\u00e9 <span class=\"ingredient-link\" data-food=\"liver\" data-qty=\"100\"><strong>Liver</strong> <span class=\"qty\">100g</span></span> (thinly sliced) in <span class=\"ingredient-link\" data-food=\"butter\" data-qty=\"10\"><strong>Butter</strong> <span class=\"qty\">10g</span></span> for 3 minutes. Add <span class=\"ingredient-link\" data-food=\"spinach\" data-qty=\"120\"><strong>Spinach</strong> <span class=\"qty\">120g</span></span> until wilted. Push aside and scramble <span class=\"ingredient-link\" data-food=\"egg\" data-qty=\"100\"><strong>Egg</strong> <span class=\"qty\">100g</span></span> in the same pan. Fold together and season with <span class=\"ingredient-link\" data-food=\"black_pepper\" data-qty=\"1\"><strong>Black Pepper</strong> <span class=\"qty\">1g</span></span> and <span class=\"ingredient-link\" data-food=\"salt\" data-qty=\"1\"><strong>Salt</strong> <span class=\"qty\">1g</span></span>.</p>\n<img src=\"images/tuesday_morning_1.jpg\" alt=\"Liver Spinach Scramble\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":118.0,"calories":423,"ingredientCount":6,"label":"ultra-dense"}}}},"wednesday":{"evening":{"1":{"title":"Kidney Bean Chili","meta":{"quick":"20"},"image":"images/wednesday_evening_1.jpg","ingredients":[{"foodName":"onion","quantity":60.0},{"foodName":"garlic","quantity":5.0},{"foodName":"olive_oil","quantity":10.0},{"foodName":"kidney","quantity":120.0},{"foodName":"black_bean","quantity":150.0},{"foodName":"tomato","quantity":200.0},{"foodName":"cumin","quantity":2.0},{"foodName":"brown_rice","quantity":80.0}],"contentHtml":"<p>Saut\u00e9 <span class=\"ingredient-link\" data-food=\"onion\" data-qty=\"60\"><strong>Onion</strong> <span class=\"qty\">60g</span></span> and <span class=\"ingredient-link\" data-food=\"garlic\" data-qty=\"5\"><strong>Garlic</strong> <span class=\"qty\">5g</span></span> in <span class=\"ingredient-link\" data-food=\"olive_oil\" data-qty=\"10\"><strong>Olive Oil</strong> <span class=\"qty\">10g</span></span>. Add <span class=\"ingredient-link\" data-food=\"kidney\" data-qty=\"120\"><strong>Kidney</strong> <span class=\"qty\">120g</span></span> (diced), <span class=\"ingredient-link\" data-food=\"black_bean\" data-qty=\"150\"><strong>Black Bean</strong> <span class=\"qty\">150g</span></span>, <span class=\"ingredient-link\" data-food=\"tomato\" data-qty=\"200\"><strong>Tomato</strong> <span class=\"qty\">200g</span></span>, and <span class=\"ingredient-link\" data-food=\"cumin\" data-qty=\"2\"><strong>Cumin</strong> <span class=\"qty\">2g</span></span>. Simmer 15 minutes. Serve as-is or over <span class=\"ingredient-link\" data-food=\"brown_rice\" data-qty=\"80\"><strong>Brown Rice</strong> <span class=\"qty\">80g</span></span>.</p>\n<img src=\"images/wednesday_evening_1.jpg\" alt=\"Kidney Bean Chili\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":25.7,"calories":874,"ingredientCount":8,"label":"ultra-dense"}}},"midday":{"1":{"title":"Oyster Spinach Stir-fry","meta":{"quick":"12"},"image":"images/wednesday_midday_1.jpg","ingredients":[{"foodName":"garlic","quantity":5.0},{"foodName":"butter","quantity":10.0},{"foodName":"oyster","quantity":150.0},{"foodName":"spinach","quantity":150.0},{"foodName":"brown_rice","quantity":150.0},{"foodName":"light_soy_sauce","quantity":5.0}],"contentHtml":"<p>Saut\u00e9 <span class=\"ingredient-link\" data-food=\"garlic\" data-qty=\"5\"><strong>Garlic</strong> <span class=\"qty\">5g</span></span> in <span class=\"ingredient-link\" data-food=\"butter\" data-qty=\"10\"><strong>Butter</strong> <span class=\"qty\">10g</span></span>. Add <span class=\"ingredient-link\" data-food=\"oyster\" data-qty=\"150\"><strong>Oyster</strong> <span class=\"qty\">150g</span></span> and cook 2 minutes. Toss in <span class=\"ingredient-link\" data-food=\"spinach\" data-qty=\"150\"><strong>Spinach</strong> <span class=\"qty\">150g</span></span> until wilted. Serve over <span class=\"ingredient-link\" data-food=\"brown_rice\" data-qty=\"150\"><strong>Brown Rice</strong> <span class=\"qty\">150g</span></span> with <span class=\"ingredient-link\" data-food=\"light_soy_sauce\" data-qty=\"5\"><strong>Light Soy Sauce</strong> <span class=\"qty\">5g</span></span>.</p>\n<img src=\"images/wednesday_midday_1.jpg\" alt=\"Oyster Spinach Stir-fry\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":6.0,"calories":703,"ingredientCount":6,"label":"dense"}}},"morning":{"1":{"title":"Herring Kale Bowl","meta":{"quick":"8"},"image":"images/wednesday_morning_1.jpg","ingredients":[{"foodName":"kale","quantity":80.0},{"foodName":"lemon","quantity":5.0},{"foodName":"olive_oil","quantity":10.0},{"foodName":"herring","quantity":120.0},{"foodName":"brown_rice","quantity":60.0},{"foodName":"black_pepper","quantity":1.0}],"contentHtml":"<p>Toss <span class=\"ingredient-link\" data-food=\"kale\" data-qty=\"80\"><strong>Kale</strong> <span class=\"qty\">80g</span></span> (massaged with <span class=\"ingredient-link\" data-food=\"lemon\" data-qty=\"5\"><strong>Lemon</strong> <span class=\"qty\">5g</span></span> juice) with <span class=\"ingredient-link\" data-food=\"olive_oil\" data-qty=\"10\"><strong>Olive Oil</strong> <span class=\"qty\">10g</span></span>. Top with <span class=\"ingredient-link\" data-food=\"herring\" data-qty=\"120\"><strong>Herring</strong> <span class=\"qty\">120g</span></span> (drained), <span class=\"ingredient-link\" data-food=\"brown_rice\" data-qty=\"60\"><strong>Brown Rice</strong> <span class=\"qty\">60g</span></span>, and a pinch of <span class=\"ingredient-link\" data-food=\"black_pepper\" data-qty=\"1\"><strong>Black Pepper</strong> <span class=\"qty\">1g</span></span>.</p>\n<img src=\"images/wednesday_morning_1.jpg\" alt=\"Herring Kale Bowl\" style=\"max-width:100%;border-radius:8px\">","stats":{"score":17.1,"calories":638,"ingredientCount":6,"label":"ultra-dense"}}}}},"foods":{"anchovy":{"display_name":"Anchovy","category":"Fish & Seafood","nutrients":{"Energy":188.5,"Carbohydrate":0.0,"Fiber":0.0,"Total Sugars":0.0,"Total fat":9.855,"Cholesterol":83376.0,"Fatty acids, total saturated":2.4364999999999997,"DHA":1.292,"EPA":0.763,"Protein":24.445,"Vitamin A, RAE":12.0,"Vitamin E":3.33,"Vitamin D (D2 + D3)":1.7,"Vitamin C":0.0,"Thiamin":0.078,"Riboflavin":0.363,"Niacin":19.903,"Vitamin B-6":0.203,"Folate, total":13.0,"Vitamin B-12":0.88,"Choline":85.0,"Vitamin K1":12.1,"Calcium":182.5,"Iron":4.715,"Magnesium":69.0,"Phosphorus":252.0,"Potassium":544.0,"Sodium":5634.0,"Zinc":2.44,"Copper":0.339,"Selenium":68.1}},"avocado":{"display_name":"Avocado","category":"Other","nutrients":{"Energy":164.0,"Carbohydrate":8.584,"Fiber":6.720000000000001,"Total Sugars":0.66,"Total fat":14.78,"Cholesterol":0.0,"Fatty acids, total saturated":1.9664,"DHA":0.0,"EPA":0.0,"Protein":1.9475,"Vitamin A, RAE":7.0,"Vitamin E":2.07,"Vitamin D (D2 + D3)":0.0,"Vitamin C":10.0,"Thiamin":0.067,"Riboflavin":0.13,"Niacin":1.738,"Vitamin B-6":0.257,"Folate, total":81.0,"Vitamin B-12":0.0,"Choline":14.2,"Vitamin K1":21.0,"Calcium":15.5,"Iron":0.556,"Magnesium":29.0,"Phosphorus":52.0,"Potassium":479.2,"Sodium":81.4,"Zinc":0.64,"Copper":0.19,"Selenium":0.4}},"beef":{"display_name":"Beef","category":"Meat & Offal","nutrients":{"Energy":193.0,"Carbohydrate":1.82,"Fiber":2.2,"Total Sugars":1.35,"Total fat":12.115,"Cholesterol":41.0,"Fatty acids, total saturated":5.38,"Protein":16.585,"Thiamin":1.0,"Riboflavin":0.226,"Niacin":10.619000000000002,"Vitamin B-6":0.354,"Folate, total":71.0,"Calcium":159.0,"Iron":2.84,"Phosphorus":133.0,"Potassium":619.0,"Sodium":709.0,"Zinc":6.64}},"black_bean":{"display_name":"Black Bean","category":"Legumes & Soy","nutrients":{"Energy":83.0,"Carbohydrate":15.477999999999998,"Fiber":5.3,"Total Sugars":0.82,"Total fat":0.076,"Cholesterol":0.0,"Fatty acids, total saturated":0.0,"Protein":5.38,"Vitamin C":3.8,"Riboflavin":0.052,"Niacin":0.308,"Folate, total":25.0,"Calcium":42.4,"Iron":4.486,"Magnesium":46.0,"Phosphorus":77.0,"Potassium":365.3333333333333,"Sodium":259.0,"Zinc":0.92}},"black_pepper":{"display_name":"Black Pepper","category":"Pantry & Ferments","nutrients":{"Energy":264.3648183556405,"Carbohydrate":63.70399999999999,"Fiber":25.48,"Total Sugars":0.612,"Total fat":3.25,"Cholesterol":0.0,"Fatty acids, total saturated":1.3556,"DHA":0.0,"EPA":0.0,"ALA":0.152,"Protein":10.308000000000002,"Vitamin A, RAE":27.0,"Vitamin E":1.04,"Vitamin D (D2 + D3)":0.0,"Vitamin C":3.84,"Thiamin":0.108,"Riboflavin":0.18,"Niacin":1.143,"Pantothenic acid":1.399,"Vitamin B-6":0.291,"Folate, total":17.0,"Vitamin B-12":0.0,"Choline":11.3,"Vitamin K1":163.7,"Calcium":440.4,"Iron":13.204000000000002,"Magnesium":171.0,"Phosphorus":158.0,"Potassium":1329.0,"Sodium":22.4,"Zinc":1.19,"Copper":1.33,"Manganese":12.753,"Selenium":4.9}},"bone_marrow":{"display_name":"Bone Marrow","category":"Meat & Offal","nutrients":{"Energy":786.0,"Carbohydrate":0.0,"Total fat":84.4,"Protein":6.7,"Thiamin":0.04,"Niacin":0.2,"Iron":4.5,"Phosphorus":107.0}},"bread":{"display_name":"Bread","category":"Grains & Starches","nutrients":{"Energy":255.0,"Carbohydrate":48.94,"Fiber":4.3,"Total Sugars":6.38,"Total fat":3.19,"Cholesterol":0.0,"Fatty acids, total saturated":0.0,"Protein":10.64,"Vitamin E":4.0,"Riboflavin":0.192,"Niacin":3.462,"Folate, total":80.0,"Calcium":170.0,"Iron":3.83,"Potassium":115.0,"Sodium":489.0}},"broccoli":{"display_name":"Broccoli","category":"Vegetables & Herbs","nutrients":{"Energy":33.69980879541109,"Carbohydrate":6.639999999999999,"Fiber":2.6,"Total Sugars":1.7,"Total fat":0.37,"Cholesterol":0.0,"Fatty acids, total saturated":0.114,"DHA":0.0,"EPA":0.0,"Protein":2.82,"Vitamin A, RAE":31.0,"Vitamin E":0.78,"Vitamin D (D2 + D3)":0.0,"Vitamin C":89.2,"Thiamin":0.071,"Riboflavin":0.117,"Niacin":0.639,"Pantothenic acid":0.573,"Vitamin B-6":0.175,"Folate, total":63.0,"Vitamin B-12":0.0,"Choline":18.7,"Vitamin K1":101.6,"Calcium":47.0,"Iron":0.73,"Magnesium":21.0,"Phosphorus":66.0,"Potassium":316.0,"Sodium":33.0,"Zinc":0.41,"Copper":0.049,"Manganese":0.21,"Selenium":2.5}},"brown_rice":{"display_name":"Brown Rice","category":"Grains & Starches","nutrients":{"Energy":357.6666666666667,"Carbohydrate":77.32333333333334,"Fiber":3.6666666666666665,"Total fat":2.93,"Cholesterol":0.0,"Fatty acids, total saturated":0.0,"Protein":8.01,"Riboflavin":0.378,"Niacin":4.0,"Calcium":9.5,"Iron":1.5499999999999998,"Magnesium":120.0,"Potassium":225.0,"Sodium":0.0,"Zinc":2.4,"Copper":0.32}},"butter":{"display_name":"Butter","category":"Dairy & Eggs","nutrients":{"Energy":743.0,"Carbohydrate":0.06,"Fiber":0.0,"Total Sugars":0.58,"Total fat":82.2,"Cholesterol":235.0,"Fatty acids, total saturated":45.6,"DHA":0.002,"EPA":0.024,"Protein":0.85,"Vitamin A, RAE":758.0,"Vitamin E":0.0,"Vitamin D (D2 + D3)":0.4,"Vitamin C":0.0,"Thiamin":0.005,"Riboflavin":0.0,"Niacin":0.0,"Vitamin B-6":0.0,"Folate, total":5.0,"Vitamin B-12":0.0,"Choline":18.8,"Vitamin K1":7.0,"Calcium":21.0,"Iron":0.06,"Magnesium":2.0,"Phosphorus":22.0,"Potassium":23.0,"Sodium":524.0,"Zinc":0.07,"Copper":0.006,"Selenium":0.0}},"chicken_broth":{"display_name":"Chicken Broth","category":"Pantry & Ferments","nutrients":{"Energy":6.0,"Carbohydrate":0.418,"Fiber":0.0,"Total Sugars":0.42,"Total fat":0.1659999999999999,"Cholesterol":0.5,"Fatty acids, total saturated":0.05,"Protein":0.418,"Calcium":4.0,"Iron":0.0533333333333333,"Potassium":20.5,"Sodium":309.8}},"clam":{"display_name":"Clam","category":"Fish & Seafood","nutrients":{"Energy":86.0,"Carbohydrate":3.5699999999999994,"Fiber":0.0,"Total Sugars":0.0,"Total fat":0.96,"Cholesterol":30.0,"Fatty acids, total saturated":0.187,"DHA":0.064,"EPA":0.043,"ALA":0.015,"Protein":14.669999999999998,"Vitamin A, RAE":90.0,"Vitamin E":0.68,"Vitamin D (D2 + D3)":0.0,"Vitamin C":0.0,"Thiamin":0.015,"Riboflavin":0.04,"Niacin":0.35,"Pantothenic acid":0.148,"Vitamin B-6":0.01,"Folate, total":5.0,"Vitamin B-12":11.28,"Choline":65.0,"Vitamin K2 MK-4":0.0,"Vitamin K1":0.2,"Calcium":39.0,"Iron":1.6200000000000003,"Magnesium":19.0,"Phosphorus":198.0,"Potassium":46.0,"Sodium":492.0,"Zinc":0.51,"Copper":0.053,"Manganese":0.085,"Selenium":30.6}},"cod_liver":{"display_name":"Cod Liver","category":"Fish & Seafood","nutrients":{"Energy":902.0,"Carbohydrate":0.0,"Fiber":0.0,"Total fat":100.0,"Cholesterol":570.0,"Fatty acids, total saturated":22.608,"DHA":10.967999999999998,"EPA":6.898,"Protein":0.0,"Vitamin A, RAE":30000.0,"Vitamin D (D2 + D3)":250.0,"Vitamin C":0.0,"Riboflavin":0.0,"Niacin":0.0,"Pantothenic acid":0.0,"Vitamin B-6":0.0,"Folate, total":0.0,"Vitamin B-12":0.0,"Calcium":0.0,"Iron":0.0,"Magnesium":0.0,"Phosphorus":0.0,"Potassium":0.0,"Sodium":0.0,"Zinc":0.0,"Copper":0.0,"Manganese":0.0,"Selenium":0.0}},"cucumber":{"display_name":"Cucumber","category":"Vegetables & Herbs","nutrients":{"Energy":15.79564913957935,"Carbohydrate":3.2225,"Fiber":0.5,"Total Sugars":1.67,"Total fat":0.1515,"Cholesterol":0.0,"Fatty acids, total saturated":0.037,"DHA":0.0,"EPA":0.0,"Protein":0.633,"Vitamin A, RAE":5.0,"Vitamin E":0.03,"Vitamin D (D2 + D3)":0.0,"Vitamin C":2.8,"Thiamin":0.027,"Riboflavin":0.033,"Niacin":0.098,"Pantothenic acid":0.259,"Vitamin B-6":0.04,"Folate, total":7.0,"Vitamin B-12":0.0,"Choline":6.0,"Vitamin K2 MK-4":0.0,"Vitamin K1":20.96,"Calcium":16.068,"Iron":0.112,"Magnesium":11.222,"Phosphorus":23.446,"Potassium":160.72,"Sodium":1.903,"Zinc":0.2008,"Copper":0.054198,"Manganese":0.0809599999999999,"Molybdenum":3.723,"Selenium":0.3}},"cumin":{"display_name":"Cumin","category":"Pantry & Ferments","nutrients":{"Energy":407.5,"Carbohydrate":44.120000000000005,"Fiber":10.25,"Total Sugars":2.25,"Total fat":22.135,"Cholesterol":0.0,"Fatty acids, total saturated":4.2675,"DHA":0.0,"EPA":0.0,"Protein":17.405,"Vitamin A, RAE":64.0,"Vitamin E":3.33,"Vitamin D (D2 + D3)":0.0,"Vitamin C":6.25,"Thiamin":0.628,"Riboflavin":0.327,"Niacin":4.579,"Vitamin B-6":0.435,"Folate, total":10.0,"Vitamin B-12":0.0,"Choline":24.7,"Vitamin K1":5.4,"Vitamin A":1260.0,"Calcium":926.0,"Iron":66.18,"Magnesium":366.0,"Phosphorus":499.0,"Potassium":1788.0,"Sodium":964.0,"Zinc":4.8,"Copper":0.867,"Manganese":3.333,"Selenium":5.2}},"duck_egg":{"display_name":"Duck Egg","category":"Dairy & Eggs","nutrients":{"Energy":204.86711281070745,"Carbohydrate":1.3775,"Fiber":0.0,"Total Sugars":1.0325,"Total fat":16.174999999999997,"Cholesterol":848.75,"Fatty acids, total saturated":4.43625,"DHA":0.0,"EPA":0.0,"Protein":12.6425,"Vitamin A, RAE":200.0,"Vitamin E":1.8333333333333333,"Vitamin D (D2 + D3)":1.6333333333333335,"Vitamin C":0.0,"Thiamin":0.1276666666666666,"Riboflavin":0.367,"Niacin":0.1756666666666666,"Pantothenic acid":1.862,"Vitamin B-6":0.2513333333333333,"Folate, total":63.0,"Vitamin B-12":4.41,"Choline":219.06666666666663,"Vitamin K1":3.533333333333333,"Calcium":59.5,"Iron":3.6775,"Magnesium":16.0,"Phosphorus":206.66666666666663,"Potassium":209.0,"Sodium":203.0,"Zinc":1.3233333333333333,"Copper":0.0593333333333333,"Manganese":0.038,"Selenium":34.9}},"egg":{"display_name":"Egg","category":"Dairy & Eggs","nutrients":{"Energy":140.0,"Carbohydrate":0.0,"Fiber":0.0,"Total fat":10.0,"Cholesterol":370.0,"Fatty acids, total saturated":3.0,"Protein":12.0,"Riboflavin":0.386,"Vitamin B-6":0.182,"Folate, total":51.0,"Vitamin B-12":0.82,"Calcium":40.0,"Iron":1.44,"Phosphorus":182.0,"Potassium":138.0,"Sodium":140.0,"Zinc":1.36,"Selenium":50.5}},"garlic":{"display_name":"Garlic","category":"Vegetables & Herbs","nutrients":{"Fiber":3.4,"Total fat":0.3,"Vitamin C":9.4,"Selenium":13.6}},"ginger":{"display_name":"Ginger","category":"Vegetables & Herbs","nutrients":{"Energy":1.0,"Carbohydrate":0.3,"Fiber":0.0,"Total Sugars":0.02,"Total fat":0.005,"Cholesterol":0.0,"Fatty acids, total saturated":0.002,"DHA":0.0,"EPA":0.0,"Protein":0.01,"Vitamin A, RAE":0.0,"Vitamin E":0.0,"Vitamin D (D2 + D3)":0.0,"Vitamin C":0.0,"Thiamin":0.0,"Riboflavin":0.0,"Niacin":0.008,"Vitamin B-6":0.002,"Folate, total":0.0,"Vitamin B-12":0.0,"Choline":0.3,"Vitamin K1":0.0,"Calcium":3.0,"Iron":0.01,"Magnesium":1.0,"Phosphorus":0.0,"Potassium":4.0,"Sodium":2.0,"Zinc":0.01,"Copper":0.012,"Selenium":0.0}},"herring":{"display_name":"Herring","category":"Fish & Seafood","nutrients":{"Energy":245.0,"Carbohydrate":7.79,"Fiber":0.3,"Total Sugars":0.14,"Total fat":14.32,"Cholesterol":71.0,"Fatty acids, total saturated":3.39,"DHA":0.903,"EPA":0.743,"Protein":20.1,"Vitamin A, RAE":47.0,"Vitamin E":1.82,"Vitamin D (D2 + D3)":4.5,"Vitamin C":0.6,"Thiamin":0.179,"Riboflavin":0.281,"Niacin":4.052,"Vitamin B-6":0.322,"Folate, total":26.0,"Vitamin B-12":12.91,"Choline":73.0,"Vitamin K1":4.0,"Calcium":70.0,"Iron":1.74,"Magnesium":37.0,"Phosphorus":263.0,"Potassium":359.0,"Sodium":357.0,"Zinc":1.14,"Copper":0.115,"Selenium":40.3}},"kale":{"display_name":"Kale","category":"Vegetables & Herbs","nutrients":{"Energy":53.0,"Carbohydrate":9.73,"Fiber":1.8,"Total fat":0.88,"Cholesterol":0.0,"Fatty acids, total saturated":0.0,"Protein":3.54,"Vitamin C":122.1,"Riboflavin":0.2,"Niacin":1.326,"Pantothenic acid":0.37,"Vitamin B-6":0.265,"Folate, total":40.5,"Vitamin K1":828.3,"Calcium":168.0,"Iron":1.475,"Magnesium":32.05,"Phosphorus":57.5,"Potassium":399.5,"Sodium":30.0,"Zinc":0.4,"Copper":0.1595,"Manganese":0.8875}},"kidney":{"display_name":"Kidney","category":"Meat & Offal","nutrients":{"Energy":157.0,"Carbohydrate":0.0,"Fiber":0.0,"Total Sugars":0.0,"Total fat":4.61,"Cholesterol":710.0,"Fatty acids, total saturated":1.428,"DHA":0.0,"EPA":0.0,"Protein":27.05,"Vitamin A, RAE":0.0,"Vitamin E":0.08,"Vitamin D (D2 + D3)":1.1,"Vitamin C":0.0,"Thiamin":0.159,"Riboflavin":2.946,"Niacin":3.889,"Vitamin B-6":0.388,"Folate, total":82.0,"Vitamin B-12":24.7,"Choline":509.1,"Vitamin K1":0.0,"Calcium":19.0,"Iron":5.75,"Magnesium":12.0,"Phosphorus":302.0,"Potassium":134.0,"Sodium":400.0,"Zinc":2.82,"Copper":0.56,"Selenium":166.7}},"kimchi":{"display_name":"Kimchi","category":"Pantry & Ferments","nutrients":{"Energy":15.0,"Carbohydrate":2.4,"Fiber":1.6,"Total Sugars":1.06,"Total fat":0.5,"Cholesterol":0.0,"Fatty acids, total saturated":0.067,"DHA":0.0,"EPA":0.0,"Protein":1.1,"Vitamin A, RAE":5.0,"Vitamin E":0.11,"Vitamin D (D2 + D3)":0.0,"Vitamin C":0.0,"Thiamin":0.01,"Riboflavin":0.21,"Niacin":1.1,"Vitamin B-6":0.213,"Folate, total":52.0,"Vitamin B-12":0.0,"Choline":15.5,"Vitamin K1":43.6,"Calcium":33.0,"Iron":2.5,"Magnesium":14.0,"Phosphorus":24.0,"Potassium":151.0,"Sodium":498.0,"Zinc":0.22,"Copper":0.024,"Selenium":0.5}},"lemon":{"display_name":"Lemon","category":"Other","nutrients":{"Energy":29.0,"Carbohydrate":9.32,"Fiber":2.8,"Total Sugars":2.5,"Total fat":0.3,"Cholesterol":0.0,"Fatty acids, total saturated":0.039,"DHA":0.0,"EPA":0.0,"Protein":1.1,"Vitamin A, RAE":1.0,"Vitamin E":0.15,"Vitamin D (D2 + D3)":0.0,"Vitamin C":53.0,"Thiamin":0.04,"Riboflavin":0.02,"Niacin":0.1,"Vitamin B-6":0.08,"Folate, total":11.0,"Vitamin B-12":0.0,"Choline":5.1,"Vitamin K1":0.0,"Calcium":26.0,"Iron":0.6,"Magnesium":8.0,"Phosphorus":16.0,"Potassium":138.0,"Sodium":2.0,"Zinc":0.06,"Copper":0.037,"Selenium":0.4}},"light_soy_sauce":{"display_name":"Light Soy Sauce","category":"Pantry & Ferments","nutrients":{"Energy":53.0,"Carbohydrate":4.93,"Fiber":0.8,"Total Sugars":0.4,"Total fat":0.57,"Cholesterol":0.0,"Fatty acids, total saturated":0.073,"DHA":0.0,"EPA":0.0,"Protein":8.14,"Vitamin A, RAE":0.0,"Vitamin E":0.0,"Vitamin D (D2 + D3)":0.0,"Vitamin C":0.0,"Thiamin":0.033,"Riboflavin":0.165,"Niacin":2.196,"Vitamin B-6":0.148,"Folate, total":14.0,"Vitamin B-12":0.0,"Choline":18.3,"Vitamin K1":0.0,"Calcium":33.0,"Iron":1.45,"Magnesium":74.0,"Phosphorus":166.0,"Potassium":435.0,"Sodium":5493.0,"Zinc":0.87,"Copper":0.043,"Selenium":0.5}},"liver":{"display_name":"Liver","category":"Meat & Offal","nutrients":{"Energy":174.0,"Carbohydrate":5.12,"Fiber":0.0,"Total Sugars":0.0,"Total fat":4.64,"Cholesterol":378.0,"Fatty acids, total saturated":2.51,"DHA":0.0,"EPA":0.0,"Protein":26.31,"Vitamin A, RAE":7683.0,"Vitamin E":0.46,"Vitamin D (D2 + D3)":1.2,"Vitamin C":0.7,"Thiamin":0.176,"Riboflavin":3.398,"Niacin":17.336,"Vitamin B-6":1.019,"Folate, total":258.0,"Vitamin B-12":82.47,"Choline":414.9,"Vitamin K1":3.9,"Calcium":6.0,"Iron":6.12,"Magnesium":22.0,"Phosphorus":481.0,"Potassium":348.0,"Sodium":384.0,"Zinc":5.19,"Copper":14.472,"Selenium":32.5}},"mackerel":{"display_name":"Mackerel","category":"Fish & Seafood","nutrients":{"Energy":291.38279158699805,"Carbohydrate":0.0,"Fiber":0.0,"Total Sugars":0.0,"Total fat":23.56,"Cholesterol":73.4,"Fatty acids, total saturated":6.0748,"DHA":2.965,"EPA":1.619,"Protein":18.964,"Vitamin A, RAE":47.0,"Vitamin E":2.38,"Vitamin D (D2 + D3)":25.2,"Vitamin C":0.0,"Thiamin":0.02,"Riboflavin":0.19,"Niacin":3.2999999999999994,"Vitamin B-6":0.41,"Folate, total":15.0,"Vitamin B-12":12.0,"Choline":101.59999999999998,"Vitamin K1":7.8,"Calcium":51.8,"Iron":1.7639999999999998,"Magnesium":60.0,"Phosphorus":254.0,"Potassium":520.0,"Sodium":2849.0,"Zinc":1.1,"Copper":0.1,"Selenium":73.4}},"miso":{"display_name":"Miso","category":"Pantry & Ferments","nutrients":{"Energy":197.93116634799233,"Carbohydrate":25.37,"Fiber":5.400000000000001,"Total Sugars":6.2,"Total fat":6.010000000000001,"Cholesterol":0.0,"Fatty acids, total saturated":1.025,"DHA":0.0,"EPA":0.0,"Protein":12.79,"Vitamin A, RAE":4.0,"Vitamin E":0.01,"Vitamin D (D2 + D3)":0.0,"Vitamin C":0.0,"Thiamin":0.098,"Riboflavin":0.233,"Niacin":0.906,"Pantothenic acid":0.337,"Vitamin B-6":0.1989999999999999,"Folate, total":19.0,"Vitamin B-12":0.08,"Choline":72.2,"Vitamin K1":29.3,"Calcium":57.0,"Iron":2.49,"Magnesium":48.0,"Phosphorus":159.0,"Potassium":210.0,"Sodium":3728.0,"Zinc":2.56,"Copper":0.42,"Manganese":0.859,"Selenium":7.0}},"mushroom":{"display_name":"Mushroom","category":"Vegetables & Herbs","nutrients":{"Energy":33.4200355,"Carbohydrate":7.1188875,"Fiber":3.3065,"Total fat":0.26138,"Protein":2.4240625,"Vitamin D (D2 + D3)":0.5167,"Thiamin":0.0318,"Riboflavin":0.2213999999999999,"Niacin":5.223000000000001,"Vitamin B-6":0.1019159999999999,"Folate, total":49.59,"Calcium":0.2397599999999999,"Iron":0.4506200000000001,"Magnesium":12.08,"Phosphorus":78.62800000000001,"Potassium":286.3,"Sodium":1.24812,"Zinc":0.62822,"Copper":0.1192199999999999,"Manganese":0.107488,"Selenium":1.2544}},"natto":{"display_name":"Natto","category":"Fish & Seafood","nutrients":{"Energy":211.0,"Carbohydrate":12.68,"Fiber":5.4,"Total Sugars":4.89,"Total fat":11.0,"Cholesterol":0.0,"Fatty acids, total saturated":1.591,"DHA":0.0,"EPA":0.0,"Protein":19.4,"Vitamin A, RAE":0.0,"Vitamin E":0.01,"Vitamin D (D2 + D3)":0.0,"Vitamin C":13.0,"Thiamin":0.16,"Riboflavin":0.19,"Niacin":0.0,"Pantothenic acid":0.215,"Vitamin B-6":0.13,"Folate, total":8.0,"Vitamin B-12":0.0,"Choline":57.0,"Vitamin K1":23.1,"Calcium":217.0,"Iron":8.6,"Magnesium":115.0,"Phosphorus":174.0,"Potassium":729.0,"Sodium":7.0,"Zinc":3.03,"Copper":0.667,"Manganese":1.528,"Selenium":8.8}},"nori":{"display_name":"Nori","category":"Pantry & Ferments","nutrients":{"Energy":486.0,"Carbohydrate":57.14,"Fiber":57.1,"Total fat":0.0,"Cholesterol":0.0,"Fatty acids, total saturated":0.0,"Protein":57.14,"Vitamin C":17.1,"Calcium":286.0,"Iron":51.43,"Sodium":2429.0}},"olive_oil":{"display_name":"Olive Oil","category":"Pantry & Ferments","nutrients":{"Energy":825.0,"Carbohydrate":0.0,"Fiber":0.0,"Total Sugars":0.0,"Total fat":93.3325,"Cholesterol":0.0,"Fatty acids, total saturated":13.8775,"DHA":0.0,"EPA":0.0,"Protein":0.0,"Vitamin A, RAE":0.0,"Vitamin E":16.939999999999998,"Vitamin D (D2 + D3)":0.0,"Vitamin C":0.0,"Thiamin":0.0,"Riboflavin":0.0,"Niacin":0.0,"Vitamin B-6":0.0,"Folate, total":0.0,"Vitamin B-12":0.0,"Choline":0.3,"Vitamin K1":26.0,"Calcium":1.0,"Iron":0.56,"Magnesium":0.0,"Phosphorus":0.0,"Potassium":1.0,"Sodium":0.5,"Zinc":0.0,"Copper":0.0,"Selenium":0.0}},"onion":{"display_name":"Onion","category":"Vegetables & Herbs","nutrients":{"Energy":242.0,"Carbohydrate":47.6,"Fiber":1.75,"Total Sugars":3.42,"Total fat":2.35,"Cholesterol":2.0,"Fatty acids, total saturated":0.497,"DHA":0.0,"EPA":0.0,"Protein":8.79,"Vitamin A, RAE":17.0,"Vitamin E":0.28,"Vitamin D (D2 + D3)":0.2,"Vitamin C":0.9,"Thiamin":0.486,"Riboflavin":0.262,"Niacin":3.481,"Vitamin B-6":0.072,"Folate, total":70.0,"Vitamin B-12":0.05,"Choline":9.0,"Vitamin K1":0.8,"Calcium":27.0,"Iron":3.22,"Magnesium":24.0,"Phosphorus":93.0,"Potassium":123.5,"Sodium":451.5,"Zinc":0.72,"Copper":0.117,"Selenium":18.8}},"oyster":{"display_name":"Oyster","category":"Fish & Seafood","nutrients":{"Energy":33.246260492351816,"Carbohydrate":6.3028125,"Fiber":2.4375,"Total Sugars":1.11,"Total fat":0.3254999999999999,"Cholesterol":0.0,"Fatty acids, total saturated":0.062,"DHA":0.0,"EPA":0.0,"Protein":3.2071875000000003,"Vitamin A, RAE":2.0,"Vitamin E":0.0,"Vitamin D (D2 + D3)":0.53515,"Vitamin C":0.0,"Thiamin":0.103,"Riboflavin":0.29216,"Niacin":5.0158000000000005,"Pantothenic acid":1.294,"Vitamin B-6":0.100776,"Folate, total":46.128,"Vitamin B-12":0.0,"Choline":48.70000000000001,"Vitamin K2 MK-4":0.0,"Vitamin K1":0.0,"Calcium":1.8,"Iron":1.03022,"Magnesium":15.762,"Phosphorus":103.808,"Potassium":362.52,"Sodium":11.6136,"Zinc":0.68526,"Copper":0.18668,"Manganese":0.097728,"Selenium":1.8358}},"parmesan_cheese":{"display_name":"Parmesan Cheese","category":"Dairy & Eggs","nutrients":{"Energy":400.0,"Carbohydrate":0.0,"Fiber":0.0,"Total fat":30.0,"Cholesterol":100.0,"Fatty acids, total saturated":20.0,"Protein":40.0,"Vitamin A":129.0,"Calcium":2000.0,"Potassium":89.0,"Sodium":1350.0}},"parsley":{"display_name":"Parsley","category":"Vegetables & Herbs","nutrients":{"Energy":36.06739961759082,"Carbohydrate":6.33,"Fiber":3.3,"Total Sugars":0.85,"Total fat":0.79,"Cholesterol":0.0,"Fatty acids, total saturated":0.132,"DHA":0.0,"EPA":0.0,"Protein":2.97,"Vitamin A, RAE":421.0,"Vitamin E":0.75,"Vitamin D (D2 + D3)":0.0,"Vitamin C":133.0,"Thiamin":0.086,"Riboflavin":0.098,"Niacin":1.313,"Pantothenic acid":0.4000000000000001,"Vitamin B-6":0.09,"Folate, total":152.0,"Vitamin B-12":0.0,"Choline":12.8,"Vitamin K1":1640.0,"Calcium":138.0,"Iron":6.2,"Magnesium":50.0,"Phosphorus":58.0,"Potassium":554.0,"Sodium":56.0,"Zinc":1.07,"Copper":0.149,"Manganese":0.16,"Selenium":0.1}},"pasta":{"display_name":"Pasta","category":"Grains & Starches","nutrients":{"Energy":157.0,"Carbohydrate":30.68,"Fiber":1.8,"Total Sugars":0.56,"Total fat":0.92,"Cholesterol":0.0,"Fatty acids, total saturated":0.175,"DHA":0.0,"EPA":0.0,"Protein":5.76,"Vitamin A, RAE":0.0,"Vitamin E":0.06,"Vitamin D (D2 + D3)":0.0,"Vitamin C":0.0,"Thiamin":0.272,"Riboflavin":0.135,"Niacin":1.679,"Vitamin B-6":0.049,"Folate, total":73.0,"Vitamin B-12":0.0,"Choline":6.4,"Vitamin K1":0.0,"Calcium":7.0,"Iron":1.27,"Magnesium":18.0,"Phosphorus":58.0,"Potassium":44.0,"Sodium":232.0,"Zinc":0.51,"Copper":0.099,"Selenium":26.2}},"potato":{"display_name":"Potato","category":"Vegetables & Herbs","nutrients":{"Energy":74.0,"Carbohydrate":17.57,"Fiber":1.4,"Total Sugars":0.68,"Total fat":0.0,"Cholesterol":0.0,"Fatty acids, total saturated":0.0,"Protein":2.7,"Vitamin C":18.2,"Riboflavin":0.023,"Niacin":1.081,"Vitamin B-6":0.135,"Folate, total":16.0,"Calcium":14.0,"Iron":0.73,"Magnesium":16.0,"Phosphorus":41.0,"Potassium":419.0,"Sodium":0.0,"Zinc":0.2,"Copper":0.054}},"salmon_roe":{"display_name":"Salmon Roe","category":"Other","nutrients":{"Energy":143.1644359464627,"Carbohydrate":1.5,"Fiber":0.0,"Total Sugars":0.0,"Total fat":6.42,"Cholesterol":374.0,"Fatty acids, total saturated":1.456,"DHA":1.363,"EPA":0.983,"Protein":22.32,"Vitamin A, RAE":90.0,"Vitamin E":7.0,"Vitamin D (D2 + D3)":12.1,"Vitamin C":16.0,"Thiamin":0.24,"Riboflavin":0.74,"Niacin":1.8,"Pantothenic acid":1.0,"Vitamin B-6":0.16,"Folate, total":80.0,"Vitamin B-12":10.0,"Choline":335.4,"Vitamin K1":0.2,"Calcium":22.0,"Iron":0.6,"Magnesium":20.0,"Phosphorus":402.0,"Potassium":221.0,"Sodium":91.0,"Zinc":1.0,"Copper":0.1,"Manganese":0.01,"Selenium":40.3}},"salt":{"display_name":"Salt","category":"Pantry & Ferments","nutrients":{"Energy":0.0,"Carbohydrate":0.0,"Fiber":0.0,"Total Sugars":0.0,"Total fat":0.0,"Cholesterol":0.0,"Fatty acids, total saturated":0.0,"DHA":0.0,"EPA":0.0,"Protein":0.0,"Vitamin A, RAE":0.0,"Vitamin E":0.0,"Vitamin D (D2 + D3)":0.0,"Vitamin C":0.0,"Thiamin":0.0,"Riboflavin":0.0,"Niacin":0.0,"Pantothenic acid":0.0,"Vitamin B-6":0.0,"Folate, total":0.0,"Vitamin B-12":0.0,"Choline":0.0,"Vitamin K1":0.0,"Calcium":24.0,"Iron":0.33,"Magnesium":1.0,"Phosphorus":0.0,"Potassium":8.0,"Sodium":38873.0,"Zinc":0.1,"Copper":0.03,"Iodine":5357.0,"Manganese":0.1,"Selenium":0.1}},"sardine":{"display_name":"Sardine","category":"Fish & Seafood","nutrients":{"Energy":234.0,"Carbohydrate":21.87,"Fiber":1.0,"Total Sugars":2.37,"Total fat":7.96,"Cholesterol":79.0,"Fatty acids, total saturated":1.214,"DHA":0.283,"EPA":0.264,"Protein":17.87,"Vitamin A, RAE":18.0,"Vitamin E":1.23,"Vitamin D (D2 + D3)":2.7,"Vitamin C":0.0,"Thiamin":0.27,"Riboflavin":0.233,"Niacin":5.029,"Vitamin B-6":0.134,"Folate, total":55.0,"Vitamin B-12":4.97,"Choline":48.2,"Vitamin K1":1.5,"Calcium":306.0,"Iron":3.12,"Magnesium":34.0,"Phosphorus":322.0,"Potassium":273.0,"Sodium":371.0,"Zinc":1.12,"Copper":0.158,"Selenium":39.6}},"scallion":{"display_name":"Scallion","category":"Vegetables & Herbs","nutrients":{"Energy":241.0,"Carbohydrate":1.47,"Fiber":0.4,"Total Sugars":0.57,"Total fat":17.47,"Cholesterol":67.0,"Fatty acids, total saturated":4.796,"DHA":0.0,"EPA":0.0,"Protein":18.71,"Vitamin A, RAE":109.0,"Vitamin E":1.38,"Vitamin D (D2 + D3)":0.5,"Vitamin C":0.4,"Thiamin":0.047,"Riboflavin":0.292,"Niacin":5.375,"Vitamin B-6":0.198,"Folate, total":16.0,"Vitamin B-12":0.96,"Choline":72.9,"Vitamin K1":15.4,"Calcium":40.0,"Iron":0.75,"Magnesium":19.0,"Phosphorus":177.0,"Potassium":281.0,"Sodium":372.0,"Zinc":2.94,"Copper":0.146,"Selenium":12.2}},"sesame_oil":{"display_name":"Sesame Oil","category":"Pantry & Ferments","nutrients":{"Energy":898.4,"Carbohydrate":0.0,"Fiber":0.0,"Total Sugars":0.0,"Total fat":100.0,"Cholesterol":0.0,"Fatty acids, total saturated":14.272,"DHA":0.0,"EPA":0.0,"Protein":0.0,"Vitamin A, RAE":0.0,"Vitamin E":1.4,"Vitamin D (D2 + D3)":0.0,"Vitamin C":0.0,"Thiamin":0.0,"Riboflavin":0.0,"Niacin":0.0,"Vitamin B-6":0.0,"Folate, total":0.0,"Vitamin B-12":0.0,"Choline":0.2,"Vitamin K1":13.6,"Calcium":0.0,"Iron":6.43,"Magnesium":0.0,"Phosphorus":0.0,"Potassium":0.0,"Sodium":0.0,"Zinc":0.0,"Copper":0.0,"Selenium":0.0}},"spinach":{"display_name":"Spinach","category":"Vegetables & Herbs","nutrients":{"Energy":26.333333333333332,"Carbohydrate":3.9066666666666663,"Fiber":2.766666666666667,"Total fat":0.0,"Cholesterol":0.0,"Fatty acids, total saturated":0.0,"Protein":2.436666666666667,"Vitamin E":2.0,"Vitamin C":16.2,"Riboflavin":0.2,"Vitamin B-6":0.2,"Folate, total":188.0,"Vitamin K1":482.4,"Vitamin A":471.0,"Calcium":115.33333333333331,"Iron":2.236666666666667,"Magnesium":76.0,"Potassium":424.0,"Sodium":148.66666666666666,"Manganese":1.0}},"sweet_potato":{"display_name":"Sweet Potato","category":"Vegetables & Herbs","nutrients":{"Energy":82.2,"Carbohydrate":19.606,"Fiber":3.16,"Total Sugars":4.546,"Total fat":0.0,"Cholesterol":0.0,"Fatty acids, total saturated":0.0,"Protein":1.5539999999999998,"Vitamin C":8.05,"Thiamin":0.0,"Riboflavin":0.052,"Niacin":0.615,"Pantothenic acid":0.769,"Vitamin B-6":0.231,"Folate, total":12.0,"Vitamin K1":1.2,"Calcium":28.8,"Iron":0.6819999999999999,"Magnesium":28.0,"Phosphorus":46.0,"Potassium":337.3333333333333,"Sodium":54.2,"Zinc":0.23,"Copper":0.154,"Manganese":0.0}},"tofu":{"display_name":"Tofu","category":"Legumes & Soy","nutrients":{"Energy":94.16826003824092,"Carbohydrate":15.96,"Fiber":0.2,"Total Sugars":1.24,"Total fat":1.8,"Cholesterol":0.0,"Fatty acids, total saturated":0.259,"DHA":0.0,"EPA":0.0,"Protein":3.5,"Vitamin A, RAE":2.0,"Vitamin E":0.31,"Vitamin D (D2 + D3)":0.0,"Vitamin C":2.5,"Thiamin":0.06,"Riboflavin":0.02,"Niacin":0.24,"Vitamin B-6":0.02,"Folate, total":6.0,"Vitamin B-12":0.0,"Choline":48.4,"Vitamin K1":3.5,"Calcium":118.0,"Iron":1.06,"Magnesium":40.0,"Phosphorus":38.0,"Potassium":47.0,"Sodium":35.0,"Zinc":0.31,"Copper":0.075,"Selenium":13.0}},"tomato":{"display_name":"Tomato","category":"Vegetables & Herbs","nutrients":{"Energy":19.7385901875,"Carbohydrate":3.60686875,"Fiber":1.06765,"Total Sugars":2.8866666666666667,"Total fat":0.21625,"Cholesterol":0.0,"Fatty acids, total saturated":0.0066666666666666,"Protein":0.79390625,"Vitamin A, RAE":23.9,"Vitamin C":17.1875,"Thiamin":0.027875,"Riboflavin":0.0276666666666666,"Niacin":0.4553666666666666,"Pantothenic acid":0.0,"Vitamin B-6":0.0806466666666666,"Folate, total":12.664666666666667,"Vitamin B-12":0.0,"Choline":0.0,"Vitamin K1":5.9,"Vitamin A":8.0,"Calcium":11.987666666666668,"Iron":0.5176999999999999,"Magnesium":9.5445,"Phosphorus":20.545,"Potassium":191.4,"Sodium":56.5,"Zinc":0.116225,"Copper":0.01599,"Iodine":0.0,"Manganese":0.04345,"Molybdenum":0.0,"Selenium":0.0}},"wakame":{"display_name":"Wakame","category":"Pantry & Ferments","nutrients":{"Energy":257.0,"Carbohydrate":57.14,"Fiber":14.3,"Total fat":0.0,"Cholesterol":0.0,"Fatty acids, total saturated":0.0,"Protein":14.29,"Vitamin C":34.3,"Calcium":1429.0,"Iron":15.43,"Sodium":1129.0}}},"drv":{"Energy":{"unit":"KCAL","category":"Energy","drv":2500.0,"order":0},"Carbohydrate":{"unit":"G","category":"Carbohydrates","drv":320.0,"order":4},"Sugars, Total":{"unit":"G","category":"Carbohydrates","drv":50.0,"order":5},"Fiber":{"unit":"G","category":"Carbohydrates","drv":30.0,"order":6},"Total Sugars":{"unit":"G","category":"Carbohydrates","drv":50.0,"order":7},"Fiber (AOAC 2011.25)":{"unit":"G","category":"Carbohydrates","drv":28.0,"order":8},"Total fat":{"unit":"G","category":"Lipids","drv":80.0,"order":9},"Cholesterol":{"unit":"MG","category":"Lipids","drv":300.0,"order":10},"Fatty acids, total saturated":{"unit":"G","category":"Lipids","drv":20.0,"order":11},"DHA":{"unit":"G","category":"Lipids","drv":0.25,"order":12},"EPA":{"unit":"G","category":"Lipids","drv":0.25,"order":13},"ALA":{"unit":"G","category":"Lipids","drv":1.5,"order":14},"Protein":{"unit":"G","category":"Proteins","drv":160.0,"order":15},"Vitamin A, RAE":{"unit":"UG","category":"Vitamins","drv":900.0,"order":16},"Vitamin E":{"unit":"MG","category":"Vitamins","drv":15.0,"order":17},"Vitamin D (D2 + D3)":{"unit":"UG","category":"Vitamins","drv":20.0,"order":18},"Vitamin C":{"unit":"MG","category":"Vitamins","drv":90.0,"order":20},"Thiamin":{"unit":"MG","category":"Vitamins","drv":1.2,"order":21},"Riboflavin":{"unit":"MG","category":"Vitamins","drv":1.3,"order":22},"Niacin":{"unit":"MG","category":"Vitamins","drv":16.0,"order":23},"Pantothenic acid":{"unit":"MG","category":"Vitamins","drv":5.0,"order":24},"Vitamin B-6":{"unit":"MG","category":"Vitamins","drv":1.7,"order":25},"Folate, total":{"unit":"UG","category":"Vitamins","drv":400.0,"order":26},"Vitamin B-12":{"unit":"UG","category":"Vitamins","drv":2.4,"order":27},"Choline":{"unit":"MG","category":"Vitamins","drv":550.0,"order":28},"Vitamin K2 MK-4":{"unit":"UG","category":"Vitamins","drv":50.0,"order":29},"Vitamin K1":{"unit":"UG","category":"Vitamins","drv":120.0,"order":30},"Vitamin A":{"unit":"UG","category":"Vitamins","drv":900.0,"order":32},"Calcium":{"unit":"MG","category":"Minerals","drv":1000.0,"order":33},"Iron":{"unit":"MG","category":"Minerals","drv":10.0,"order":34},"Magnesium":{"unit":"MG","category":"Minerals","drv":420.0,"order":35},"Phosphorus":{"unit":"MG","category":"Minerals","drv":700.0,"order":36},"Potassium":{"unit":"MG","category":"Minerals","drv":3400.0,"order":37},"Sodium":{"unit":"MG","category":"Minerals","drv":1500.0,"order":38},"Zinc":{"unit":"MG","category":"Minerals","drv":11.0,"order":39},"Copper":{"unit":"MG","category":"Minerals","drv":0.9,"order":40},"Iodine":{"unit":"UG","category":"Minerals","drv":150.0,"order":41},"Manganese":{"unit":"MG","category":"Minerals","drv":2.3,"order":42},"Molybdenum":{"unit":"UG","category":"Minerals","drv":45.0,"order":43},"Selenium":{"unit":"UG","category":"Minerals","drv":55.0,"order":44}}};</script>
+  <script>(function () {
+  'use strict';
+
+  const DATA = window.__DATA__;
+  const mealQuantities = new Map();
+
+  function mealKey(day, meal, version) {
+    return `${day}-${meal}-${version}`;
+  }
+
+  function getCookie(name) {
+    const prefix = name + '=';
+    for (const part of document.cookie.split(';')) {
+      const c = part.trim();
+      if (c.startsWith(prefix)) return c.slice(prefix.length);
+    }
+    return null;
+  }
+
+  function setCookie(name, value, days) {
+    const d = new Date();
+    d.setTime(d.getTime() + days * 86400000);
+    document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
+  }
+
+  function encodeSelections() {
+    const parts = [];
+    for (const [key, qty] of mealQuantities) {
+      if (qty > 0) {
+        const [day, meal, version] = key.split('-');
+        parts.push(`${DATA.days.indexOf(day)}-${DATA.meals.indexOf(meal)}-${version}-${qty}`);
+      }
+    }
+    return parts.join('|');
+  }
+
+  function decodeSelections(encoded) {
+    if (!encoded) return;
+    for (const part of encoded.split('|')) {
+      if (!part) continue;
+      const [di, mi, vi, qty] = part.split('-').map(Number);
+      const key = mealKey(DATA.days[di], DATA.meals[mi], String(vi));
+      mealQuantities.set(key, qty);
+    }
+  }
+
+  function saveState() {
+    const encoded = encodeSelections();
+    setCookie('mealSelections', encoded, 7);
+    location.hash = encoded;
+  }
+
+  function loadState() {
+    const encoded = location.hash.slice(1) || getCookie('mealSelections') || '';
+    if (encoded && !location.hash.slice(1)) location.hash = encoded;
+    decodeSelections(encoded);
+  }
+
+  function getFood(id) {
+    return DATA.foods[id];
+  }
+
+  function scaleContent(html, factor) {
+    return html.replace(/data-qty="([\d.]+)"/g, (_, q) => {
+      const scaled = (parseFloat(q) * factor).toFixed(2).replace(/\.00$/, '');
+      return `data-qty="${scaled}"`;
+    }).replace(/<span class="qty">([\d.]+)g<\/span>/g, (_, q) => {
+      const scaled = (parseFloat(q) * factor).toFixed(2).replace(/\.00$/, '');
+      return `<span class="qty">${scaled}g</span>`;
+    });
+  }
+
+  function aggregateNutrients(foodList) {
+    const agg = {};
+    for (const { foodName, quantity } of foodList) {
+      const food = getFood(foodName);
+      if (!food || !quantity) continue;
+      const scale = quantity / 100;
+      for (const [name, amount] of Object.entries(food.nutrients)) {
+        agg[name] = (agg[name] || 0) + amount * scale;
+      }
+    }
+    return agg;
+  }
+
+  function renderNutrientPanel(container, foodList, title) {
+    const agg = aggregateNutrients(foodList);
+    const byCategory = {};
+    for (const [name, total] of Object.entries(agg)) {
+      const meta = DATA.drv[name];
+      if (!meta) continue;
+      const cat = meta.category || 'Other';
+      (byCategory[cat] = byCategory[cat] || []).push({ name, total, ...meta });
+    }
+
+    let html = `<button class="close-btn" onclick="this.parentElement.style.display='none'">×</button>`;
+    html += `<h3>${title}</h3><div class="nutrient-list">`;
+    for (const [cat, items] of Object.entries(byCategory)) {
+      html += `<div class="category-section"><div class="category-title">${cat}</div>`;
+      for (const n of items) {
+        const pct = n.drv > 0 ? Math.min((n.total / n.drv) * 100, 100) : 100;
+        html += `<div class="nutrient-item">
+          <span class="nutrient-name">${n.name}</span>
+          <div class="progress-bar-container"><div class="progress-bar" style="width:${pct}%"></div></div>
+          <span class="nutrient-value">${n.total.toFixed(1)} / ${n.drv} ${n.unit}</span>
+        </div>`;
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    container.innerHTML = html;
+    container.style.display = 'block';
+  }
+
+  function openRecipe(day, meal, version) {
+    const item = DATA.mealData[day][meal][version];
+    const key = mealKey(day, meal, version);
+    let people = Math.max(1, mealQuantities.get(key) || 1);
+    const popup = document.getElementById('popup');
+    const overlay = document.getElementById('overlay');
+    const content = document.getElementById('popup-content');
+    const nutrientPanel = document.getElementById('nutrient-panel');
+    nutrientPanel.style.display = 'none';
+
+    function render() {
+      const scaled = scaleContent(item.contentHtml, people);
+      content.innerHTML = `
+        <div class="popup-header">
+          <h2>${item.title} for <span id="popup-people">${people}</span> people</h2>
+          <div class="quantity-control">
+            <button class="decrement">−</button>
+            <input type="number" min="1" step="1" value="${people}" id="popup-people-input">
+            <button class="increment">+</button>
+          </div>
+        </div>
+        <div class="popup-body">${scaled}</div>`;
+
+      content.querySelector('.decrement').onclick = () => {
+        if (people > 1) { people--; mealQuantities.set(key, people); saveState(); refreshCards(); updateAggregations(); render(); }
+      };
+      content.querySelector('.increment').onclick = () => {
+        people++; mealQuantities.set(key, people); saveState(); refreshCards(); updateAggregations(); render();
+      };
+      content.querySelector('#popup-people-input').onchange = (e) => {
+        const v = parseInt(e.target.value, 10);
+        if (v >= 1) { people = v; mealQuantities.set(key, people); saveState(); refreshCards(); updateAggregations(); render(); }
+      };
+
+      content.querySelectorAll('.ingredient-link').forEach((el) => {
+        el.onclick = (ev) => {
+          ev.stopPropagation();
+          const food = el.dataset.food;
+          const qty = parseFloat(el.dataset.qty);
+          const display = getFood(food)?.display_name || food;
+          renderNutrientPanel(nutrientPanel, [{ foodName: food, quantity: qty }],
+            `${qty}g of ${display}`);
+        };
+      });
+    }
+
+    render();
+    popup.style.display = 'block';
+    overlay.style.display = 'block';
+  }
+
+  function closePopups() {
+    document.getElementById('popup').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('nutrient-panel').style.display = 'none';
+  }
+
+  function refreshCards() {
+    document.querySelectorAll('.meal').forEach((card) => {
+      const key = mealKey(card.dataset.day, card.dataset.meal, card.dataset.version);
+      const qty = mealQuantities.get(key) || 0;
+      const circle = card.querySelector('.quantity-circle');
+      circle.textContent = qty > 0 ? qty : '';
+      card.classList.toggle('selected', qty > 0);
+      circle.classList.toggle('active', qty > 0);
+    });
+  }
+
+  function updateAggregations() {
+    const allFoods = [];
+    for (const [key, qty] of mealQuantities) {
+      if (qty <= 0) continue;
+      const [day, meal, version] = key.split('-');
+      const item = DATA.mealData[day]?.[meal]?.[version];
+      if (!item) continue;
+      for (const ing of item.ingredients) {
+        allFoods.push({ foodName: ing.foodName, quantity: ing.quantity * qty });
+      }
+    }
+
+    const shopEl = document.getElementById('shopping-list');
+    if (allFoods.length === 0) {
+      shopEl.innerHTML = '<p class="empty-hint">Select meals above to build your shopping list.</p>';
+    } else {
+      const totals = new Map();
+      for (const { foodName, quantity } of allFoods) {
+        totals.set(foodName, (totals.get(foodName) || 0) + quantity);
+      }
+      const byCat = {};
+      for (const [id, total] of totals) {
+        const cat = getFood(id)?.category || 'Other';
+        (byCat[cat] = byCat[cat] || []).push({ id, total, name: getFood(id)?.display_name || id });
+      }
+      let html = '<div class="food-list"><h2>Ingredients to buy</h2><div class="categories-wrapper">';
+      for (const cat of Object.keys(byCat).sort()) {
+        html += `<div class="category-section"><div class="category-title">${cat}</div><div class="food-items-container">`;
+        for (const f of byCat[cat]) {
+          html += `<div class="food-item"><span class="ingredient-link" data-food="${f.id}" data-qty="${f.total.toFixed(0)}"><strong>${f.name}</strong> <span class="qty">${f.total.toFixed(0)}g</span></span></div>`;
+        }
+        html += '</div></div>';
+      }
+      html += '</div></div>';
+      shopEl.innerHTML = html;
+      shopEl.querySelectorAll('.ingredient-link').forEach((el) => {
+        el.onclick = () => {
+          const food = el.dataset.food;
+          const qty = parseFloat(el.dataset.qty);
+          const panel = document.getElementById('nutrient-panel');
+          panel.style.display = 'block';
+          document.getElementById('popup').style.display = 'block';
+          document.getElementById('overlay').style.display = 'block';
+          renderNutrientPanel(panel, [{ foodName: food, quantity: qty }],
+            `${qty}g of ${getFood(food)?.display_name || food}`);
+        };
+      });
+    }
+
+    const nutEl = document.getElementById('nutrient-aggregate');
+    if (allFoods.length === 0) {
+      nutEl.innerHTML = '<p class="empty-hint">Select meals to see aggregated nutrients.</p>';
+    } else {
+      renderNutrientPanel(nutEl, allFoods, 'Nutrients for selected plan');
+      nutEl.style.display = 'block';
+      nutEl.querySelector('.close-btn')?.remove();
+    }
+
+    saveState();
+  }
+
+  function init() {
+    loadState();
+    refreshCards();
+    updateAggregations();
+
+    document.querySelectorAll('.meal').forEach((card) => {
+      const { day, meal, version } = card.dataset;
+      const key = mealKey(day, meal, version);
+      if (!mealQuantities.has(key)) mealQuantities.set(key, 0);
+
+      card.querySelector('.quantity-circle').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const qty = (mealQuantities.get(key) || 0) + 1;
+        mealQuantities.set(key, qty);
+        refreshCards();
+        updateAggregations();
+      });
+
+      card.addEventListener('click', () => openRecipe(day, meal, version));
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRecipe(day, meal, version); }
+      });
+    });
+
+    document.querySelectorAll('.section-reset').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mealType = btn.dataset.meal;
+        for (const day of DATA.days) {
+          const versions = DATA.mealData[day]?.[mealType] || {};
+          for (const version of Object.keys(versions)) {
+            mealQuantities.set(mealKey(day, mealType, version), 0);
+          }
+        }
+        refreshCards();
+        updateAggregations();
+      });
+    });
+
+    document.getElementById('overlay').addEventListener('click', closePopups);
+
+    document.querySelectorAll('.tab-button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-button').forEach((b) => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach((c) => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
+      });
+    });
+
+    registerServiceWorker();
+  }
+
+  function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    const register = () => {
+      navigator.serviceWorker.register('./sw.js').catch((err) => {
+        console.warn('Service worker registration failed:', err);
+      });
+    };
+    if (document.readyState === 'complete') register();
+    else window.addEventListener('load', register);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,7 +1,6 @@
-# Smoothie Bowl
+# Herring Kale Bowl
+<!-- quick:8 -->
 
-Blend together 1 {120g {banana, frozen}}, 60g of {frozen berries}, 60g of {Greek yogurt}, 1 tablespoon of {15g {chia seeds}}, and a splash of {{almond milk}} until smooth. Pour into a bowl and top with sliced {{fruit}}, {{granola}}, and a drizzle of {{honey}}.
+![Herring Kale Bowl](images/wednesday_morning_1.jpg)
 
-This vibrant smoothie bowl is not only visually appealing but also packed with antioxidants, protein, and healthy carbs to kickstart your day and keep you satisfied until your next meal!
-
-![Banana Boat French Toast](../../MealPlanner/meals/images/smoothie_bowl.jpg)
+Toss {80g {kale}} (massaged with {5g {lemon}} juice) with {10g {olive_oil}}. Top with {120g {herring}} (drained), {60g {brown_rice}}, and a pinch of {1g {black_pepper}}.

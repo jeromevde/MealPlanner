@@ -9,10 +9,8 @@ export const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "sa
 export const meals = ["morning", "midday", "evening"];
 export const versions = ["1", "2", "3"];
 export const data = {};
-export const food_csv = "./fooddata/food.csv";
-export const nutrient_csv = "./fooddata/nutrient.csv";
-export const food_nutrient_csv = "./fooddata/food_nutrient.csv";
-export const food_category_csv = "./fooddata/food_category.csv";
+export { get_display_name, has_food } from './fooddata_csv.js';
+export { computeMealStats, densityLabel } from './nutrient-density.js';
 
 
 // Regex to match two patterns:
@@ -51,7 +49,7 @@ export async function fetchData() {
                         const fileContent = await response.text();
                         const lines = fileContent.split('\n');
                         const title = lines[0];
-                        const expandedContent = lines.slice(1).join('\n');
+                        const expandedContent = lines.slice(1).join('\n').replace(/<!--[\s\S]*?-->/g, '').trim();
 
                         if (!data[day]) data[day] = {};
                         if (!data[day][meal]) data[day][meal] = {};
@@ -72,7 +70,7 @@ export async function fetchData() {
 export async function parseAndLinkMealContent(content) {
     let match;
     let newContent = content;
-    for (const [amount, foodName, originalText] of api.parseIngredients(content)){
+    for (const [amount, foodName, originalText] of parseIngredients(content)){
         // Create a foodList array with one item
         const foodList = [{ foodName: foodName, quantity: amount }];
         // Convert to JSON string, escaping double quotes for HTML attributes

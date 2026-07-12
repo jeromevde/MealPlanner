@@ -1,5 +1,6 @@
-# Lentil and Sweet Potato Soup
+# Miso Tofu Soup Bowl
+<!-- quick:10 -->
 
-Heat 1/2 tablespoon of {7g {olive oil}} in a pot over medium heat. Add 1/4 of a chopped {25g {onion, yellow, raw}} and 1 minced clove of {5g {garlic, raw}}, cooking until translucent. Add {30g {carrots, raw}} (diced) and {75g {sweet potato, raw}} (diced), sauté for 5 minutes. Stir in {50g {lentils, green or brown, raw}} (rinsed), then pour in {250g {vegetable broth}}. Season with 1/4 teaspoon of {{cumin}}, a pinch of {{smoked paprika}}, salt, and pepper. Bring to a boil, then simmer covered for 30 minutes until the lentils and sweet potatoes are tender. For a creamy texture, blend part of the soup if desired. Stir in a handful of {{spinach}} or {{kale}} until wilted and serve hot, garnished with chopped {{parsley}} or a spoonful of {{yogurt}}.       
+![Miso Tofu Soup Bowl](images/thursday_midday_1.jpg)
 
-![sweetpotatolentilsoup](../../MealPlanner/meals/images/sweetpotatolentilsoup.jpg)
+Bring {300g {chicken_broth}} to a simmer. Dissolve {30g {miso}} and add {150g {tofu}} (cubed), {5g {wakame}}, and {10g {scallion}}. Serve with {100g {brown_rice}} on the side.

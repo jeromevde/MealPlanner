@@ -1,5 +1,6 @@
-# Smoked Salmon on Whole Grain Toast
+# Bone Marrow Toast
+<!-- quick:12 -->
 
-Toast 1 slice of {50g {whole grain bread}} until golden. In a small bowl, mix 1 tablespoon of {{cream cheese}} (or Greek yogurt) with a squeeze of {{lemon juice}}, salt, and pepper. Spread on the toast, then layer {60g {smoked salmon}} on top. Sprinkle 1/2 tablespoon of {{capers}} and 1/2 tablespoon of {{fresh dill}}, and garnish with thin slices of {{cucumber}}, {{red onion}}, or a handful of {{arugula}}. Finish with a squeeze of lemon juice and serve immediately.
+![Bone Marrow Toast](images/thursday_morning_1.jpg)
 
-![salmontoast](../../MealPlanner/meals/images/salmontoast.jpg)
+Roast {120g {bone_marrow}} (bone cut lengthwise) at 220°C for 12 minutes until bubbling. Spread onto {60g {bread}} (toasted). Top with chopped {5g {parsley}} and {1g {salt}}.

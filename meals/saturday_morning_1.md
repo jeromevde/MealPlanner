@@ -1,5 +1,6 @@
-# Smoothie
+# Clam Spinach Pasta
+<!-- quick:18 -->
 
-Combine 120g Bananas, ripe and slightly ripe, raw, 100g Blueberries, raw (or mixed berries), 120g Yogurt, Greek, plain, whole milk, and 200g Milk, whole, 3.25% milkfat, with added vitamin D in a blender, blend until smooth, and serve immediately.
+![Clam Spinach Pasta](images/saturday_morning_1.jpg)
 
-![Smoothie](../../MealPlanner/meals/images/smoothie.jpg)
+Cook {180g {pasta}}. Sauté {5g {garlic}} in {15g {olive_oil}}, add {150g {clam}} and {120g {spinach}}. Toss with pasta and {5g {parsley}}.

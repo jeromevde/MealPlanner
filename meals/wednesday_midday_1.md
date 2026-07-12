@@ -1,9 +1,6 @@
-# Quinoa Salad
+# Oyster Spinach Stir-fry
+<!-- quick:12 -->
 
-Cook {50g {quinoa, raw}} according to package instructions and let cool. In a bowl, combine the quinoa, {50g {cherry tomatoes, halved}}, {25g {cucumber, diced}}, {10g {red onion, chopped}}, {10g {fresh parsley, chopped}}, {15g {feta cheese, crumbled}}, and 1 tablespoon of {7g {olive oil}}. Toss to combine, season with salt and pepper, and serve chilled or at room temperature.
+![Oyster Spinach Stir-fry](images/wednesday_midday_1.jpg)
 
-This vibrant salad is not only nutritious, packed with fiber and healthy fats, 
-but it also provides a refreshing burst of flavor that will keep you energized for the rest 
-of the day. Enjoy it chilled or at room temperature for the ultimate convenience!
-
-![Quinoa Salad](../../MealPlanner/meals/images/quinoasalad.jpg)
+Sauté {5g {garlic}} in {10g {butter}}. Add {150g {oyster}} and cook 2 minutes. Toss in {150g {spinach}} until wilted. Serve over {150g {brown_rice}} with {5g {light_soy_sauce}}.

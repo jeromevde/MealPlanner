@@ -171,7 +171,7 @@ class NutrientHtml extends HTMLElement {
     if (this.foodList.length === 1) {
       const { foodName, quantity } = this.foodList[0];
       const foodCategory = foodapi.get_category(foodName);
-      headerText = `${quantity}g of ${foodName} (${foodCategory})`;
+      headerText = `${quantity}g of ${foodapi.get_display_name(foodName)} (${foodCategory})`;
     } else {
       headerText = this.normalizationEnabled
         ? `Nutrients normalized to ${this.targetCalories} kcal`

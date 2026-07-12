@@ -1,5 +1,6 @@
-# Runner's Smoothie
+# Liver Spinach Scramble
+<!-- quick:10 -->
 
-In a blender, combine 1 small cooked {150g {beet, raw}}, 1 {120g {banana, ripe and slightly ripe, raw}}, 1 cup of {30g {spinach, mature}}, and 1 tablespoon of {15g {chia seeds, dry, raw}}. Add 1/2 teaspoon of {{bicarbonate of soda}}. Blend until smooth, adjusting consistency with water or plant-based milk if needed.
+![Liver Spinach Scramble](images/tuesday_morning_1.jpg)
 
-![Runner's Smoothie](../../MealPlanner/meals/images/runners_smoothie.jpg)
+Sauté {100g {liver}} (thinly sliced) in {10g {butter}} for 3 minutes. Add {120g {spinach}} until wilted. Push aside and scramble {100g {egg}} in the same pan. Fold together and season with {1g {black_pepper}} and {1g {salt}}.

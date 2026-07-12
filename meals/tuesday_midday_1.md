@@ -1,5 +1,6 @@
-# Ham & Cheese Sandwich
+# Anchovy Tomato Pasta
+<!-- quick:15 -->
 
-Lightly toast 2 slices of {150g {sourdough bread}}, then spread with mustard, mayonnaise, or aioli. Layer with {30g {Lettuce, leaf, green, raw}}, {60g {Ham, sliced, restaurant}}, and 2 slices of {50g {Cheese, swiss}}. Add optional {50g {Tomato, roma}}, pickles, or caramelized {50g {Onions, yellow, raw}}. For a warm sandwich, grill in a panini press or skillet with 1 knob of {10g {Butter, stick, unsalted}} until golden and melty. Serve sliced, optionally with a side salad, chips, or soup.
+![Anchovy Tomato Pasta](images/tuesday_midday_1.jpg)
 
-![Ham & Cheese Sandwich](../../MealPlanner/meals/images/hamcheesesandwich.jpg)
+Cook {180g {pasta}}. Meanwhile, warm {15g {olive_oil}} with {10g {anchovy}} (melted), {5g {garlic}}, and {200g {tomato}}. Toss pasta in the sauce. Top with {5g {parsley}} and {5g {parmesan_cheese}}.

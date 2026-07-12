@@ -1,143 +1,88 @@
-
-#%%
-import itables
-
+"""Export pyfooda ingredients to MealPlanner CSV files."""
 
 import pyfooda as pf
-fooddata_df = pf.get_fooddata_df()
-nutrient_df = pf.get_drv_df()
-itables.show(fooddata_df, column_filters="header", maxBytes="1MB")
 
-data_types = ["branded_food", "sr_legacy_food", "foundation_food"]
-fooddata_df = fooddata_df[fooddata_df["data_type"].isin(data_types)]
-
-fooddata_df = fooddata_df[
-    (fooddata_df["foodName"].str.len() < 12) |
-    (fooddata_df["data_type"] == "foundation_food")
-]
-
-categories = ["American Indian/Alaska Native Foods",
-    "Bacon, Sausages & Ribs",
-    "Baking Additives & Extracts",
-    "Baking Decorations & Dessert Toppings",
-    "Beef Products",
-    "Bread",
-    "Bread (Frozen)",
-    "Broccoli",
-    "Burgers",
-    "Butter & Spread",
-    "Canned Fish and Meat",
-    "Canned Fruit",
-    "Canned Meat",
-    "Canned Seafood",
-    "Canned Tuna",
-    "Canned Vegetables",
-    "Canned/Dried Veges",
-    "Carrots",
-    "Cereal",
-    "Cereal Grains and Pasta",
-    "Cheese",
-    "Cheese/Cheese Substitutes",
-    "Chocolate",
-    "Coffee",
-    "Coffee/Tea/Substitutes",
-    "Cold cuts and cured meats",
-    "Cooked & Prepared",
-    "Cottage/ricotta cheese",
-    "Crackers & Biscotti",
-    "Cream",
-    "Cream and cream substitutes",
-    "Cream cheese, sour cream, whipped cream",
-    "Cream/Cream Substitutes",
-    "Croissants, Sweet Rolls, Muffins & Other Pastries",
-    "Crusts & Dough",
-    "Dairy and Egg Products",
-    "Dried fruits",
-    "Eggs & Egg Substitutes",
-    "Energy, Protein & Muscle Recovery Drinks",
-    "Finfish and Shellfish Products",
-    "Fish",
-    "Fish  Unprepared/Unprocessed",
-    "Fish – Unprepared/Unprocessed",
-    "Fish & Seafood",
-    "Flavored milk, lowfat",
-    "Flavored milk, reduced fat",
-    "Flavored milk, whole",
-    "Flours & Corn Meal",
-    "Frozen Bread & Dough",
-    "Frozen Breakfast Sandwiches, Biscuits & Meals",
-    "Frozen Fish & Seafood",
-    "Frozen Fruit & Fruit Juice Concentrates",
-    "Frozen Vegetables",
-    "Fruit & Vegetable Juice, Nectars & Fruit Drinks",
-    "Fruit drinks",
-    "Fruits and Fruit Juices",
-    "Grains",
-    "Grains/Cereal - Ready to Eat - (Shelf Stable)",
-    "Grains/Flour",
-    "Granulated, Brown & Powdered Sugar",
-    "Herbal Supplements",
-    "Herbs & Spices",
-    "Honey",
-    "Ice Cream & Frozen Yogurt",
-    "Jam, Jelly & Fruit Spreads",
-    "Ketchup, Mustard, BBQ & Cheese Sauce",
-    "Legumes and Legume Products",
-    "Meat mixed dishes",
-    "Meat/Poultry/Other Animals  Prepared/Processed",
-    "Meat/Poultry/Other Animals Sausages  Prepared/Processed",
-    "Milk",
-    "Milk, lowfat",
-    "Milk, nonfat",
-    "Non Alcoholic Beverages  Ready to Drink",
-    "Non Alcoholic Beverages - Ready to Drink",
-    "Nut & Seed Butters",
-    "Nut and Seed Products",
-    "Nuts and seeds",
-    "Oatmeal",
-    "Oils Edible",
-    "Onions",
-    "Other Condiments",
-    "Other Drinks",
-    "Other Grains & Seeds",
-    "Other Meats",
-    "Pasta by Shape & Type",
-    "Pasta/Noodles",
-    "Peaches and nectarines",
-    "Pears",
-    "Pepperoni, Salami & Cold Cuts",
-    "Pickles, Olives, Peppers & Relishes",
-    "Pineapple",
-    "Popcorn, Peanuts, Seeds & Related Snacks",
-    "Pork",
-    "Pork Products",
-    "Poultry Products",
-    "Poultry, Chicken & Turkey",
-    "Pre-Packaged Fruit & Vegetables",
-    "Rice",
-    "Salad Dressing & Mayonnaise",
-    "Seasoning Mixes, Salts, Marinades & Tenderizers",
-    "Shellfish Unprepared/Unprocessed",
-    "Spices and Herbs",
-    "Spices and Herbs",
-    "Tomatoes",
-    "Vegetable & Cooking Oils",
-    "Vegetables and Vegetable Products",
-    "Wholesome Snacks",
-    "Yogurt"]
-
-fooddata_df = fooddata_df[
-    (fooddata_df["food_category"].isin(categories)) |
-    (fooddata_df["data_type"] == "foundation_food")
-    ]
-
-fooddata_df.to_csv("fooddata.csv", index=False)
-nutrient_df.to_csv("nutrients.csv", index=False)
+MEAT = {
+    "beef", "pork", "chicken", "lamb", "duck", "turkey", "bacon", "prosciutto",
+    "liver", "kidney", "bone_marrow", "ground_beef",
+}
+SEAFOOD = {
+    "sardine", "salmon", "mackerel", "herring", "anchovy", "cod", "cod_liver",
+    "oyster", "clam", "shrimp", "tuna", "natto",
+}
+DAIRY = {"butter", "cream", "milk", "yogurt", "cheese", "egg", "duck_egg", "quail_egg",
+         "parmesan_cheese", "feta_cheese", "goat_cheese", "cottage_cheese"}
+GRAINS = {"rice", "brown_rice", "basmati_rice", "pasta", "bread", "oat", "quinoa", "noodle"}
+LEGUMES = {"lentil", "chickpea", "black_bean", "kidney_bean", "tofu", "tempeh"}
+VEGETABLES = {
+    "spinach", "kale", "broccoli", "tomato", "onion", "garlic", "carrot", "celery",
+    "potato", "sweet_potato", "zucchini", "cabbage", "cucumber", "bell_pepper",
+    "mushroom", "shiitake_mushroom", "asparagus", "cauliflower", "leek", "scallion",
+    "shallot", "parsley", "basil", "ginger",
+}
+PANTRY = {
+    "olive_oil", "butter", "sesame_oil", "coconut_oil", "ghee", "miso", "soy_sauce",
+    "light_soy_sauce", "fish_sauce", "honey", "vinegar", "balsamic_vinegar",
+    "cumin", "turmeric", "salt", "black_pepper", "white_pepper", "kimchi",
+    "seaweed", "nori", "wakame", "kombu", "chicken_broth", "red_wine",
+}
+NUTS = {"walnut", "almond", "pecan", "cashew", "peanut", "hazelnut", "chia_seed",
+        "flaxseed", "hemp_seed", "pumpkin_seed", "sunflower_seed"}
 
 
+def categorize(ingredient_id: str) -> str:
+    if ingredient_id in MEAT:
+        return "Meat & Offal"
+    if ingredient_id in SEAFOOD:
+        return "Fish & Seafood"
+    if ingredient_id in DAIRY:
+        return "Dairy & Eggs"
+    if ingredient_id in GRAINS:
+        return "Grains & Starches"
+    if ingredient_id in LEGUMES:
+        return "Legumes & Soy"
+    if ingredient_id in VEGETABLES:
+        return "Vegetables & Herbs"
+    if ingredient_id in PANTRY:
+        return "Pantry & Ferments"
+    if ingredient_id in NUTS:
+        return "Nuts & Seeds"
+    if "oil" in ingredient_id:
+        return "Oils & Fats"
+    if "cheese" in ingredient_id:
+        return "Dairy & Eggs"
+    if any(k in ingredient_id for k in ("pepper", "chili", "spice", "herb")):
+        return "Spices & Herbs"
+    if any(k in ingredient_id for k in ("fish", "seafood", "shrimp", "crab")):
+        return "Fish & Seafood"
+    if any(k in ingredient_id for k in ("meat", "beef", "pork", "chicken", "liver")):
+        return "Meat & Offal"
+    return "Other"
 
-# %%
-arr = fooddata_df["foodName"]
-for i in range(0, len(arr), 10):
-    print(f"{'; '.join(str(x) for x in arr[i:i+10])};")
-# %%
+
+def export():
+    ingredients_df = pf.get_ingredients_df()
+    nutrients_df = pf.get_drv_df()
+
+    # Only export ingredients with USDA backing
+    ingredients_df = ingredients_df[ingredients_df["source_count"].fillna(0) > 0].copy()
+    ingredients_df["food_category"] = ingredients_df["ingredient_id"].map(categorize)
+    ingredients_df["portion_unit_name"] = ""
+    ingredients_df["portion_gram_weight"] = ""
+
+    # Rename for frontend compatibility
+    out = ingredients_df.rename(columns={"ingredient_id": "foodName"})
+    out["foodName"] = out["foodName"].astype(str)
+
+    nutrient_cols = nutrients_df["nutrientName"].tolist()
+    meta_cols = ["foodName", "display_name", "food_category", "portion_unit_name",
+                 "portion_gram_weight", "source_count"]
+    out = out[meta_cols + [c for c in nutrient_cols if c in out.columns]]
+
+    out.to_csv("fooddata.csv", index=False)
+    nutrients_df.to_csv("nutrients.csv", index=False)
+    print(f"Exported {len(out)} ingredients")
+
+
+if __name__ == "__main__":
+    export()

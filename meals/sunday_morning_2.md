@@ -1,16 +1,6 @@
-# Nutty Pudding
+# Duck Egg & Kale
+<!-- quick:10 -->
 
-Blend 
-100g macadamia nuts, 
-100g walnuts, 
-1 Tbsp chia seeds, 
-1 Tbsp flaxseed, 
-1 Brazil nut, 
-400ml macadamia nut milk, 
-1 Tbsp sunflower lecithin, 
-1 tsp Ceylon cinnamon, 
-500mg cocoa flavanols or 1 Tbsp cocoa powder, 
-and 1 cup of mixed berries or cherries until smooth
+![Duck Egg & Kale](images/sunday_morning_2.jpg)
 
-
-![nuttypudding](../../MealPlanner/meals/images/nuttypudding.jpg)
+Sauté {120g {kale}} in {10g {olive_oil}} with {3g {garlic}}. Fry {80g {duck_egg}} sunny-side up. Serve egg on kale with {1g {black_pepper}} and {60g {bread}}.

@@ -1,5 +1,6 @@
-# Green Giant
+# Egg Drop Bone Broth
+<!-- quick:8 -->
 
-Blend together {600g {water}}, 2 tablespoons of {{chlorella powder}}, {7.6g {Amino Complex, lemon flavor}}, {13.5mg {spermidine}}, {20g {collagen peptides}}, {0.5g {cocoa flavanols}}, 1 teaspoon of {{Ceylon cinnamon}}, and 1 tablespoon of {{extra virgin olive oil}} until smooth.
+![Egg Drop Bone Broth](images/sunday_morning_1.jpg)
 
-![greengiant](../../MealPlanner/meals/images/greengiant.jpg)
+Bring {350g {chicken_broth}} with {5g {ginger}} to a boil. Slowly drizzle in beaten {80g {egg}} while stirring. Add {80g {spinach}} and {5g {sesame_oil}}. Serve immediately.

@@ -1,9 +1,6 @@
-# Orange Fennel salad
-Gather your ingredients: 1 segmented Cara Cara orange, ¼ cup shredded fennel, 30 grams of goji berries, 
-30 grams of pecans, 14 grape tomatoes, 3 cups of spring mix, 1 cup of arugula leaf or sprouts, 
-and ¼ cup of fresh mint. Start by segmenting the orange. Shred the fennel on a grater. 
-In a large bowl, toss in the greens, torn mint leaves, fennel, and grape tomatoes. 
-Add the chopped pecans and goji berries on top. Before serving, 
-drizzle with 2 tablespoons of fig balsamic vinegar for dressing.
+# Sardine Anchovy Salad
+<!-- quick:8 -->
 
-![orangefennel](../../MealPlanner/meals/images/orangefennel.jpg)
+![Sardine Anchovy Salad](images/sunday_evening_2.jpg)
+
+Combine {80g {sardine}} and {10g {anchovy}} with {100g {cucumber}} (sliced) and {80g {tomato}}. Dress with {15g {olive_oil}} and {5g {lemon}} juice. Serve with {60g {bread}}.

@@ -61,8 +61,8 @@ class FoodNutrientLink extends HTMLElement {
   /** Generates HTML for a single food item */
   generateFoodItemHTML(food, foodKey) {
     const { foodName, quantity } = food;
-    // Show the food name as-is, split by spaces for styling, but do not reorder or lowercase
-    const words = foodName.split(' ');
+    const displayName = api.get_display_name(foodName);
+    const words = displayName.split(' ');
     const nameClass = foodKey ? 'food-word' : 'food-word not-found';
     const wordHTML = words.map(word => `<span class="${nameClass}">${word}</span>`).join(' ');
     const quantityHTML = quantity ? `<span class="quantity">${quantity}g</span>`: `<span/>` ;
@@ -94,7 +94,7 @@ class FoodNutrientLink extends HTMLElement {
     api.ensureDataLoaded();
 
     this.foodList.forEach((food, index) => {
-      const foodKey = food.foodName.toLowerCase();
+      const foodKey = api.has_food(food.foodName) ? food.foodName : null;
       const foodItemHTML = this.generateFoodItemHTML(food, foodKey);
       link.insertAdjacentHTML('beforeend', foodItemHTML);
       if (index < this.foodList.length - 1) {
