@@ -140,7 +140,7 @@
     return `${source.mealTitle} · ${day} ${slot}${servings}`;
   }
 
-  function renderNutrientContributors(container, nutrientName, sources, onBack) {
+  function renderNutrientContributors(container, nutrientName, sources, onBack, hint) {
     const meta = DATA.drv[nutrientName];
     if (!meta) return;
 
@@ -159,7 +159,7 @@
       html += `<button type="button" class="nutrient-back">← All nutrients</button>`;
     }
     html += `<h3>${nutrientName}</h3>`;
-    html += `<p class="nutrient-hint">Top food sources across your selected meals</p>`;
+    html += `<p class="nutrient-hint">${hint || 'Top food sources across your selected meals'}</p>`;
 
     if (contributors.length === 0) {
       html += '<p class="empty-hint">No tracked sources for this nutrient.</p>';
@@ -187,17 +187,36 @@
     }
   }
 
-  function openNutrientContributorsPopup(nutrientName, sources) {
-    popupReturnFn = null;
+  function openNutrientContributorsPopup(nutrientName, sources, onBack, hint) {
     const popup = document.getElementById('popup');
     const overlay = document.getElementById('overlay');
     const content = document.getElementById('popup-content');
 
     content.innerHTML = `
       <button type="button" class="popup-close" aria-label="Close">×</button>
+      ${onBack ? '<button type="button" class="nutrient-back">← Back to recipe</button>' : ''}
       <div class="popup-contributors"></div>`;
     content.querySelector('.popup-close').addEventListener('click', closePopups);
-    renderNutrientContributors(content.querySelector('.popup-contributors'), nutrientName, sources);
+    if (onBack) {
+      content.querySelector('.nutrient-back').addEventListener('click', () => {
+        popupReturnFn = null;
+        onBack();
+      });
+    }
+    renderNutrientContributors(
+      content.querySelector('.popup-contributors'),
+      nutrientName,
+      sources,
+      null,
+      hint,
+    );
+
+    popupReturnFn = onBack
+      ? () => {
+          popupReturnFn = null;
+          onBack();
+        }
+      : null;
 
     popup.style.display = 'block';
     overlay.style.display = 'block';
@@ -243,7 +262,7 @@
     }
     html += `<h3>${title}</h3>`;
     if (opts.interactive) {
-      html += '<p class="nutrient-hint">Click a nutrient to see top contributors. Green fills to 100% DRV; amber extends past it for excess. Bar caps at 200% DRV.</p>';
+      html += '<p class="nutrient-hint">Click a nutrient to see which ingredients contribute. Green fills to 100% DRV; amber extends past it for excess.</p>';
     }
     html += '<div class="nutrient-list">';
     for (const [cat, items] of Object.entries(byCategory)) {
@@ -267,7 +286,12 @@
     if (opts.interactive && opts.sources) {
       container.querySelectorAll('.nutrient-name.clickable').forEach((el) => {
         el.addEventListener('click', () => {
-          openNutrientContributorsPopup(el.dataset.nutrient, opts.sources);
+          openNutrientContributorsPopup(
+            el.dataset.nutrient,
+            opts.sources,
+            opts.onContributorBack,
+            opts.contributorHint,
+          );
         });
       });
     }
@@ -303,11 +327,26 @@
         foodName: ing.foodName,
         quantity: ing.quantity,
       }));
+      const sources = item.ingredients.map((ing) => ({
+        foodName: ing.foodName,
+        quantity: ing.quantity,
+        day,
+        meal,
+        version,
+        mealTitle: item.title,
+        servings: 1,
+      }));
       renderNutrientPanel(
         content.querySelector('#popup-nutrients'),
         foodList,
         'Nutrition per person',
-        { embedded: true },
+        {
+          embedded: true,
+          interactive: true,
+          sources,
+          onContributorBack: render,
+          contributorHint: 'Ingredients contributing to this nutrient in this recipe',
+        },
       );
 
       content.querySelector('.decrement').onclick = () => {
