@@ -310,16 +310,18 @@ def read_css() -> str:
     extra = """
 .meal-thumb {
   display: block;
-  width: calc(100% + 30px);
+  width: 100%;
   height: 110px;
   object-fit: cover;
-  margin: -14px -14px 8px -16px;
-  box-shadow: none;
+  margin: 0 0 8px;
 }
 .meal:has(.meal-thumb) {
   flex-direction: column;
   align-items: stretch;
-  padding-top: 14px;
+  padding: 0 0 14px;
+}
+.meal:has(.meal-thumb) .meal-info {
+  padding: 0 14px 0 16px;
 }
 .popup-body img {
   max-width: 100%;
@@ -353,12 +355,6 @@ def read_css() -> str:
 .ingredient-link:hover { background: #eef3ff; }
 .ingredient-link .qty { font-size: 0.85em; color: #667085; }
 .empty-hint { color: #667085; font-style: italic; }
-.meal, .meal:hover, .meal.selected, .meal-thumb, .meal-section,
-.popup, #aggregation-section, #nutrient-panel, .category-section,
-.contributor-item, .quantity-circle {
-  box-shadow: none !important;
-  filter: none;
-}
 #nutrient-panel {
   display: none;
   margin-top: 20px;
