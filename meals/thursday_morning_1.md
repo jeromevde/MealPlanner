@@ -3,4 +3,4 @@
 
 ![Greek Yogurt Berry Bowl](images/thursday_morning_1.jpg)
 
-Spoon {200g {yogurt}} into a bowl. Top with {80g {blueberry}}, {60g {strawberry}}, {30g {walnut}}, and {10g {honey}}. Add {40g {oat}} for crunch.
+Whisk {200g {yogurt}} with {10g {honey}}, zest from {5g {lemon}}, and {1g {cinnamon}}. Stir in {8g {flaxseed}} and {40g {oat}} so the bowl eats creamy, not gritty. Top with {80g {blueberry}}, {60g {strawberry}}, and {30g {walnut}} (chopped).

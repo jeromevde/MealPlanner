@@ -1,6 +1,6 @@
-# Spinach Mushroom Scramble
+# Avocado Egg Toast
 <!-- quick:8 -->
 
-![Spinach Mushroom Scramble](images/tuesday_morning_1.jpg)
+![Avocado Egg Toast](images/tuesday_morning_1.jpg)
 
-Sauté {80g {mushroom}} (sliced) and {3g {garlic}} in {8g {olive_oil}} until golden. Add {150g {spinach}} until wilted. Pour in {80g {egg}} and scramble gently. Finish with {1g {black_pepper}} and {1g {salt}}.
+Toast {80g {bread}}. Mash {80g {avocado}} with {5g {lemon}} juice, {15g {feta_cheese}}, {1g {salt}}, and {1g {aleppo_pepper}} until creamy and lightly tangy. Spread thickly, then top with a fried {60g {egg}}, a few slices of ripe {60g {tomato}}, and {20g {radish}} for crunch. Finish with {3g {sesame_seed}}.

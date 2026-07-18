@@ -3,4 +3,4 @@
 
 ![Mackerel Tray Bake](images/tuesday_evening_1.jpg)
 
-Cube {200g {sweet_potato}} and {150g {broccoli}}. Toss with {15g {olive_oil}}, {3g {garlic}}, and {1g {salt}}. Lay {150g {mackerel}} fillets on top. Bake at 200°C for 20 minutes until fish flakes and vegetables are tender.
+Toss {200g {sweet_potato}}, {150g {broccoli}}, and {80g {fennel}} with {15g {olive_oil}}, {3g {garlic}}, {2g {thyme}}, and {1g {salt}}. Roast at 200°C for 12 minutes first — the fennel sweetens and takes the edge off oily fish. Stir {8g {mustard}}, {5g {honey}}, zest and juice from {5g {lemon}}, and {5g {olive_oil}} into a glaze. Lay {150g {mackerel}} on the vegetables, brush thickly with glaze, and roast 10 more minutes until the skin crisps and the flesh stays moist. Finish with {5g {dill}}.

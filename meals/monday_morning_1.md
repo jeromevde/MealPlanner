@@ -1,6 +1,6 @@
-# Natto Avocado Bowl
+# Greek Yogurt Walnut Bowl
 <!-- quick:5 -->
 
-![Natto Avocado Bowl](images/monday_morning_1.jpg)
+![Greek Yogurt Walnut Bowl](images/monday_morning_1.jpg)
 
-Warm {150g {brown_rice}} and top with {80g {natto}}, sliced {100g {avocado}}, and a drizzle of {10g {light_soy_sauce}}. Finish with crumbled {3g {nori}}. Eat immediately while the rice is warm and the natto is still silky.
+Whisk {200g {yogurt}} with {10g {honey}}, {1g {cinnamon}}, and a little zest from {5g {lemon}} until smooth and lightly sweet. Fold in {8g {chia_seed}}. Top with sliced {60g {banana}}, {50g {blueberry}}, and {25g {walnut}} (roughly chopped) so every bite hits cream, fruit, and crunch together.

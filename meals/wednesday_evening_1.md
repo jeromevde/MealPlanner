@@ -1,6 +1,6 @@
-# Three Bean Chili
-<!-- quick:20 -->
+# Pork Cannellini Stew
+<!-- quick:22 -->
 
-![Three Bean Chili](images/wednesday_evening_1.jpg)
+![Pork Cannellini Stew](images/wednesday_evening_1.jpg)
 
-Sauté {60g {onion}} and {5g {garlic}} in {10g {olive_oil}}. Add {120g {kidney_bean}}, {120g {black_bean}}, {80g {cannellini_bean}}, {200g {tomato}}, and {2g {cumin}}. Simmer 15 minutes. Serve with {80g {brown_rice}} if you like.
+Brown {130g {pork}} in {10g {olive_oil}} until the edges caramelize. Soften {60g {onion}}, {80g {carrot}}, and {5g {garlic}} in the same pot, then add {2g {smoked_paprika}}, {2g {rosemary}}, and {1g {bay_leaf}}. Stir in {180g {tomato}} and {150g {cannellini_bean}}; mash a spoonful of beans against the pot so the broth thickens. Simmer 15 minutes, then wilt in {80g {kale}} and finish with {8g {balsamic_vinegar}} for sweetness and shine.
